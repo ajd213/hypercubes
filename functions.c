@@ -6,7 +6,16 @@
 #include "functions.h"
 
 
-// push site to the stack
+/*
+ * Function:  push
+ * --------------------
+ * push a site to the stack, and re-size the stack with realloc() if necessary.
+ *
+ *  s: a pointer to a stack, defined in functions.h
+ *  site: the graph site to be pushed to the stack
+ *
+ *  returns: 0 if push successful, 1 otherwise.
+ */
 int push(stack *s, ul site)
 {
     if (s->top == s->length - 1)
@@ -31,7 +40,16 @@ int push(stack *s, ul site)
     return 0;
 }
 
-// pop site from the stack
+/*
+ * Function:  pop
+ * --------------------
+ * pop a site from the stack. Throw an error if the stack is empty.
+ *
+ *  s: a pointer to a stack, defined in functions.h
+ *  error: a pointer to an error flag
+ *
+ *  returns: the site popped from the stack, if successful. Otherwise 0 (and error raised).
+ */
 ul pop(stack *s, int *error)
 {
     if (s->top == 0)
@@ -45,7 +63,16 @@ ul pop(stack *s, int *error)
     return s->sites[s->top];
 }
 
-// unsigned long integer exponentiation
+/*
+ * Function:  intpower
+ * --------------------
+ * recursive integer exponentiation for ul (unsigned long) type. Used seldomly.
+ *
+ *  base: the number to be exponentiated
+ *  exponent: the power which the base is raised to
+ *
+ *  returns: base ** exponent (base to the power of exponent)
+ */
 ul intpower(ul base, ul exponent)
 {
     if (exponent == 1)
@@ -58,8 +85,16 @@ ul intpower(ul base, ul exponent)
     }
 }
 
-// binomial Coefficient C(n, k)
-// inefficient, but used infrequently
+/*
+ * Function:  binomialCoeff
+ * --------------------
+ * binomial Coefficient C(n, k). Inefficient but simple algorithm: used seldomly.
+ *
+ *  n: integer in C(n, k)
+ *  k: integer in C(n, k)
+ *
+ *  returns: C(n, k) = n!/(k!(n-k)!)
+ */
 ul binomialCoeff(ul n, ul k)
 {
     // Base Cases
@@ -73,7 +108,14 @@ ul binomialCoeff(ul n, ul k)
     return binomialCoeff(n - 1, k - 1) + binomialCoeff(n - 1, k);
 }
 
-// reset the visited array to all be false
+/*
+ * Function:  reset_visited
+ * --------------------
+ * loop through visited[], which tracks whether each site has been visited by the DFS algorithm.
+ *
+ *  visited: a list of bools equal to NH, the number of nodes in the graph.
+ *  length: the length of visited (= NH)
+ */
 void reset_visited(bool visited[], ul length)
 {
     for (ul i = 0; i < length; i++)
@@ -82,17 +124,19 @@ void reset_visited(bool visited[], ul length)
     }
 }
 
-// test the stack by putting all of the sites in it
-void test_stack(stack *s)
-{
-    for (ul i = 0; i < s->length; i++)
-    {
-        s->sites[i] = i;
-    }
-    s->top = s->length - 1;
-}
-
-// binary search an ordered list of sites
+/*
+ * Function:  index_site
+ * --------------------
+ * search an ordered list of sites for a particular site using a binary search.
+ *
+ *  sites: a pointer to an ordered list of sites
+ *  site: the site to search for
+ *  left: the left index of the list (use 0 when calling)
+ *  right: the right index of the list (use len(sites) - 1 when calling)
+ *  idx_flag: a pointer to a flag which is set to -1 if the site cannot be found
+ *
+ *  returns: the index of the site, if found. If not found, return 0 and set idx_flag to -1.
+ */
 ul index_site(ul *sites, ul site, ul left, ul right, int *idx_flag)
 {
     if (right >= left) {
@@ -111,7 +155,16 @@ ul index_site(ul *sites, ul site, ul left, ul right, int *idx_flag)
     return 0;
 }
 
-// populate the sites of the XXZ graph
+/*
+ * Function:  populate_sites_XXZ
+ * --------------------
+ * For the XXZ graph, populate a list with the ordered nodes of the graph. That is, the numbers from 0 to 2**N - 1 which have a specified number of bits set.
+ *
+ *  sites: a pointer to an array of sites (unsigned long integers)
+ *  N: the dimension of the graph
+ *  UP: the number of bits we require each site to have set. Alternatively, the (conserved) number of UP spins in the spin chain which has the the XXZ graph as its Hilbert space.
+
+ */
 void populate_sites_XXZ(ul *sites, ul N, int UP)
 {
     ul full_HS = intpower(2, N);
