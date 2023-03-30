@@ -241,3 +241,76 @@ ul DFS_hypercube(stack *s, bool visited[], float p, ul N, ul start_state, gsl_rn
     }
     return size;
 }
+
+/*
+ * Function:  clusters_hypercube
+ * --------------------
+ *  driver code for running DFS_hypercube many times and returning a pointer to the cluster sizes
+ *
+ *  N: the dimension of the hypercube
+ *  NR: the Number of Realisations: number of clusters to grow
+ *  p: the percolation concentration. 0 <= 0 <= 1
+ *  error: a pointer to an error flag in case of probems.
+ *
+ *  returns: a pointer to an array of NR cluster sizes, of type ul (unsigned long)
+ */
+ul *clusters_hypercube(ul N, ul NR, float p, int *error)
+{
+    // set and seed the random number generator
+    gsl_rng *RNG = gsl_rng_alloc(gsl_rng_mt19937);
+    gsl_rng_set(RNG, time(NULL));
+
+    // the size of the graph. Equal to the Hilbert-space dimension.
+    ul NH = intpower(2, N); 
+
+    // setup stack. Size will be increased dynamically if needed.
+    stack s;
+    s.top = 0;
+    s.length = NH;
+    s.NH = NH;
+    s.sites = malloc(s.length*sizeof(ul));
+    if (!s.sites)
+    {
+        printf("Error using malloc for s.sites!\n");
+        *error = 1;
+    }
+
+    // keep track of visited nodes
+    bool *visited = malloc(sizeof(bool)*NH);
+    if (!visited)
+    {
+        printf("Error using malloc for visited!\n");
+        *error = 1;
+    }
+
+    // where to grow the cluster
+    ul start_site = 0; 
+    int error_flag = 0;
+
+    ul *cluster_sizes = malloc(NR*sizeof(ul));
+
+
+    // run the DFS algorithm over NR realisations
+    for (ul i = 0; i < NR; i++)
+    {
+        // set all nodes to not visited
+        reset_visited(visited, NH); 
+
+        // run DFS algorithm, get a cluster size
+        cluster_sizes[i] = DFS_hypercube(&s, visited, p, N, start_site, RNG, &error_flag);
+        if (error_flag == -1)
+        {
+            // error!
+            printf("Error! Exiting DFS algorithm and closing file...\n");
+            free(s.sites);
+            free(visited);
+            free(cluster_sizes);
+            *error = 2;
+        }
+    }
+
+    // free heap memory, except cluster sizes
+    free(s.sites);
+    free(visited);
+    return cluster_sizes;
+}
