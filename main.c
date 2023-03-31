@@ -30,7 +30,7 @@ int main(int argc, char **argv)
     int error_flag = 0;
 
     ul *cluster_sizes = clusters_hypercube(N, NR, p, &error_flag);
-    if (error_flag != 0)
+    if (error_flag != 0 || !cluster_sizes)
     {
         //error!
         return 2;
