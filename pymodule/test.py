@@ -1,8 +1,8 @@
-import Hypercubes
+import hypercubes
 
-N = 18
-NR = 15
+N = 10
+NR = 100
 p = 0.5
 
-cs = Hypercubes.clusters(N, NR, p)
+cs = hypercubes.clusters(N, NR, p)
 print(cs)

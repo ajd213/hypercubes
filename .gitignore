@@ -7,3 +7,4 @@ main
 /src/main
 /pymodule/build/
 /pymodule/*.so
+*egg-info*

@@ -6,7 +6,7 @@ dinemsion for the percolation problem. */
 #include <stdio.h>
 #include <time.h>
 #include <gsl/gsl_rng.h> 
-#include "functions.h"
+#include "hypercube_functions.h"
 
 
 /*

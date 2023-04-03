@@ -1,10 +1,11 @@
+#define PY_SSIZE_T_CLEAN
+#include <Python.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <time.h>
 #include <stdio.h>
 #include <gsl/gsl_rng.h> 
-#include "functions.h"
-#include <Python.h>
+#include "hypercube_functions.h"
 
 gsl_rng *RNG; // random number generator
 
@@ -14,9 +15,9 @@ static PyObject *clusters(PyObject *self, PyObject *args)
     RNG = gsl_rng_alloc(gsl_rng_mt19937);
     gsl_rng_set(RNG, time(NULL));
 
-    ul N;
-    ul NR;
-    float p;
+    ul N; // hypercube dimension
+    ul NR; // Number of Realisations
+    float p; // percolation concentration
 
     // per https://docs.python.org/3/c-api/arg.html#numbers 
     // parse two long unsigneds and a float
@@ -25,13 +26,13 @@ static PyObject *clusters(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    int *errorflag = 0;
     ul *cs = malloc(NR*sizeof(ul));
     if (!cs)
     {
         return NULL;
     }
 
+    int *errorflag = 0;
     // get the clusters
     cs = clusters_hypercube(N, NR, p, errorflag);
     if (errorflag != 0)
@@ -41,39 +42,48 @@ static PyObject *clusters(PyObject *self, PyObject *args)
 
 
     PyObject* cs_python = PyList_New(NR);
+    if (!cs_python)
+    {
+        return NULL;
+    }
+
     for (ul i = 0; i < NR; i++)
     {
         PyObject* python_int = Py_BuildValue("k", cs[i]);
+        if (!python_int)
+        {
+            // error! Perhaps OOB.
+            return NULL;
+        }
+
         PyList_SetItem(cs_python, i, python_int);
     }
 
-
     free(cs);
-
     return cs_python;
 
 }
 
 static PyObject *version(PyObject *self)
 {
-    return Py_BuildValue("s", "Version 1.0");
+    return Py_BuildValue("s", "Version 1.1");
 }
 
 static PyMethodDef myMethods[] = {
-    {"clusters", clusters, METH_VARARGS, "Computes the sizes of NR clusters on a hypercube of size N with concentration p."},
+    {"clusters", clusters, METH_VARARGS, "Computes the sizes of NR clusters on a hypercube of dimension N with concentration p."},
     {"version", (PyCFunction) version, METH_NOARGS, "returns the version."},
     {NULL, NULL, 0, NULL}
 };
 
-static struct PyModuleDef Hypercubes = {
+static struct PyModuleDef hypercubes = {
     PyModuleDef_HEAD_INIT, 
-    "Hypercubes",
+    "hypercubes",
     "Module for percolation on hypercubes",
     -1,
     myMethods
 };
 
-PyMODINIT_FUNC PyInit_Hypercubes(void)
+PyMODINIT_FUNC PyInit_hypercubes(void)
 {
-    return PyModule_Create(&Hypercubes);
+    return PyModule_Create(&hypercubes);
 }
