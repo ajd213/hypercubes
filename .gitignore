@@ -1,4 +1,7 @@
 test
-test.txt
 main
 .vscode
+*.txt
+*.npy
+/src/*.txt
+/src/main
