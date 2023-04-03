@@ -1,3 +1,6 @@
+/* Core functions for running a depth-first search algorithm on a hypercube of arbitrary
+dinemsion for the percolation problem. */
+
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -133,6 +136,7 @@ ul *clusters_hypercube(ul N, ul NR, float p, int *error)
     if (!visited)
     {
         printf("Error using malloc for visited!\n");
+        free(s.sites);
         *error = 1;
         return NULL;
     }
@@ -146,9 +150,10 @@ ul *clusters_hypercube(ul N, ul NR, float p, int *error)
     {
         printf("Error using malloc for cluster_sizes!\n");
         *error = 1;
+        free(visited);
+        free(s.sites);
         return NULL;
     }
-
 
     // run the DFS algorithm over NR realisations
     for (ul i = 0; i < NR; i++)
