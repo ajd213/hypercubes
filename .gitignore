@@ -5,3 +5,5 @@ main
 *.npy
 /src/*.txt
 /src/main
+/pymodule/build/
+/pymodule/*.so
