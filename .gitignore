@@ -8,3 +8,6 @@ main
 /pymodule/build/
 /pymodule/*.so
 *egg-info*
+**/plotting_data/
+**/__pycache__/
+
