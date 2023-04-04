@@ -1,18 +1,12 @@
 # here write code to produce collapsed plot demonstrating transiton at 1/N
+
 import hypercubes
-
-N = 10
-NR = 100
-p = 0.5
-
-cs = hypercubes.clusters(N, NR, p)
-print(cs)
-
 import numpy as np
 import matplotlib.pyplot as plt
-import distributions as distributions
+import distributions
 import os
 
+# set font size and enable LaTeX
 plt.rcParams.update({'font.size': 18})
 plt.rcParams.update({'text.usetex': True})
 
@@ -26,26 +20,31 @@ if not os.path.exists(DATA_PATH):
 def main():
     fig, ax = plt.subplots(nrows=2, ncols=2, figsize=[8, 8], sharey=True)
     ax = ax.flatten()
+
     p_min = 0
     p_max = 1
     N_p = 101
-    NR = 100000
+    NR = 100
 
-    Nlist = np.array([8, 10, 12, 14])
+    # which system sizes to use
+    Nlist = np.array([8, 10, 12])
 
+    # define colours for the plots
     Nlist_numbers = (Nlist - Nlist[0]) / (Nlist[-1] - Nlist[0])
     clist = plt.cm.viridis_r(Nlist_numbers)
+
+
     for Ni, N in enumerate(Nlist):
-        S, Sp, max = s_with_p(N, NR, p_min, p_max, N_p)
+        S, max = s_with_p(N, NR, p_min, p_max, N_p)
         plist = np.linspace(p_min, p_max, N_p)
 
         ax[0].plot(plist, max/(2**N), '^-',c=clist[Ni], markersize='3', label=f"${N}$")
         ax[1].plot(plist, S/(2**N), 'o-',c=clist[Ni], markersize='3')
-        ax[1].plot(plist, Sp/(2**N), '--', c=clist[Ni])
+        # ax[1].plot(plist, Sp/(2**N), '--', c=clist[Ni])
 
         ax[2].plot(plist*N, max/(2**N), '^-',c=clist[Ni], markersize='3')
         ax[3].plot(plist*N, S/(2**N), 'o-',c=clist[Ni], markersize='3')
-        ax[3].plot(plist*N, Sp/(2**N), '--', c=clist[Ni])
+        # ax[3].plot(plist*N, Sp/(2**N), '--', c=clist[Ni])
 
     ax[2].set_xlim([0,5])
     ax[3].set_xlim([0,10])
@@ -79,7 +78,7 @@ def main():
 
 
     plt.subplots_adjust(right=0.95, top=0.99, left=0.11, bottom=0.1, wspace=0.2, hspace=0.25)
-    plt.savefig("mean_S_hyp.pdf")
+    plt.savefig("hypercube_percolation.pdf")
 
 
 
@@ -88,19 +87,26 @@ def s_with_p(N, NR, p_min, p_max, N_p):
     plist = np.linspace(p_min, p_max, N_p)
 
     Slist = np.zeros(N_p)
-    Sprimelist = np.zeros(N_p)
     max_sizes = np.zeros(N_p)
 
     for pi, p in enumerate(plist):
-        cs = distributions.get_clusters_hypercube(N, NR, p, DATA_PATH)
-        Sp = distributions.S_prime(cs)
-        S = distributions.S(cs)
+        cs = get_clusters(N, int(NR), p, DATA_PATH)
 
-        Slist[pi] = S
-        Sprimelist[pi] = Sp
+        Slist[pi] = distributions.S(cs)
         max_sizes[pi] = np.max(cs)
 
-    return Slist, Sprimelist, max_sizes
+    return Slist, max_sizes
+
+
+def get_clusters(N, NR, p, data_path):
+    name = f"clusters_N{N}_NR{NR}_p{p:.4f}.npy"
+
+    try:
+        clusters = np.load(data_path + name)
+    except FileNotFoundError:
+        clusters = hypercubes.clusters(N, NR, p)
+        np.save(data_path + name, clusters)
+    return clusters
 
 
 if __name__ == "__main__":
