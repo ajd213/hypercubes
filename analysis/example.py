@@ -1,3 +1,4 @@
+# here write code to produce collapsed plot demonstrating transiton at 1/N
 import hypercubes
 
 N = 10

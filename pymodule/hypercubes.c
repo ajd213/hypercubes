@@ -35,7 +35,7 @@ static PyObject *clusters(PyObject *self, PyObject *args)
     int *errorflag = 0;
     // get the clusters
     cs = clusters_hypercube(N, NR, p, errorflag);
-    if (errorflag != 0)
+    if (errorflag != 0 || !cs)
     {
         return NULL;
     }
