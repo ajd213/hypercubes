@@ -29,29 +29,41 @@ Python:
 
 # Hypercubes
 
-A Python module written in C to analyse percolation problems on N-dimensional hypercubes. A hypercube is a generalisation of a square (dimension 2) or a cube (dimension 3) to any dimension N. A percolation problem is simply stated: we start with a graph (in this case the hypercube) and "activate" each of the edges with some probability p. The question is then whether the hypercube is split up into many small, disconnected pieces ("non-percolating") or is still more-or-less one big connected graph, but with some edges missing ("percolating"). There are some subtleties, but this is the big picture. For more information on percolation, I recommend the book *Introduction to Percolation Theory, D. Stauffer & A. Aharony, Taylor & Francis (2003).*
+A Python module written in C to analyse percolation problems on N-dimensional hypercubes. 
+
+A hypercube is a generalisation of a square (dimension 2) or a cube (dimension 3) to any dimension N. A percolation problem is simply stated: we start with a graph (in this case the hypercube) and "activate" each of the edges with some probability p. The question is then whether the hypercube is split up into many small, disconnected pieces ("non-percolating") or is still more-or-less one big connected graph, but with some edges missing ("percolating"). There are some subtleties, but this is the big picture. For more information on percolation, I recommend the book *Introduction to Percolation Theory, D. Stauffer & A. Aharony, Taylor & Francis (2003).*
 
 ## Getting Started
 
 Provided you have a local installation of Python, the module can be installed by navigating to pymodule/ and running `pip install .`. The module can then be imported by including `import hypercubes` at the top of your .py file. Alternatively, you can avoid using pip by running `python3 setup.py build` from the pymodule/ directory. This will create a new directory, called build/, in which you will find several subdirectories labelled according to your machine and Python installation. For example, "lib.macosx-11.0-arm64-cpython-39". In one of these folders, you will find a file with a .so extension (for example, "hypercubes.cpython-39-darwin.so"). If you copy this file to the same directory as your Python code, you can import it in the same way, by including the line `import hypercubes`. 
 
-### Prerequisites
+The module is very simple to use, and was designed to perform one task very efficiently: computing the sizes of percolation clusters on the hypercube many times. The core algorithm is a depth-first search which generates the nodes of the hypercube 'on the fly' and enumerates only those nodes which are present in the cluster. The reason for this is that the total number of nodes in the hypercube scales exponentially with the hypercube dimension N. An 18-dimensional hypercube, for example, has over two million edges. Representing the whole graph as an adjacency matrix quickly becomes impractial.
 
-What things you need to install the software and how to install them
+### Prerequisites
 
 C:
 
-* GNU Scientific Library: https://www.gnu.org/software/gsl/ 
-  Used for random number generation
+* GNU Scientific Library: https://www.gnu.org/software/gsl/ - used for random number generation
 
 Python:
 
 * NumPy
 * Matplotlib
 
-## Running the tests
+## An example calculation
 
-We've included a directory analysis/, in which an example calculation to locate the so-called "percolation threshold" is found. 
+We've included a directory analysis/, in which some key functions relating to percolation are defined, as well as some unit tests. We've also included an example calculation to locate the percolation threshold.
+
+
+
+
+The file `distributions.py` includes functions to calculate key statistical properties
+
+
+
+an example calculation to locate the so-called "percolation threshold" is found. This is also 
+
+
 
 ### Break down into end to end tests
 
