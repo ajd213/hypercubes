@@ -82,7 +82,7 @@ def main():
     ax[0].legend(loc=[0.8, 0.4], handlelength=0.2, columnspacing=0.5, handletextpad=0.2, framealpha=0)
 
     plt.subplots_adjust(right=0.95, top=0.99, left=0.11, bottom=0.1, wspace=0.2, hspace=0.25)
-    plt.savefig("example_hypercube_percolation.pdf")
+    plt.savefig("hypercube_percolation.pdf")
 
 
 
