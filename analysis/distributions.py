@@ -5,6 +5,7 @@ Introduction to Percolation Theory, D. Stauffer & A. Aharony, Taylor & Francis (
 """
 
 import numpy as np
+import hypercubes
 
 
 def cluster_numbers(cs: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -94,3 +95,18 @@ def w_s(cs: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     w_s = counts/N_CLUSTERS
 
     return s, w_s
+
+
+def get_clusters(N : int, NR : int, p : float, data_path : str) -> np.ndarray:
+    """ Attempt to load cluster data, else generate and save it."""
+    name = f"clusters_N{N}_NR{NR}_p{p:.4f}.npy"
+
+    try:
+        clusters = np.load(data_path + name)
+
+    except FileNotFoundError:
+        print(f"Generating data: {name}")
+        clusters = hypercubes.clusters(int(N), int(NR), p)
+        np.save(data_path + name, clusters)
+    
+    return np.array(clusters)

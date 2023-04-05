@@ -32,10 +32,10 @@ def main():
     plist = np.linspace(p_min, p_max, N_p)
 
     # number of realisations to use
-    NR = 100
+    NR = 100000
 
-    # which system sizes to use
-    Nlist = np.array([8, 10, 12])
+    # system sizes to use
+    Nlist = np.arange(8, 16, 2)
 
     # define colours for the plots
     Nlist_numbers = (Nlist - Nlist[0]) / (Nlist[-1] - Nlist[0])
@@ -47,12 +47,15 @@ def main():
     #####################
 
     for Ni, N in enumerate(Nlist):
+
+        NH = 2**N # total number of nodes in the graph
+
         S, max = s_with_p(N, NR, plist)
 
-        ax[0].plot(plist, max/(2**N), '^-',c=clist[Ni], markersize='3', label=f"${N}$")
-        ax[1].plot(plist, S/(2**N), 'o-',c=clist[Ni], markersize='3')
-        ax[2].plot(plist*N, max/(2**N), '^-',c=clist[Ni], markersize='3')
-        ax[3].plot(plist*N, S/(2**N), 'o-',c=clist[Ni], markersize='3')
+        ax[0].plot(plist, max/NH, '^-', c=clist[Ni], markersize='3', label=f"${N}$")
+        ax[1].plot(plist, S/NH, 'o-', c=clist[Ni], markersize='3')
+        ax[2].plot(plist*N, max/NH, '^-', c=clist[Ni], markersize='3')
+        ax[3].plot(plist*N, S/NH, 'o-', c=clist[Ni], markersize='3')
 
 
     #####################
@@ -62,6 +65,7 @@ def main():
     ax[2].set_xlim([0,5])
     ax[3].set_xlim([0,10])
 
+    # the locations of the transitions 
     ax[2].axvline(1,linestyle='--', c='black')
     ax[3].axvline(1,linestyle='--', c='black')
 
@@ -78,7 +82,7 @@ def main():
     ax[0].legend(loc=[0.8, 0.4], handlelength=0.2, columnspacing=0.5, handletextpad=0.2, framealpha=0)
 
     plt.subplots_adjust(right=0.95, top=0.99, left=0.11, bottom=0.1, wspace=0.2, hspace=0.25)
-    plt.savefig("hypercube_percolation.pdf")
+    plt.savefig("example_hypercube_percolation.pdf")
 
 
 
@@ -90,23 +94,11 @@ def s_with_p(N, NR, plist):
     max_sizes = np.zeros(N_p)
 
     for pi, p in enumerate(plist):
-        cs = get_clusters(N, NR, p, DATA_PATH)
+        cs = distributions.get_clusters(N, NR, p, DATA_PATH)
         Slist[pi] = distributions.S(cs)
         max_sizes[pi] = np.max(cs)
 
     return Slist, max_sizes
-
-
-def get_clusters(N, NR, p, data_path):
-    """ Attempt to load cluster data, else generate and save it."""
-    name = f"clusters_N{N}_NR{NR}_p{p:.4f}.npy"
-
-    try:
-        clusters = np.load(data_path + name)
-    except FileNotFoundError:
-        clusters = hypercubes.clusters(int(N), int(NR), p)
-        np.save(data_path + name, clusters)
-    return clusters
 
 
 if __name__ == "__main__":
