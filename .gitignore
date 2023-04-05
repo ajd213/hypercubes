@@ -9,5 +9,9 @@ main
 /pymodule/*.so
 *egg-info*
 **/plotting_data/
+**/data/
 **/__pycache__/
+/**/__pycache__/
 
+src/
+src/*
