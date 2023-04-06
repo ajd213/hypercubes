@@ -34,7 +34,7 @@ Python:
 
 ## Using the module: an example calculation
 
-In the directory analysis/, we include a file distributions.py, which contains functions for analysing cluster sizes and saving/loading data.
+In the directory analysis/, we include a file distributions.py, which contains functions for analysing cluster sizes and saving/loading data. When analysing the data, be sure to import this file.
 
 ### Getting cluster sizes
 
@@ -49,6 +49,15 @@ cs = hypercubes.clusters(N, NR, p)
 
 
 ```
+
+To compute the mean cluster size S, we then run
+
+```
+mean_size = distributions.S(cs)
+```
+
+
+
 
 
 We've included a directory analysis/, in which some key functions relating to percolation are defined, as well as some unit tests. We've also included an example calculation to locate the percolation threshold.
