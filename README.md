@@ -60,6 +60,9 @@ mean_size = distributions.S(cs)
 
 ## An example calculation: locating the percolation transition
 
+It is known analytically that the location of the percolation transition is $p_c = 1/N$
+
+
 In the analysis/ folder, we include a sample python file which computes the mean cluster size for many value of p and different dimensions N.
 
 
