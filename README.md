@@ -12,7 +12,7 @@ Percolation theory gets its name from the physical processes of a fluid moving t
 
 When a graph is split into many disjoint clusters, we are primarily interested in how large those clusters are. Many properties of percolation, such as the value of p at which the graph switches from the non-percolating to the percolating phase (the so-called "percolation transition"), can be obtained only from the probabilities that clusters of different sizes will form. Obtaining these probabilities, however, can be computationally expensive, especially for complex graphs such as the hypercube lattice. The most efficient method is often to 'grow' clusters from a starting site, generating the graph and evaluating the probabilities on-the-fly. By growing many clusters, we can estimate the cluster probabilities. 
 
-This process of growing clusters is what the hypercubes module is for. At its core is an efficient depth-first-search-like algorithm for growing clusters written in C. The output of this algorithm is a list of many cluster sizes, which can be analysed by the provided functions to compute percolation properties.
+This process of growing clusters is what the hypercubes module is for. At its core is an efficient depth-first-search-like algorithm for growing clusters, written in C. The output of this algorithm is a list of many cluster sizes, which can be analysed by the provided functions to compute percolation properties.
 
 For more information on percolation, I recommend the book *Introduction to Percolation Theory, D. Stauffer & A. Aharony, Taylor & Francis (2003).*
 
@@ -33,6 +33,21 @@ Python:
 * Matplotlib
 
 ## Using the module: an example calculation
+
+In the directory analysis/, key functions for analysing percolation problems are defined. They all take as input an array of cluster sizes.
+
+### Getting cluster sizes
+
+```
+N = 16
+NR = 10000
+p = 0.5
+
+cs = hypercubes.clusters(N, NR, p)
+
+
+```
+
 
 We've included a directory analysis/, in which some key functions relating to percolation are defined, as well as some unit tests. We've also included an example calculation to locate the percolation threshold.
 
