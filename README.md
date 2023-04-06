@@ -32,7 +32,7 @@ Python:
 * NumPy
 * Matplotlib
 
-## Using the module: an example calculation
+## Using the module
 
 In the directory analysis/, we include a file distributions.py, which contains functions for analysing cluster sizes and saving/loading data. When analysing the data, be sure to import this file.
 
@@ -50,7 +50,7 @@ cs = hypercubes.clusters(N, NR, p)
 
 ```
 
-To compute the mean cluster size S, we then run
+To compute the mean cluster size S, for example, we then run
 
 ```
 mean_size = distributions.S(cs)
@@ -58,15 +58,10 @@ mean_size = distributions.S(cs)
 
 
 
+## An example calculation: locating the percolation transition
 
+In the analysis/ folder, we include a sample python file which computes the mean cluster size for many value of p and different dimensions N.
 
-We've included a directory analysis/, in which some key functions relating to percolation are defined, as well as some unit tests. We've also included an example calculation to locate the percolation threshold.
-
-The file `distributions.py` includes functions to calculate key statistical properties of percolation problems from a list of cluster sizes. 
-
-
-
-If we didn't already know where the percolation transition was located, we could perform the more complicated procedure of *finite-size scaling*
 
 
 ### Break down into end to end tests
