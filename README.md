@@ -8,7 +8,9 @@ Percolation problems are simply stated: we start with a graph (in this case the 
 
 Percolation theory gets its name from the physical processes of a fluid moving through a porous material, like water through coffee grounds in a percolating coffee machine, or oil in a porous rock bed. 
 
-Many properties of percolation, such as at what value of p the graph switches from the non-percolating to the percolating phase (the so-called "percolation transition"), can be obtained only from the knowledge of how likely it is that a cluster of a particular size s will form.
+Many properties of percolation, such as at what value of p the graph switches from the non-percolating to the percolating phase (the so-called "percolation transition"), can be obtained only from the knowledge of how likely it is that a cluster of a particular size s will form. Obtaining these probabilities, however, can be computationally expensive, especially for complex graphs such as the hypercube lattice. The most efficient method is often to 'grow' clusters from a starting site, generating the graph and evaluating the probabilities on-the-fly. By growing many clusters, we can estimate how likely clusters of different sizes are to form. 
+
+This process of growing clusters is what the hypercubes module is for. 
 
 For more information on percolation, I recommend the book *Introduction to Percolation Theory, D. Stauffer & A. Aharony, Taylor & Francis (2003).*
 
