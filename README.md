@@ -38,6 +38,8 @@ In the directory analysis/, key functions for analysing percolation problems are
 
 ### Getting cluster sizes
 
+Let's say we want a hypercube of dimension 16 with percolation concentration p = 0.5. To generate the sizes of 10000 clusters, we run:
+
 ```
 N = 16
 NR = 10000
