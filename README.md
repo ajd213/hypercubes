@@ -64,7 +64,7 @@ Note that the number of nodes in a hypercube of dimension $N$ is $2^N$, and henc
 
 It is known analytically that the location of the percolation transition is $p_c = 1/N$ in the limit $N\to\infty$. In this example, we show that the transition is apparent even for modest $N$. The code for this example is located in analysis/percolation_transition.py.
 
-Let's briefly explain the important bits of code. We first create a grid of $p$-values, and choose how many realisations (NR) to use, as well as what values of $N$.
+Let's briefly explain the important bits of code. We first create a grid of $p$-values, and choose how many realisations (NR) to use, as well as what values of $N$:
 ```
 p_min = 0
 p_max = 1
@@ -92,6 +92,8 @@ Next, we loop over $N$ and generate and plot the mean cluster size
 The function `s_with_p(N, NR, plist)` simply fetches the mean cluster size S and the maximum cluster size for each value of $p$, returning two Numpy arrays. 
 
 When we plot the data, we plot the mean size $S$ and the maximum value of $s$ against $p$, and also against $pN$. These latter plots should reveal the location of the transition at $pN=1$ as a jump from $S=0$ (at small $p$) to a finite value of $S$ which increases as $p$ is increased. This transition point should become sharper as $N$ is increased.
+
+In the [sample output](https://github.com/ajd213/hypercubes/blob/master/analysis/example_hypercube_percolation.pdf), the transition is most apparent in the plot of $S/N_\mathcal{H}$ against $pN$ (where $N_\mathcal{H}=2^N$ is the number of nodes in the graph). For small $pN$, $S/N_\mathcal{H}$ is very small, indicating that the average cluster size is a vanishing fraction of the total number of nodes. As $pN\to 1$, however, we find that $S/N_\mathcal{H}\to 1$, at which point there is a single large cluster containing all the nodes in the graph.
 
 ### Unit tests
 
