@@ -34,7 +34,7 @@ Python:
 
 ## Using the module: an example calculation
 
-In the directory analysis/, key functions for analysing percolation problems are defined. They all take as input an array of cluster sizes.
+In the directory analysis/, we include a file distributions.py, which contains functions for analysing cluster sizes and saving/loading data.
 
 ### Getting cluster sizes
 
