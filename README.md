@@ -2,7 +2,12 @@
 
 A Python module written in C to analyse percolation problems on N-dimensional hypercubes. 
 
-A hypercube is a generalisation of a square (dimension 2) or a cube (dimension 3) to any dimension N. A percolation problem is simply stated: we start with a graph (in this case the hypercube) and "activate" each of the edges with some probability p. The question is then whether the hypercube is split up into many small, disconnected pieces ("non-percolating") or is still more-or-less one big connected graph, but with some edges missing ("percolating"). There are some subtleties, but this is the big picture. For more information on percolation, I recommend the book *Introduction to Percolation Theory, D. Stauffer & A. Aharony, Taylor & Francis (2003).*
+A hypercube is a generalisation of a square (dimension 2) or a cube (dimension 3) to any dimension N. Percolation problems are simply stated: we start with a graph (in this case the hypercube) and "activate" each of the edges independently with some probability p. After doing this for all edges, we are interested in whether the hypercube is split up into many small, disconnected pieces ("non-percolating") or is still more-or-less one big connected graph, but with some edges missing ("percolating"). There are some subtleties, but this is the big picture. 
+
+Percolation theory gets its name from the physical processes of a fluid moving through a porous material, like water through coffee grounds in a percolating coffee machine, or oil in a porous rock bed. 
+
+
+For more information on percolation, I recommend the book *Introduction to Percolation Theory, D. Stauffer & A. Aharony, Taylor & Francis (2003).*
 
 ## Getting Started
 
