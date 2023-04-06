@@ -56,13 +56,13 @@ To compute the mean cluster size S, for example, we then run
 mean_size = distributions.S(cs)
 ```
 
-
+A useful function `get_clusters(N, NR, p, <data_path>)` defined in distributions.py. Given values of N, NR and p, as well as a directory used for data storage, the function will attempt to load the required data. If data do not exist, then it will call the hypercubes module to generate it, and then save it for future use.
 
 ## An example calculation: locating the percolation transition
 
 It is known analytically that the location of the percolation transition is $p_c = 1/N$ in the limit $N\to\infty$. In this example, we show that the transition is apparent even for modest $N$. The code for this example is located in analysis/percolation_transition.py.
 
-For this example, we make use of the function get_clusters(N, NR, p, <data_path>) defined in distributions.py. Given values of N, NR and p, as well as a directory used for data storage, the function will attempt to load the required data. If data do not exist, then it will call the hypercubes module to generate it, and then save it for future use.
+For this example, we make use of the 
 
 We first create a grid of $p$-values, and choose how many realisations (NR) to use, as well as what values of $N$.
 ```
