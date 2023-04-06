@@ -60,10 +60,22 @@ mean_size = distributions.S(cs)
 
 ## An example calculation: locating the percolation transition
 
-It is known analytically that the location of the percolation transition is $p_c = 1/N$ in the limit $N\to\infty$. In this example, we show that the transition is apparent even for modest $N$.
+It is known analytically that the location of the percolation transition is $p_c = 1/N$ in the limit $N\to\infty$. In this example, we show that the transition is apparent even for modest $N$. The code for this example is located in analysis/percolation_transition.py.
 
+We first create a grid of $p$-values, and choose how many realisations (NR) to use, as well as what values of $N$.
+```
+p_min = 0
+p_max = 1
+N_p = 101
+plist = np.linspace(p_min, p_max, N_p)
 
-In the analysis/ folder, we include a sample python file which computes the mean cluster size for many value of p and different dimensions N.
+# number of realisations to use
+NR = 100000
+
+# system sizes to use
+Nlist = np.arange(8, 16, 2)
+```
+
 
 
 
