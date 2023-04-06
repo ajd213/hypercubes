@@ -4,13 +4,13 @@ A Python module written in C to analyse percolation problems on N-dimensional hy
 
 # Introduction
 
-A hypercube is a generalisation of a square (dimension 2) or a cube (dimension 3) to any dimension N. 
+A hypercube is a generalisation of a square (dimension $2$) or a cube (dimension $3$) to any dimension $N$. 
 
-Percolation problems are simply stated: we start with a graph (in this case the hypercube) and "activate" each of the edges independently with some probability p. After doing this for all edges, we are interested in whether the hypercube is split up into many small, disconnected clusters of sites ("non-percolating") or is still more-or-less one big connected graph, but with some edges missing ("percolating"). If the probability p is small, then it is more likely that the graph will fragment. Values of p close to 1, on the other hand, are more likely to leave the graph intact. There are some subtleties, but this is the big picture. 
+Percolation problems are simply stated: we start with a graph (in this case the hypercube) and "activate" each of the edges independently with some probability p. After doing this for all edges, we are interested in whether the hypercube is split up into many small, disconnected clusters of sites ("non-percolating") or is still more-or-less one big connected graph, but with some edges missing ("percolating"). If the probability $p$ is small, then it is more likely that the graph will fragment. Values of $p$ close to $1$, on the other hand, are more likely to leave the graph intact. There are some subtleties, but this is the big picture. 
 
 Percolation theory gets its name from the physical processes of a fluid moving through a porous material, like water through coffee grounds in a percolating coffee machine, or oil in a porous rock bed. 
 
-When a graph is split into many disjoint clusters, we are primarily interested in how large those clusters are. Many properties of percolation, such as the value of p at which the graph switches from the non-percolating to the percolating phase (the so-called "percolation transition"), can be obtained only from the probabilities that clusters of different sizes will form. Obtaining these probabilities, however, can be computationally expensive, especially for complex graphs such as the hypercube lattice. The most efficient method is often to 'grow' clusters from a starting site, generating the graph and evaluating the probabilities on-the-fly. By growing many clusters, we can estimate the cluster probabilities. 
+When a graph is split into many disjoint clusters, we are primarily interested in how large those clusters are. Many properties of percolation, such as the value of $p$ at which the graph switches from the non-percolating to the percolating phase (the so-called "percolation transition"), can be obtained only from the probabilities that clusters of different sizes will form. Obtaining these probabilities, however, can be computationally expensive, especially for complex graphs such as the hypercube lattice. The most efficient method is often to 'grow' clusters from a starting site, generating the graph and evaluating the probabilities on-the-fly. By growing many clusters, we can estimate the cluster probabilities. 
 
 This process of growing clusters is what the hypercubes module is for. At its core is an efficient depth-first-search-like algorithm for growing clusters, written in C. The output of this algorithm is a list of many cluster sizes, which can be analysed by the provided functions to compute percolation properties.
 
@@ -38,7 +38,7 @@ In the directory analysis/, we include a file distributions.py, which contains f
 
 ### Getting cluster sizes
 
-Let's say we want a hypercube of dimension 16 with percolation concentration p = 0.5. To generate the sizes of 10000 clusters, we run:
+Let's say we want a hypercube of dimension 16 with percolation concentration $p = 0.5$. To generate the sizes of $10000$ clusters, we run:
 
 ```
 N = 16
@@ -60,7 +60,7 @@ mean_size = distributions.S(cs)
 
 ## An example calculation: locating the percolation transition
 
-It is known analytically that the location of the percolation transition is $p_c = 1/N$
+It is known analytically that the location of the percolation transition is $p_c = 1/N$ in the limit $N\to\infty$. In this example, we show that the transition is apparent even for modest $N$.
 
 
 In the analysis/ folder, we include a sample python file which computes the mean cluster size for many value of p and different dimensions N.
