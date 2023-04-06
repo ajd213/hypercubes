@@ -97,23 +97,16 @@ In the [sample output](https://github.com/ajd213/hypercubes/blob/master/analysis
 
 Note that this plot will take some time to reproduce, as many data points must be generated. By lowering the value of NR and the maximum value of $N$, results can be obtained much quicker (due to the exponential scaling with $N$)!
 
+This is just one example: the D. Stauffer & A. Aharony textbook contains many more. 
+
 ### Unit tests
 
-Here
+Included also in analysis/ is a set of unit tests designed to test both the core hypercubes code, as well as the functions included in distributions.py. This includes checking properties of the outputs, as well as comparing the code to some analytic results.
 
 ## Authors
 
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+* **Alexander Duthie** [GitHub](https://github.com/PurpleBooth)
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
-
