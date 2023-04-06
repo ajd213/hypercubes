@@ -12,11 +12,11 @@ Percolation theory gets its name from the physical processes of a fluid moving t
 
 When a graph is split into many disjoint clusters, we are primarily interested in how large those clusters are. Many properties of percolation, such as the value of p at which the graph switches from the non-percolating to the percolating phase (the so-called "percolation transition"), can be obtained only from the probabilities that clusters of different sizes will form. Obtaining these probabilities, however, can be computationally expensive, especially for complex graphs such as the hypercube lattice. The most efficient method is often to 'grow' clusters from a starting site, generating the graph and evaluating the probabilities on-the-fly. By growing many clusters, we can estimate the cluster probabilities. 
 
-This process of growing clusters is what the hypercubes module is for. At its core is a depth-first search algorithm which is used to grow the clusters. 
+This process of growing clusters is what the hypercubes module is for. At its core is an efficient depth-first-search-like algorithm for growing clusters written in C. The output of this algorithm is a list of many cluster sizes, which can be analysed by the provided functions to compute percolation properties.
 
 For more information on percolation, I recommend the book *Introduction to Percolation Theory, D. Stauffer & A. Aharony, Taylor & Francis (2003).*
 
-## Getting Started
+## Installation
 
 Provided you have a local installation of Python, the module can be installed by navigating to pymodule/ and running `pip install .`. The module can then be imported by including `import hypercubes` at the top of your .py file. Alternatively, you can avoid using pip by running `python3 setup.py build` from the pymodule/ directory. This will create a new directory, called build/, in which you will find several subdirectories labelled according to your machine and Python installation. For example, "lib.macosx-11.0-arm64-cpython-39". In one of these folders, you will find a file with a .so extension (for example, "hypercubes.cpython-39-darwin.so"). If you copy this file to the same directory as your Python code, you can import it in the same way, by including the line `import hypercubes`. 
 
