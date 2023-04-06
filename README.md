@@ -18,16 +18,18 @@ For more information on percolation, I recommend the book *Introduction to Perco
 
 ## Installation
 
-Provided you have a local installation of Python, the module can be installed by navigating to pymodule/ and running `pip install .`. Alternatively, you can avoid using pip by running `python3 setup.py build` from the pymodule/ directory. This will create a new directory, called build/, in which you will find several subdirectories labelled according to your machine and Python installation. For example, "lib.macosx-11.0-arm64-cpython-39". In one of these folders, you will find a file with a .so extension (for example, "hypercubes.cpython-39-darwin.so"). If you copy this file to the same directory as your Python code, you can import the module with `import hypercubes` in your .py file. 
+Navigate to pymodule/ and run `pip install .`. 
+
+Alternatively, you can avoid using pip by running `python3 setup.py build` from the pymodule/ directory. This will create a new directory, called build/, in one of the subdirectories, you will find a file with a .so extension, which should be copied to your working directory. The module can then be imported as usual.
 
 
 ### Prerequisites
 
-C:
+GNU C, including
 
 * GNU Scientific Library: https://www.gnu.org/software/gsl/ - used for random number generation
 
-Python:
+Python 3.9 and
 
 * NumPy
 * Matplotlib
@@ -105,7 +107,7 @@ Included also in analysis/ is a set of unit tests designed to test both the core
 
 ## Authors
 
-* **Alexander Duthie** [GitHub](https://github.com/PurpleBooth)
+* **Alexander Duthie** [GitHub](https://github.com/ajd213)
 
 ## License
 
