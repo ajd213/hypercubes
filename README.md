@@ -8,6 +8,7 @@ Percolation problems are simply stated: we start with a graph (in this case the 
 
 Percolation theory gets its name from the physical processes of a fluid moving through a porous material, like water through coffee grounds in a percolating coffee machine, or oil in a porous rock bed. 
 
+Many properties of percolation, such as at what value of p the graph switches from the non-percolating to the percolating phase (the so-called "percolation transition"), can be obtained only from the knowledge of how likely it is that a cluster of a particular size s will form.
 
 For more information on percolation, I recommend the book *Introduction to Percolation Theory, D. Stauffer & A. Aharony, Taylor & Francis (2003).*
 
