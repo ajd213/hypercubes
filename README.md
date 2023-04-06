@@ -108,7 +108,3 @@ Included also in analysis/ is a set of unit tests designed to test both the core
 ## Authors
 
 * **Alexander Duthie** [GitHub](https://github.com/ajd213)
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
