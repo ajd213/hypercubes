@@ -62,7 +62,7 @@ A useful function `get_clusters(N, NR, p, <data_path>)` defined in distributions
 
 It is known analytically that the location of the percolation transition is $p_c = 1/N$ in the limit $N\to\infty$. In this example, we show that the transition is apparent even for modest $N$. The code for this example is located in analysis/percolation_transition.py.
 
-We first create a grid of $p$-values, and choose how many realisations (NR) to use, as well as what values of $N$.
+Let's briefly explain the important bits of code. We first create a grid of $p$-values, and choose how many realisations (NR) to use, as well as what values of $N$.
 ```
 p_min = 0
 p_max = 1
@@ -88,6 +88,8 @@ Next, we loop over $N$ and generate and plot the mean cluster size
         # Plot data ...
 ```
 The function `s_with_p(N, NR, plist)` simply fetches the mean cluster size S and the maximum cluster size for each value of $p$, returning two Numpy arrays. 
+
+When we plot the data, we plot the mean size $S$ and the maximum value of $s$ against $p$, and also against $pN$. These latter plots should reveal the location of the transition at $pN=1$ as a jump from $S=0$ (at small $p$) to a finite value of $S$ which increases as $p$ is increased. This transition point should become sharper as $N$ is increased.
 
 ### Break down into end to end tests
 
