@@ -56,13 +56,11 @@ To compute the mean cluster size S, for example, we then run
 mean_size = distributions.S(cs)
 ```
 
-A useful function `get_clusters(N, NR, p, <data_path>)` defined in distributions.py. Given values of N, NR and p, as well as a directory used for data storage, the function will attempt to load the required data. If data do not exist, then it will call the hypercubes module to generate it, and then save it for future use.
+A useful function `get_clusters(N, NR, p, <data_path>)` defined in distributions.py. Given values of N, NR and p, as well as a directory used for data storage, the function will attempt to load the required cluster sizes. If data cannot be found, then it will call the hypercubes module to generate it, and then save it for next time.
 
 ## An example calculation: locating the percolation transition
 
 It is known analytically that the location of the percolation transition is $p_c = 1/N$ in the limit $N\to\infty$. In this example, we show that the transition is apparent even for modest $N$. The code for this example is located in analysis/percolation_transition.py.
-
-For this example, we make use of the 
 
 We first create a grid of $p$-values, and choose how many realisations (NR) to use, as well as what values of $N$.
 ```
@@ -78,8 +76,18 @@ NR = 100000
 Nlist = np.arange(8, 16, 2)
 ```
 
+Next, we loop over $N$ and generate and plot the mean cluster size
 
+```
+  for Ni, N in enumerate(Nlist):
 
+        NH = 2**N # total number of nodes in the graph
+
+        S, max = s_with_p(N, NR, plist)
+
+        # Plot data ...
+```
+The function `s_with_p(N, NR, plist)` simply fetches the mean cluster size S and the maximum cluster size for each value of $p$, returning two Numpy arrays. 
 
 ### Break down into end to end tests
 
