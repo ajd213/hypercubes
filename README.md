@@ -10,9 +10,9 @@ Percolation problems are simply stated: we start with a graph (in this case the 
 
 Percolation theory gets its name from the physical processes of a fluid moving through a porous material, like water through coffee grounds in a percolating coffee machine, or oil in a porous rock bed. 
 
-When a graph is split into many disjoint clusters, we are primarily interested in how large those clusters are. Many properties of percolation, such as at what value of p the graph switches from the non-percolating to the percolating phase (the so-called "percolation transition"), can be obtained only from the probabilities that clusters of different sizes will form. Obtaining these probabilities, however, can be computationally expensive, especially for complex graphs such as the hypercube lattice. The most efficient method is often to 'grow' clusters from a starting site, generating the graph and evaluating the probabilities on-the-fly. By growing many clusters, we can estimate how likely clusters of different sizes are to form. 
+When a graph is split into many disjoint clusters, we are primarily interested in how large those clusters are. Many properties of percolation, such as the value of p at which the graph switches from the non-percolating to the percolating phase (the so-called "percolation transition"), can be obtained only from the probabilities that clusters of different sizes will form. Obtaining these probabilities, however, can be computationally expensive, especially for complex graphs such as the hypercube lattice. The most efficient method is often to 'grow' clusters from a starting site, generating the graph and evaluating the probabilities on-the-fly. By growing many clusters, we can estimate the cluster probabilities. 
 
-This process of growing clusters is what the hypercubes module is for. 
+This process of growing clusters is what the hypercubes module is for. At its core is a depth-first search algorithm which is used to grow the clusters. 
 
 For more information on percolation, I recommend the book *Introduction to Percolation Theory, D. Stauffer & A. Aharony, Taylor & Francis (2003).*
 
@@ -20,9 +20,6 @@ For more information on percolation, I recommend the book *Introduction to Perco
 
 Provided you have a local installation of Python, the module can be installed by navigating to pymodule/ and running `pip install .`. The module can then be imported by including `import hypercubes` at the top of your .py file. Alternatively, you can avoid using pip by running `python3 setup.py build` from the pymodule/ directory. This will create a new directory, called build/, in which you will find several subdirectories labelled according to your machine and Python installation. For example, "lib.macosx-11.0-arm64-cpython-39". In one of these folders, you will find a file with a .so extension (for example, "hypercubes.cpython-39-darwin.so"). If you copy this file to the same directory as your Python code, you can import it in the same way, by including the line `import hypercubes`. 
 
-The module is very simple to use, and was designed to perform one task very efficiently: computing the sizes of percolation clusters on arbitrary-dimensional hypercubes many times. The core algorithm is a depth-first search which generates the nodes of the hypercube 'on the fly' and enumerates only those nodes which are present in the cluster. The reason for this is that the total number of nodes in the hypercube scales exponentially with the hypercube dimension N. An 18-dimensional hypercube, for example, has over two million edges. Representing the whole graph as an adjacency matrix quickly becomes impractical.
-
-Thankfully, knowledge of the cluster sizes is all one needs for many percolation calculations. In this repository, we include some python functions to compute statistical properties of the percolation graph, as well as an example calculation in which analysis of the average cluster size is used to extract the location of the percolation transition.
 
 ### Prerequisites
 
