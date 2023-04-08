@@ -91,11 +91,11 @@ Next, we loop over $N$ and generate and plot the mean cluster size
 
         # Plot data ...
 ```
-The function `s_with_p(N, NR, plist)` simply fetches the mean cluster size S and the maximum cluster size for each value of $p$, returning two Numpy arrays. 
+The function `s_with_p(N, NR, plist)` simply fetches the mean cluster size S and the maximum cluster size for each value of $N$, returning two Numpy arrays. 
 
-When we plot the data, we plot the mean size $S$ and the maximum value of $s$ against $p$, and also against $pN$. These latter plots should reveal the location of the transition at $pN=1$ as a jump from $S=0$ (at small $p$) to a finite value of $S$ which increases as $p$ is increased. This transition point should become sharper as $N$ is increased.
+When we plot the data, we plot the mean size $S$ and the maximum value of $s$ against $p$, and also against $pN$. These latter plots should reveal the location of the transition at $pN=1$. With $N_\mathcal{H}=2^N$ the number of nodes in the graph, we should see a jump from $S/N_\mathcal{H}=0$ (at small $p$) to a finite value of $S/N_\mathcal{H}$ which increases as $p$ is increased. This transition point should become sharper as $N$ is increased.
 
-In the [sample output](https://github.com/ajd213/hypercubes/blob/master/analysis/example_hypercube_percolation.pdf), the transition is most apparent in the plot of $S/N_\mathcal{H}$ against $pN$ (where $N_\mathcal{H}=2^N$ is the number of nodes in the graph). For small $pN$, $S/N_\mathcal{H}$ is very small, indicating that the average cluster size is a vanishing fraction of the total number of nodes. As $p\to 1$, however, we find that $S/N_\mathcal{H}\to 1$, at which point there is a single large cluster containing all the nodes in the graph. The black dashed line represents the location of the transition at $pN=1$. 
+In the [sample output](https://github.com/ajd213/hypercubes/blob/master/analysis/example_hypercube_percolation.pdf), the transition is most apparent in the plot of $S/N_\mathcal{H}$ against $pN$. For small $pN$, $S/N_\mathcal{H}$ is very small, indicating that the average cluster size is a vanishing fraction of the total number of nodes. As $p\to 1$, however, we find that $S/N_\mathcal{H}\to 1$, at which point there is a single large cluster containing all the nodes in the graph. The black dashed line represents the location of the transition at $pN=1$. 
 
 Note that this plot will take some time to reproduce, as many data points must be generated. By lowering the value of NR and the maximum value of $N$, results can be obtained much quicker (due to the exponential scaling with $N$)!
 
