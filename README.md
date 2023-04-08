@@ -60,7 +60,7 @@ mean_size = distributions.S(cs)
 
 A useful function `get_clusters(N, NR, p, <data_path>)` defined in distributions.py. Given values of N, NR and p, as well as a directory used for data storage, the function will attempt to load the required cluster sizes. If data cannot be found, then it will call the hypercubes module to generate it, and then save it for next time.
 
-Note that the number of nodes in a hypercube of dimension $N$ is $2^N$, and hence the complexity of the hypercubes algorithm grows exponentially with $N$. We impose a limit of $N=32$, though computational power will likely limit studies to around $N=20$.
+Note that the number of nodes in a hypercube of dimension $N$ is $N_\mathcal{H} = 2^N$, and hence the complexity of the hypercubes algorithm grows exponentially with $N$. We impose a limit of $N=32$, though computational power will likely limit studies to around $N=20$.
 
 ## An example calculation: locating the percolation transition
 
@@ -93,7 +93,7 @@ Next, we loop over $N$ and generate and plot the mean cluster size
 ```
 The function `s_with_p(N, NR, plist)` simply fetches the mean cluster size S and the maximum cluster size for each value of $N$, returning two Numpy arrays. 
 
-In the [sample output](https://github.com/ajd213/hypercubes/blob/master/analysis/example_hypercube_percolation.pdf), we plot the mean size $S$ and the maximum value of $s$ against $p$, and also against $pN$. These latter plots reveal clearly the location of the transition at $pN=1$. With $N_\mathcal{H}=2^N$ the number of nodes in the graph, we find that for small $p$, $S/N_\mathcal{H}$ is very small, as the average cluster size is a vanishing fraction of the total number of nodes. For $pN>1$, on the other hand, we are in the percolating phase and hence the largest cluster contains a finite fraction of the total number of nodes. $S/N_\mathcal{H}$ is therefore non-zero and increases to $1$ as $p\to 1$. The transition point between these two regimes is represented by a black dashed line at $pN=1$, and becomes sharper as $N$ is increased.
+In the [sample output](https://github.com/ajd213/hypercubes/blob/master/analysis/example_hypercube_percolation.pdf), we plot the mean size $S$ and the maximum value of $s$ against $p$, and also against $pN$. The plot of $S/N_\mathcal{H}$ against $pN$ (with $N_\mathcal{H}=2^N$ the number of nodes in the graph) reveals most clearly the location of the transition at $pN=1$. We find that for small $p$, $S/N_\mathcal{H}$ is very small, as the average cluster size is a vanishing fraction of the total number of nodes. For $pN>1$, on the other hand, we are in the percolating phase and hence the largest cluster contains a finite fraction of the total number of nodes. $S/N_\mathcal{H}$ is therefore non-zero and increases to $1$ as $p\to 1$. The transition point between these two regimes is represented by a black dashed line at $pN=1$, and becomes sharper as $N$ is increased.
 
 Note that this plot will take some time to reproduce, as many data points must be generated. By lowering the value of NR and the maximum value of $N$, results can be obtained much quicker (due to the exponential scaling with $N$)!
 
