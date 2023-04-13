@@ -9,6 +9,103 @@ dinemsion for the percolation problem. */
 #include "hypercube_functions.h"
 
 
+
+
+ul DFS_PXP(stack *s, ul *sites, bool visited[], float p, ul N, ul NH, ul start_state, gsl_rng *RNG, int *error)
+{
+    ul size = 0; // cluster size
+    ul u, v, idx_u, idx_v, left_bit, right_bit;
+    int idx_flag = 0;
+
+    if (s->top != 0)
+    {
+        printf("Error! Stack not empty!\n");
+        *error = -1; 
+        return 0;
+    }
+    push(s, start_state);
+
+    while (s->top > 0)
+    {
+
+        u = pop(s, error);
+        if (*error == -1)
+        {
+            // error flag has been set, so return.
+            return 0;
+        }
+        idx_u = index_site(sites, u, 0, NH-1, &idx_flag);
+        if (idx_flag == -1)
+        {
+            printf("Error! Site u not found!\n");
+            *error = -1;
+            return 0;
+        }
+
+        if (visited[idx_u])
+        {
+            continue;
+        }
+        visited[idx_u] = true;
+        size++;
+
+        // loop from right to left over the spins
+        for (ul i = 0; i < N; i++)
+        {
+
+            bool flip_allowed = false;
+
+            if (i == 0)
+            {
+                left_bit = u & (1UL << 1);
+                if (left_bit == 0UL)
+                {
+                    flip_allowed = true;
+                }
+            }
+            else if (i == N - 1)
+            {
+                right_bit = u & (1UL << (N - 2));
+                if (right_bit == 0UL)
+                {
+                    flip_allowed = true;
+                }
+            }
+            else
+            {
+                left_bit = u & (1UL << (i + 1));
+                right_bit = u & (1UL << (i - 1));
+                if ((left_bit == 0UL) && (right_bit == 0UL))
+                {
+                    flip_allowed = true;
+                }
+            }
+            v = u ^ (1UL << i);
+            idx_v = index_site(sites, v, 0, NH-1, &idx_flag);
+
+            // flip the ith bit
+            
+
+            if (flip_allowed && !visited[idx_v] && (gsl_rng_uniform(RNG) < p))
+            {
+                if (push(s, v) == 1) 
+                { 
+                    // stack error!
+                    *error = -1; 
+                    return 0;
+                }
+            }
+        }
+    }
+    return size;
+}
+
+
+
+
+
+
+
 /*
  * Function:  DFS_hypercube
  * --------------------
