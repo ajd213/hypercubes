@@ -334,22 +334,27 @@ ul intpower(ul base, ul exponent)
 /*
  * Function:  binomialCoeff
  * --------------------
- * binomial Coefficient C(n, k). Inefficient but simple algorithm: used seldomly.
+ * Efficiently compute binomial Coefficient C(n, r). Note that 
+ * we must evaluate the k! term `backwards' to retain exact divisibiity.
+ * O(r) time complexity and O(1) space complexity.
  *
- *  n: integer in C(n, k)
- *  k: integer in C(n, k)
+ *  n: integer in C(n, r)
+ *  r: integer in C(n, r)
  *
- *  returns: C(n, k) = n!/(k!(n-k)!)
+ *  returns: C(n, r) = n!/(r!(n-r)!)
  */
-ul binomialCoeff(ul n, ul k)
+int binomialCoeff(ul n, ul r)
 {
-    // Base Cases
-    if (k > n)
-        return 0;
-
-    if (k == 0 || k == n)
-        return 1;
+    ul result = 1;
  
-    // Pascal's triangle
-    return binomialCoeff(n - 1, k - 1) + binomialCoeff(n - 1, k);
+    // Shorten the loop: C(n, r) = C(n, n-r)
+    if (r > n - r)
+        r = n - r;
+
+    for (ul i = 0; i < r; i++) {
+        result *= (n - i); // n, (n-1), ..., (n-r+1)
+        result /= (i + 1); // 1, 2, ..., r
+    }
+ 
+    return result;
 }

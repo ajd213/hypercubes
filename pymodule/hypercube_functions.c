@@ -353,3 +353,4 @@ ul binomialCoeff(ul n, ul k)
     // Pascal's triangle
     return binomialCoeff(n - 1, k - 1) + binomialCoeff(n - 1, k);
 }
+
