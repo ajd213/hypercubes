@@ -107,6 +107,26 @@ bool check_args(ul N, ul NR, float p)
 }
 
 
+stack *setup_stack(NH)
+{
+    stack *s = malloc(sizeof(stack));
+    if (!s)
+    {
+        return NULL;
+    }
+    s->top = 0;
+    s->length = NH;
+    s->NH = NH;
+    s->sites = malloc(s->length*sizeof(ul));
+    if (!s->sites)
+    {
+        return NULL;
+    }
+
+    return s;
+}
+
+
 /*
  * Function:  clusters_hypercube
  * --------------------
@@ -125,21 +145,15 @@ ul *clusters_hypercube(ul N, ul NR, float p, int *error)
 
     if (!check_args(N, NR, p)) {*error = 3; return NULL;}
 
-
     // set and seed the random number generator
     gsl_rng *RNG = gsl_rng_alloc(gsl_rng_mt19937);
     gsl_rng_set(RNG, time(NULL));
 
-    // the size of the graph. Equal to the Hilbert-space dimension.
+    // the size of the graph
     ul NH = intpower(2, N); 
 
-    // setup stack. Size will be increased dynamically if needed.
-    stack s;
-    s.top = 0;
-    s.length = NH;
-    s.NH = NH;
-    s.sites = malloc(s.length*sizeof(ul));
-    if (!s.sites)
+    stack *s = setup_stack(NH);
+    if (!s)
     {
         printf("Error using malloc for s.sites!\n");
         *error = 1;
@@ -151,7 +165,8 @@ ul *clusters_hypercube(ul N, ul NR, float p, int *error)
     if (!visited)
     {
         printf("Error using malloc for visited!\n");
-        free(s.sites);
+        free(s->sites);
+        free(s);
         *error = 1;
         return NULL;
     }
@@ -166,7 +181,8 @@ ul *clusters_hypercube(ul N, ul NR, float p, int *error)
         printf("Error using malloc for cluster_sizes!\n");
         *error = 1;
         free(visited);
-        free(s.sites);
+        free(s->sites);
+        free(s);
         return NULL;
     }
 
@@ -177,12 +193,13 @@ ul *clusters_hypercube(ul N, ul NR, float p, int *error)
         reset_visited(visited, NH); 
 
         // run DFS algorithm, get a cluster size
-        cluster_sizes[i] = DFS_hypercube(&s, visited, p, N, start_site, RNG, &error_flag);
+        cluster_sizes[i] = DFS_hypercube(s, visited, p, N, start_site, RNG, &error_flag);
         if (error_flag == -1)
         {
             // error!
             printf("Error! Exiting DFS algorithm and closing file...\n");
-            free(s.sites);
+            free(s->sites);
+            free(s);
             free(visited);
             free(cluster_sizes);
             *error = 2;
@@ -191,7 +208,8 @@ ul *clusters_hypercube(ul N, ul NR, float p, int *error)
     }
 
     // free heap memory, except cluster sizes
-    free(s.sites);
+    free(s->sites);
+    free(s);
     free(visited);
     return cluster_sizes;
 }
