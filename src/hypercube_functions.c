@@ -343,7 +343,7 @@ ul intpower(ul base, ul exponent)
  *
  *  returns: C(n, r) = n!/(r!(n-r)!)
  */
-int binomialCoeff(ul n, ul r)
+ul binomialCoeff(ul n, ul r)
 {
     ul result = 1;
  

@@ -26,6 +26,7 @@ static PyObject *clusters(PyObject *self, PyObject *args)
         return NULL;
     }
 
+    // this is bad! Results in memory leak.
     ul *cs = malloc(NR*sizeof(ul));
     if (!cs)
     {
