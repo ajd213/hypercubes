@@ -74,6 +74,40 @@ ul DFS_hypercube(stack *s, bool visited[], float p, ul N, ul start_state, gsl_rn
 }
 
 /*
+ * Function:  check_args
+ * --------------------
+ *  check user arguments N, NR and p.
+ *
+ *  N: the dimension of the hypercube: 1 <= N <= 32
+ *  NR: the Number of Realisations: number of clusters to grow. NR >= 1
+ *  p: the percolation concentration. 0 <= p <= 1
+ *
+ *  returns: true if arguments are OK, else false.
+ */
+bool check_args(ul N, ul NR, float p)
+{
+    if (N < 1 || N > 32)
+    {
+        printf("N must be between 1 and 32.\n");
+        return false;
+    }
+
+    if (p < 0 || p > 1)
+    {
+        printf("p is a probability, and must satisfy 0 <= p <= 1.\n");
+        return false;
+    }
+
+    if (NR < 1)
+    {
+        printf("Please use one or more realisations: NR > 1.\n");
+        return false;
+    }
+    return true;
+}
+
+
+/*
  * Function:  clusters_hypercube
  * --------------------
  *  driver code for running DFS_hypercube many times and returning a pointer to the cluster sizes.
@@ -81,7 +115,7 @@ ul DFS_hypercube(stack *s, bool visited[], float p, ul N, ul start_state, gsl_rn
  *
  *  N: the dimension of the hypercube
  *  NR: the Number of Realisations: number of clusters to grow
- *  p: the percolation concentration. 0 <= 0 <= 1
+ *  p: the percolation concentration. 0 <= p <= 1
  *  error: a pointer to an error flag in case of probems.
  *
  *  returns: a pointer to an array of NR cluster sizes, of type ul (unsigned long)
@@ -89,26 +123,7 @@ ul DFS_hypercube(stack *s, bool visited[], float p, ul N, ul start_state, gsl_rn
 ul *clusters_hypercube(ul N, ul NR, float p, int *error)
 {
 
-    if (N < 1 || N > 32)
-    {
-        printf("N must be between 1 and 32.\n");
-        *error = 3;
-        return NULL;
-    }
-
-    if (p < 0 || p > 1)
-    {
-        printf("p is a probability, and must satisfy 0 <= p <= 1.\n");
-        *error = 3;
-        return NULL;
-    }
-
-    if (NR < 1)
-    {
-        printf("Please use one or more realisations: NR > 1.\n");
-        *error = 3;
-        return NULL;
-    }
+    if (!check_args(N, NR, p)) {*error = 3; return NULL;}
 
 
     // set and seed the random number generator
@@ -286,28 +301,30 @@ ul index_site(ul *sites, ul site, ul left, ul right, int *idx_flag)
     return 0;
 }
 
+
 /*
- * Function:  populate_sites_XXZ
+ * Function:  populate_sites_PXP
  * --------------------
- * For the XXZ graph, populate a list with the ordered nodes of the graph. That is, the numbers from 0 to 2**N - 1 which have a specified number of bits set.
+ * For the PXP model, populate an ordered list of the graph nodes. The largest sector of the HS is called the Fibonacci cube, and consists
+ * of all nodes which have no adjacent set bits.
  *
  *  sites: a pointer to an array of sites (unsigned long integers)
  *  N: the dimension of the graph
- *  UP: the number of bits we require each site to have set. Alternatively, the (conserved) number of UP spins in the spin chain which has the the XXZ graph as its Hilbert space.
 
  */
-void populate_sites_XXZ(ul *sites, ul N, int UP)
+void populate_sites_PXP(ul *sites, ul N)
 {
     ul full_HS = intpower(2, N);
     for (ul i = 0, counter = 0; i < full_HS; i++)
     {
-        if (__builtin_popcount(i) == UP)
+        if ((i & (i >> 1)) == 0UL)
         {
             sites[counter] = i;
             counter++;
         }
     }
 }
+
 
 /*
  * Function:  intpower
