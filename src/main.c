@@ -10,7 +10,7 @@ int main(int argc, char **argv)
 
     if (argc != 5)
     {
-        printf("Usage: ./clusters_hypercube N NR p filename\n");
+        printf("Usage: ./main N NR p filename\n");
         return 4;
     }
 
@@ -33,9 +33,9 @@ int main(int argc, char **argv)
     }
 
 
-    int *errorflag = 0;
+    int errorflag = 0;
     // get the clusters
-    ul *cs = clusters_hypercube(N, NR, p, errorflag);
+    ul *cs = clusters_PXP(N, NR, p, &errorflag);
     if (errorflag != 0 || !cs)
     {
         return 4;
