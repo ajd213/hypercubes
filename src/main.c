@@ -3,7 +3,7 @@
 #include <time.h>
 #include <stdio.h>
 #include <gsl/gsl_rng.h> 
-#include "hypercube_functions.h"
+#include "functions.h"
 
 int main(int argc, char **argv)
 {   
@@ -47,5 +47,6 @@ int main(int argc, char **argv)
     }
 
     free(cs);
+    fclose(outfile);
 
 }

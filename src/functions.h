@@ -24,3 +24,4 @@ ul fibonacci(ul n);
 ul *clusters_PXP(ul N, ul NR, float p, int *error);
 bool PXP_flip_allowed(ul u, ul i, ul N);
 ul DFS_PXP(stack *s, ul *sites, bool visited[], float p, ul N, ul start_state, gsl_rng *RNG, int *error);
+stack *setup_stack(ul NH);
