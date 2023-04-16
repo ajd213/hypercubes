@@ -19,12 +19,6 @@ int main(int argc, char **argv)
     float p = (float) atof(argv[3]); // percolation concentration
     char *filename = argv[4]; // where to save data
 
-    FILE *outfile = fopen(filename, "w");
-    if (!outfile)
-    {
-        printf("Error opening file: %s!\n", filename);
-        return 3;
-    }
     
     int errorflag = 0;
     ul *cs = clusters_PXP(N, NR, p, &errorflag);
@@ -32,6 +26,14 @@ int main(int argc, char **argv)
     {
         return 4;
     }
+
+    FILE *outfile = fopen(filename, "w");
+    if (!outfile)
+    {
+        printf("Error opening file: %s!\n", filename);
+        return 3;
+    }
+    
     for (int i = 0; i < NR; i++)
     {
         fprintf(outfile, "%lu\n", cs[i]);

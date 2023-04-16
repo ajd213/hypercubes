@@ -26,16 +26,10 @@ static PyObject *hypercube_clusters(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    // this is bad! Results in memory leak.
-    ul *cs = malloc(NR*sizeof(ul));
-    if (!cs)
-    {
-        return NULL;
-    }
 
-    int *errorflag = 0;
     // get the clusters
-    cs = clusters_hypercube(N, NR, p, errorflag);
+    int errorflag = 0;
+    ul *cs = clusters_hypercube(N, NR, p, &errorflag);
     if (errorflag != 0 || !cs)
     {
         return NULL;
@@ -65,6 +59,58 @@ static PyObject *hypercube_clusters(PyObject *self, PyObject *args)
 
 }
 
+static PyObject *PXP_clusters(PyObject *self, PyObject *args)
+{
+    // set and seed the RNG
+    RNG = gsl_rng_alloc(gsl_rng_mt19937);
+    gsl_rng_set(RNG, time(NULL));
+
+    ul N; // pxp model dimension
+    ul NR; // Number of Realisations
+    float p; // percolation concentration
+
+    // per https://docs.python.org/3/c-api/arg.html#numbers 
+    // parse two long unsigneds and a float
+    if (!PyArg_ParseTuple(args, "kkf", &N, &NR, &p))
+    {
+        return NULL;
+    }
+
+
+    // get the clusters
+    int errorflag = 0;
+    ul *cs = clusters_PXP(N, NR, p, &errorflag);
+    if (errorflag != 0 || !cs)
+    {
+        
+        return NULL;
+    }
+
+
+    PyObject* cs_python = PyList_New(NR);
+    if (!cs_python)
+    {
+        return NULL;
+    }
+
+    for (ul i = 0; i < NR; i++)
+    {
+        PyObject* python_int = Py_BuildValue("k", cs[i]);
+        if (!python_int)
+        {
+            // error! Perhaps OOB.
+            return NULL;
+        }
+
+        PyList_SetItem(cs_python, i, python_int);
+    }
+
+    free(cs);
+    return cs_python;
+
+}
+
+
 static PyObject *version(PyObject *self)
 {
     return Py_BuildValue("s", "Version 1.1");
@@ -72,19 +118,20 @@ static PyObject *version(PyObject *self)
 
 static PyMethodDef myMethods[] = {
     {"hypercube_clusters", hypercube_clusters, METH_VARARGS, "Computes the sizes of NR clusters on a hypercube of dimension N with concentration p."},
+    {"PXP_clusters", PXP_clusters, METH_VARARGS, "Computes the sizes of NR clusters on a PXP graph (Fibonacci cube) of dimension N with concentration p."},
     {"version", (PyCFunction) version, METH_NOARGS, "returns the version."},
     {NULL, NULL, 0, NULL}
 };
 
-static struct PyModuleDef hypercubes = {
+static struct PyModuleDef hypergraphs = {
     PyModuleDef_HEAD_INIT, 
-    "hypercubes",
-    "Module for percolation on hypercubes",
+    "hypergraphs",
+    "Module for percolation on hypergraphs",
     -1,
     myMethods
 };
 
-PyMODINIT_FUNC PyInit_hypercubes(void)
+PyMODINIT_FUNC PyInit_hypergraphs(void)
 {
-    return PyModule_Create(&hypercubes);
+    return PyModule_Create(&hypergraphs);
 }

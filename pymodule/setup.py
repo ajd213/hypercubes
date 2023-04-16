@@ -1,8 +1,8 @@
 from distutils.core import setup, Extension
 
-module = Extension("hypercubes", sources = ["hypercubes.c", "hypercube_functions.c", "pxp_functions.c", "helper_functions.c"],
+module = Extension("hypergraphs", sources = ["hypergraphs.c", "hypercube_functions.c", "pxp_functions.c", "helper_functions.c"],
 libraries = ["m", "gsl", "gslcblas"])
-setup(name = "hypercubes", 
+setup(name = "hypergraphs", 
 version = "1.0", 
-description = "Percolation on hypercubes", 
+description = "Percolation on hypergraphs", 
 ext_modules = [module])

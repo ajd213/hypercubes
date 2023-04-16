@@ -34,17 +34,17 @@ class Testdistributions(unittest.TestCase):
         # first test an intermediate value of p. Check that the right
         # number of clusters are generated.
         p = 0.5
-        cs = distributions.get_clusters(N, NR, p, DATA_PATH)
+        cs = distributions.get_clusters_hypercube(N, NR, p, DATA_PATH)
         self.assertEqual(len(cs), NR)
 
         # for p=0, check that all the clusters are of size 1.
         p = 0
-        cs = distributions.get_clusters(N, NR, p, DATA_PATH)
+        cs = distributions.get_clusters_hypercube(N, NR, p, DATA_PATH)
         np.testing.assert_equal(cs, 1)
 
         # for p=1, check that all clusters span the whole graph.
         p = 1
-        cs = distributions.get_clusters(N, NR, p, DATA_PATH)
+        cs = distributions.get_clusters_hypercube(N, NR, p, DATA_PATH)
         np.testing.assert_equal(cs, NH)
 
     def test_cluster_numbers(self):
@@ -56,7 +56,7 @@ class Testdistributions(unittest.TestCase):
 
         # test p = 0: minimally connected
         p = 0
-        cs = distributions.get_clusters(N, NR, p, DATA_PATH)
+        cs = distributions.get_clusters_hypercube(N, NR, p, DATA_PATH)
         s, n_s = distributions.cluster_numbers(cs)
 
         # for p=0, there should only be one cluster number
@@ -68,7 +68,7 @@ class Testdistributions(unittest.TestCase):
 
         # test p = 1: maximally connected
         p = 1
-        cs = distributions.get_clusters(N, NR, p, DATA_PATH)
+        cs = distributions.get_clusters_hypercube(N, NR, p, DATA_PATH)
         s, n_s = distributions.cluster_numbers(cs)
 
         # again, there should only be one cluster number, as every cluster
@@ -81,7 +81,7 @@ class Testdistributions(unittest.TestCase):
 
         # test p = 0.5
         p = 0.5
-        cs = distributions.get_clusters(N, NR, p, DATA_PATH)
+        cs = distributions.get_clusters_hypercube(N, NR, p, DATA_PATH)
         s, n_s = distributions.cluster_numbers(cs)
 
         # for intermediate p, we check normalisation. This essentially says
@@ -97,7 +97,7 @@ class Testdistributions(unittest.TestCase):
         N = 2
         NH = 2**N
         p = 0.8
-        cs = distributions.get_clusters(N, NR, p, DATA_PATH)
+        cs = distributions.get_clusters_hypercube(N, NR, p, DATA_PATH)
         s, n_s = distributions.cluster_numbers(cs)
 
 
@@ -120,14 +120,14 @@ class Testdistributions(unittest.TestCase):
 
         # test for normalisation. w_s is a probability, and so its 
         # values should sum to 1.
-        cs = distributions.get_clusters(N, NR, p, DATA_PATH)
+        cs = distributions.get_clusters_hypercube(N, NR, p, DATA_PATH)
         s, w_s = distributions.w_s(cs)
         self.assertAlmostEqual(1, sum(w_s), places=5)
 
 
         # test p = 0
         p = 0
-        cs = distributions.get_clusters(N, NR, p, DATA_PATH)
+        cs = distributions.get_clusters_hypercube(N, NR, p, DATA_PATH)
         s, w_s = distributions.w_s(cs)
 
         # when p=0, there should only be the value s=1 returned
@@ -141,7 +141,7 @@ class Testdistributions(unittest.TestCase):
 
         # test p = 1
         p = 1
-        cs = distributions.get_clusters(N, NR, p, DATA_PATH)
+        cs = distributions.get_clusters_hypercube(N, NR, p, DATA_PATH)
         s, w_s = distributions.w_s(cs)
 
         # when p=1, the probability of ending up in a 2**N-cluster is 1.
@@ -158,7 +158,7 @@ class Testdistributions(unittest.TestCase):
         # check the result that the mean cluster size is equal to 1
         # when p=0.
         p = 0
-        cs = distributions.get_clusters(N, NR, p, DATA_PATH)
+        cs = distributions.get_clusters_hypercube(N, NR, p, DATA_PATH)
         S = distributions.S(cs)
         self.assertEqual(S, 1)
 
@@ -166,9 +166,55 @@ class Testdistributions(unittest.TestCase):
         # when p=1, the mean cluster size should be NH = 2**N, the total number
         # of nodes
         p = 1
-        cs = distributions.get_clusters(N, NR, p, DATA_PATH)
+        cs = distributions.get_clusters_hypercube(N, NR, p, DATA_PATH)
         S = distributions.S(cs)
         self.assertEqual(S, 2**N)
+    
+
+    def test_PXP_clusters(self):
+        
+        # check that for p=1, the sizes of the clusters for a given N are equal to F(N+2)
+        NR = 7
+        p = 1
+
+        # the first 25 Fibonacci numbers
+        fibs = [0,1,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597,2584,4181,6765,10946,17711,28657,46368]
+
+        for index in range(1, 23):
+            N = index
+            cs = distributions.get_clusters_PXP(N, NR, p, DATA_PATH)
+            np.testing.assert_equal(cs, fibs[N+2])
+        
+        # check that for p=0, the cluster size should be 1
+        NR = 16
+        p = 0
+        N = 12
+        cs = distributions.get_clusters_PXP(N, NR, p, DATA_PATH)
+        np.testing.assert_equal(cs, 1)
+
+        # check that the right number of clusters are produced for intermediate p
+        NR = 111
+        N = 7
+        p = 0.25
+        cs = distributions.get_clusters_PXP(N, NR, p, DATA_PATH)
+        self.assertEqual(len(cs), NR)
+
+
+        # test w_s for intermediate p
+        N = 12
+        NR = 100
+        p = 0.49
+
+        # test for normalisation. w_s is a probability, and so its 
+        # values should sum to 1.
+        cs = distributions.get_clusters_PXP(N, NR, p, DATA_PATH)
+        s, w_s = distributions.w_s(cs)
+        self.assertAlmostEqual(1, sum(w_s), places=5)
+
+
+        
+
+
 
 
 if __name__ == "__main__":

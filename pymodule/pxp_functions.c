@@ -168,7 +168,10 @@ bool PXP_flip_allowed(ul u, ul i, ul N)
 ul *clusters_PXP(ul N, ul NR, float p, int *error)
 {
 
-    if (!check_args(N, NR, p)) {*error = 3; return NULL;}
+    if (!check_args(N, NR, p)) 
+    {
+        *error = 3; 
+        return NULL;}
 
     // set and seed the random number generator
     gsl_rng *RNG = gsl_rng_alloc(gsl_rng_mt19937);
