@@ -8,6 +8,7 @@ typedef struct stack
     }
 stack;
 
+// an instance of the GNU scientific library's random number generator
 extern gsl_rng *RNG;
 
 int push(stack *s, ul site);

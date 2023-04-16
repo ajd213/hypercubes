@@ -15,12 +15,6 @@ int main(int argc, char **argv)
     }
 
     ul N = (ul) atoi(argv[1]); // chain length
-    if (N > 32)
-    {
-        printf("Error! Max chain length = 32.\n");
-        return 4;
-    }
-
     int NR = (ul) atoi(argv[2]); // number of realisations
     float p = (float) atof(argv[3]); // percolation concentration
     char *filename = argv[4]; // where to save data
@@ -32,9 +26,8 @@ int main(int argc, char **argv)
         return 3;
     }
 
-
+    
     int errorflag = 0;
-    // get the clusters
     ul *cs = clusters_PXP(N, NR, p, &errorflag);
     if (errorflag != 0 || !cs)
     {

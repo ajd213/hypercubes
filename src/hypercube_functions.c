@@ -74,7 +74,6 @@ ul DFS_hypercube(stack *s, bool visited[], float p, ul N, ul start_state, gsl_rn
     return size;
 }
 
-
 /*
  * Function:  clusters_hypercube
  * --------------------
