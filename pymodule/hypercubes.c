@@ -5,11 +5,11 @@
 #include <time.h>
 #include <stdio.h>
 #include <gsl/gsl_rng.h> 
-#include "hypercube_functions.h"
+#include "functions.h"
 
 gsl_rng *RNG; // random number generator
 
-static PyObject *clusters(PyObject *self, PyObject *args)
+static PyObject *hypercube_clusters(PyObject *self, PyObject *args)
 {
     // set and seed the RNG
     RNG = gsl_rng_alloc(gsl_rng_mt19937);
@@ -71,7 +71,7 @@ static PyObject *version(PyObject *self)
 }
 
 static PyMethodDef myMethods[] = {
-    {"clusters", clusters, METH_VARARGS, "Computes the sizes of NR clusters on a hypercube of dimension N with concentration p."},
+    {"hypercube_clusters", hypercube_clusters, METH_VARARGS, "Computes the sizes of NR clusters on a hypercube of dimension N with concentration p."},
     {"version", (PyCFunction) version, METH_NOARGS, "returns the version."},
     {NULL, NULL, 0, NULL}
 };

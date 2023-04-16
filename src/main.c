@@ -25,7 +25,6 @@ int main(int argc, char **argv)
         printf("Error opening file: %s!\n", filename);
         return 3;
     }
-
     
     int errorflag = 0;
     ul *cs = clusters_PXP(N, NR, p, &errorflag);
@@ -33,13 +32,10 @@ int main(int argc, char **argv)
     {
         return 4;
     }
-
     for (int i = 0; i < NR; i++)
     {
         fprintf(outfile, "%lu\n", cs[i]);
     }
-
     free(cs);
     fclose(outfile);
-
 }

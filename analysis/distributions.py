@@ -106,7 +106,7 @@ def get_clusters(N : int, NR : int, p : float, data_path : str) -> np.ndarray:
 
     except FileNotFoundError:
         print(f"Generating data: {name}")
-        clusters = hypercubes.clusters(int(N), int(NR), p)
+        clusters = hypercubes.hypercube_clusters(int(N), int(NR), p)
         np.save(data_path + name, clusters)
     
     return np.array(clusters)
