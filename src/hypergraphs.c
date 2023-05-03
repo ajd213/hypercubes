@@ -8,6 +8,7 @@
 #include "functions.h"
 
 gsl_rng *RNG; // random number generator
+PyObject *ClustersToPyList(ul *cs, ul NR);
 
 static PyObject *hypercube_clusters(PyObject *self, PyObject *args)
 {
@@ -36,25 +37,10 @@ static PyObject *hypercube_clusters(PyObject *self, PyObject *args)
     }
 
 
-    PyObject* cs_python = PyList_New(NR);
-    if (!cs_python)
-    {
-        return NULL;
-    }
-
-    for (ul i = 0; i < NR; i++)
-    {
-        PyObject* python_int = Py_BuildValue("k", cs[i]);
-        if (!python_int)
-        {
-            // error! Perhaps OOB.
-            return NULL;
-        }
-
-        PyList_SetItem(cs_python, i, python_int);
-    }
+    PyObject* cs_python = ClustersToPyList(cs, NR);
 
     free(cs);
+    gsl_rng_free(RNG);
     return cs_python;
 
 }
@@ -87,6 +73,16 @@ static PyObject *PXP_clusters(PyObject *self, PyObject *args)
     }
 
 
+    PyObject* cs_python = ClustersToPyList(cs, NR);
+    free(cs);
+    gsl_rng_free(RNG);
+    return cs_python;
+
+}
+
+
+PyObject *ClustersToPyList(ul *cs, ul NR)
+{
     PyObject* cs_python = PyList_New(NR);
     if (!cs_python)
     {
@@ -99,15 +95,20 @@ static PyObject *PXP_clusters(PyObject *self, PyObject *args)
         if (!python_int)
         {
             // error! Perhaps OOB.
+            // Release the items that were already added to the list
+            for (ul j = 0; j < i; j++)
+            {
+                Py_DECREF(PyList_GetItem(cs_python, j));
+            }
+            // Release the list itself
+            Py_DECREF(cs_python);
             return NULL;
         }
 
         PyList_SetItem(cs_python, i, python_int);
     }
 
-    free(cs);
     return cs_python;
-
 }
 
 

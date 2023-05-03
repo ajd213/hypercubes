@@ -8,23 +8,39 @@
 int main(int argc, char **argv)
 {   
 
-    if (argc != 5)
+    if (argc != 6)
     {
-        printf("Usage: ./main N NR p filename\n");
-        return 4;
+        printf("Usage: ./main h/p N NR p filename\n");
+        return 1;
     }
 
-    ul N = (ul) atoi(argv[1]); // chain length
-    int NR = (ul) atoi(argv[2]); // number of realisations
-    float p = (float) atof(argv[3]); // percolation concentration
-    char *filename = argv[4]; // where to save data
+    char arg = argv[1][0];
+    ul N = (ul) atoi(argv[2]); // chain length
+    int NR = atoi(argv[3]); // number of realisations
+    float p = (float) atof(argv[4]); // percolation concentration
+    char *filename = argv[5]; // where to save data
 
     
+    // execute code for either hypercubes or PXP
+
     int errorflag = 0;
-    ul *cs = clusters_PXP(N, NR, p, &errorflag);
+    ul *cs;
+    switch (arg) 
+    {
+        case 'h':
+            cs = clusters_hypercube(N, NR, p, &errorflag);
+            break;
+        case 'p':
+            cs = clusters_PXP(N, NR, p, &errorflag);
+            break;
+        default:
+            printf("Error: First argument must be 'h' or 'p'\n");
+            printf("h: hypercubes, p: PXP/Fibonacci cube\n");
+            return 1;
+    }
     if (errorflag != 0 || !cs)
     {
-        return 4;
+        return 2;
     }
 
     FILE *outfile = fopen(filename, "w");
@@ -40,4 +56,5 @@ int main(int argc, char **argv)
     }
     free(cs);
     fclose(outfile);
+    return 0;
 }
