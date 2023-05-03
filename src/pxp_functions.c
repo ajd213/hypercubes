@@ -165,17 +165,13 @@ bool PXP_flip_allowed(ul u, ul i, ul N)
  *
  *  returns: a pointer to an array of NR cluster sizes, of type ul (unsigned long)
  */
-ul *clusters_PXP(ul N, ul NR, float p, int *error)
+ul *clusters_PXP(ul N, ul NR, float p, gsl_rng *RNG, int *error)
 {
 
     if (!check_args(N, NR, p)) 
     {
         *error = 3; 
         return NULL;}
-
-    // set and seed the random number generator
-    gsl_rng *RNG = gsl_rng_alloc(gsl_rng_mt19937);
-    gsl_rng_set(RNG, time(NULL));
 
     // the size of the graph
     ul NH = fibonacci(N+2);

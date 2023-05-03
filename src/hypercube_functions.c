@@ -1,13 +1,12 @@
 /* Core functions for running a depth-first search algorithm on a hypercube of arbitrary
 dimension for the percolation problem. */
 
+#include "functions.h"
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <assert.h>
 #include <time.h>
-#include <gsl/gsl_rng.h> 
-#include "functions.h"
 
 
 /*
@@ -87,14 +86,10 @@ ul DFS_hypercube(stack *s, bool visited[], float p, ul N, ul start_state, gsl_rn
  *
  *  returns: a pointer to an array of NR cluster sizes, of type ul (unsigned long)
  */
-ul *clusters_hypercube(ul N, ul NR, float p, int *error)
+ul *clusters_hypercube(ul N, ul NR, float p, gsl_rng *RNG, int *error)
 {
 
     if (!check_args(N, NR, p)) {*error = 3; return NULL;}
-
-    // set and seed the random number generator
-    gsl_rng *RNG = gsl_rng_alloc(gsl_rng_mt19937);
-    gsl_rng_set(RNG, time(NULL));
 
     // the size of the graph
     ul NH = intpower(2, N); 

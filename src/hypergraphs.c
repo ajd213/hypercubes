@@ -1,14 +1,67 @@
 #define PY_SSIZE_T_CLEAN
-#include <Python.h>
+#include "functions.h"
 #include <stdlib.h>
 #include <stdbool.h>
 #include <time.h>
 #include <stdio.h>
-#include <gsl/gsl_rng.h> 
-#include "functions.h"
 
 gsl_rng *RNG; // random number generator
 PyObject *ClustersToPyList(ul *cs, ul NR);
+
+
+static PyObject* H_hypercube(PyObject *self, PyObject *args)
+{
+    // set and seed the RNG
+    RNG = gsl_rng_alloc(gsl_rng_mt19937);
+    gsl_rng_set(RNG, time(NULL));
+
+    ul N; // hypercube dimension
+    float p; // percolation concentration
+
+    // per https://docs.python.org/3/c-api/arg.html#numbers 
+    // parse two long unsigneds and a float
+
+    if (!PyArg_ParseTuple(args, "kf", &N, &p))
+    {
+        return NULL;
+    }
+
+    int error = 0;
+    if (!check_args(N, 1, p)) {error = 3; return NULL;}
+
+    // the size of the graph
+    ul NH = intpower(2, N); 
+
+    // Create a new NumPy array of integers with the same dimensions
+    npy_intp dimensions[2] = {NH, NH};
+    PyObject *numpy_array = PyArray_ZEROS(2, dimensions, NPY_INT, 0);
+    if (!numpy_array)
+    {
+        printf("Error: Unable to create NumPy array in MatrixToNumPyArray.\n");
+        return NULL;
+    }
+
+    int connected = 1;
+
+    // Loop over the matrix elements
+    for (ul row = 0; row < NH; row++) 
+    {
+        for (ul i = 0; i < N; i++)
+        {
+            // flip the ith bit
+            ul col = row ^ (1UL << i);
+
+            // with probability p, create a link
+            if (gsl_rng_uniform(RNG) < p)
+            {
+                *((int *)PyArray_GETPTR2((PyArrayObject *) numpy_array, row, col)) = connected;
+            }
+        }
+    }
+
+    gsl_rng_free(RNG);
+    return numpy_array;
+}
 
 static PyObject *hypercube_clusters(PyObject *self, PyObject *args)
 {
@@ -30,7 +83,7 @@ static PyObject *hypercube_clusters(PyObject *self, PyObject *args)
 
     // get the clusters
     int errorflag = 0;
-    ul *cs = clusters_hypercube(N, NR, p, &errorflag);
+    ul *cs = clusters_hypercube(N, NR, p, RNG, &errorflag);
     if (errorflag != 0 || !cs)
     {
         return NULL;
@@ -65,7 +118,7 @@ static PyObject *PXP_clusters(PyObject *self, PyObject *args)
 
     // get the clusters
     int errorflag = 0;
-    ul *cs = clusters_PXP(N, NR, p, &errorflag);
+    ul *cs = clusters_PXP(N, NR, p, RNG, &errorflag);
     if (errorflag != 0 || !cs)
     {
         
@@ -120,6 +173,7 @@ static PyObject *version(PyObject *self)
 static PyMethodDef myMethods[] = {
     {"hypercube_clusters", hypercube_clusters, METH_VARARGS, "Computes the sizes of NR clusters on a hypercube of dimension N with concentration p."},
     {"PXP_clusters", PXP_clusters, METH_VARARGS, "Computes the sizes of NR clusters on a PXP graph (Fibonacci cube) of dimension N with concentration p."},
+    {"H_hypercube", H_hypercube, METH_VARARGS, "Compute the Hamiltonian for the Hypercube with concentration p."},
     {"version", (PyCFunction) version, METH_NOARGS, "returns the version."},
     {NULL, NULL, 0, NULL}
 };
@@ -134,5 +188,8 @@ static struct PyModuleDef hypergraphs = {
 
 PyMODINIT_FUNC PyInit_hypergraphs(void)
 {
+    // Initialize the NumPy C API
+    import_array();
+
     return PyModule_Create(&hypergraphs);
 }
