@@ -1,6 +1,6 @@
-# Hypercubes
+# Hypergraphs
 
-A Python module written in C to analyse percolation problems on N-dimensional hypercubes. 
+A Python module written in C to analyse percolation problems on hypergraphs, such as the N-dimensional Hypercube or Fibonacci cube. 
 
 # Introduction
 
@@ -12,7 +12,7 @@ Percolation theory gets its name from the physical processes of a fluid moving t
 
 When a graph is split into many disjoint clusters, we are primarily interested in how large those clusters are. Many properties of percolation, such as the value of $p$ at which the graph switches from the non-percolating to the percolating phase (the so-called "percolation transition"), can be computed if you know how likely clusters of different sizes are to form. Obtaining these probabilities, however, can be computationally expensive, especially for complex graphs such as the hypercube lattice. The most efficient method is often to 'grow' clusters from a starting site, generating the graph and evaluating the probabilities on-the-fly. By growing many clusters, we can estimate the cluster probabilities. 
 
-This process of growing clusters is what the hypercubes module is for. At its core is an efficient depth-first-search-like algorithm for growing clusters, written in C. The output of this algorithm is a list of many cluster sizes, which can be analysed by the provided functions to compute percolation properties.
+This process of growing clusters is what the hypergraphs module is for. At its core is an efficient depth-first-search-like algorithm for growing clusters, written in C. The output of this algorithm is a list of many cluster sizes, which can be analysed by the provided functions to compute percolation properties.
 
 For more information on percolation, I recommend the book *Introduction to Percolation Theory, D. Stauffer & A. Aharony, Taylor & Francis (2003).*
 
@@ -21,6 +21,8 @@ For more information on percolation, I recommend the book *Introduction to Perco
 Navigate to pymodule/ and run `pip install .`. 
 
 Alternatively, you can avoid using pip by running `python3 setup.py build` from the pymodule/ directory. This will create a new directory, called build/, in one of the subdirectories, you will find a file with a .so extension, which should be copied to your working directory. The module can then be imported as usual.
+
+Included also is a `main.c` file and associated Makefile, which allows for the complication of the code into a standalone executable run via command line arguments.
 
 
 ### Prerequisites
@@ -47,7 +49,7 @@ N = 16
 NR = 10000
 p = 0.5
 
-cs = hypercubes.clusters(N, NR, p)
+cs = hypergraphs.hypercube_clusters(N, NR, p)
 
 
 ```
@@ -58,9 +60,9 @@ To compute the mean cluster size S, for example, we then run
 mean_size = distributions.S(cs)
 ```
 
-A useful function `get_clusters(N, NR, p, <data_path>)` defined in distributions.py. Given values of N, NR and p, as well as a directory used for data storage, the function will attempt to load the required cluster sizes. If data cannot be found, then it will call the hypercubes module to generate it, and then save it for next time.
+A useful function `get_clusters(N, NR, p, <data_path>)` defined in distributions.py. Given values of N, NR and p, as well as a directory used for data storage, the function will attempt to load the required cluster sizes. If data cannot be found, then it will call the hypergraphs module to generate it, and then save it for next time.
 
-Note that the number of nodes in a hypercube of dimension $N$ is $N_\mathcal{H} = 2^N$, and hence the complexity of the hypercubes algorithm grows exponentially with $N$. We impose a limit of $N=32$, though computational power will likely limit studies to around $N=20$.
+Note that the number of nodes in a hypercube of dimension $N$ is $N_\mathcal{H} = 2^N$, and hence the complexity of the hypergraphs algorithm grows exponentially with $N$. We impose a limit of $N=32$, though computational power will likely limit studies to around $N=20$.
 
 ## An example calculation: locating the percolation transition
 
@@ -101,7 +103,7 @@ This is just one example: the D. Stauffer & A. Aharony textbook contains many mo
 
 ### Unit tests
 
-Included also in analysis/ is a set of unit tests designed to test both the core hypercubes code, as well as the functions included in distributions.py. This includes checking properties of the outputs, as well as comparing the code to some analytic results.
+Included also in analysis/ is a set of unit tests designed to test both the core hypergraphs code, and the functions included in distributions.py. This includes checking properties of the outputs, as well as comparing the code to some analytic results.
 
 ## Authors
 
