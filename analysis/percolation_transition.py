@@ -6,7 +6,7 @@ should collapse around a common transition point of pN = 1.
 
 """
 
-import hypercubes
+import hypergraphs
 import numpy as np
 import matplotlib.pyplot as plt
 import distributions
@@ -32,7 +32,7 @@ def main():
     plist = np.linspace(p_min, p_max, N_p)
 
     # number of realisations to use
-    NR = 100000
+    NR = 100
 
     # system sizes to use
     Nlist = np.arange(8, 16, 2)
@@ -94,7 +94,7 @@ def s_with_p(N, NR, plist):
     max_sizes = np.zeros(N_p)
 
     for pi, p in enumerate(plist):
-        cs = distributions.get_clusters(N, NR, p, DATA_PATH)
+        cs = distributions.get_clusters_hypercube(N, NR, p, DATA_PATH)
         Slist[pi] = distributions.S(cs)
         max_sizes[pi] = np.max(cs)
 
