@@ -5,8 +5,8 @@ main
 *.npy
 /src/*.txt
 /src/main
-/pymodule/build/
-/pymodule/*.so
+/src/build/
+/src/*.so
 *egg-info*
 **/plotting_data/
 **/data/
