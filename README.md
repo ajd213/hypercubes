@@ -4,7 +4,9 @@ A Python module written in C to analyse percolation problems on hypergraphs, suc
 
 # Introduction
 
-A hypercube is a generalisation of a square (dimension $2$) or a cube (dimension $3$) to any dimension $N$. For details on 
+
+
+A hypercube is a generalisation of a square (dimension $2$) or a cube (dimension $3$) to any dimension $N$. A Fibonacci cube (also called the PXP graph) is a subgraph of the Hypercube (see [wikipedia](https://en.wikipedia.org/wiki/Fibonacci_cube)).
 
 Percolation problems are simply stated. First, we choose a probability $p$ (where $0< p < 1$). We then take a graph and "activate" each of the edges independently with the probability $p$. After doing this for all edges, we are interested in whether the graph is split up into many disconnected clusters of sites ("non-percolating") or is still more-or-less one big connected graph, but with some edges missing ("percolating"). If the probability $p$ is small, then it is more likely that there will be many small clusters. Values of $p$ close to $1$, on the other hand, are more likely to leave the graph intact. There are some subtleties, but this is the big picture. 
 
