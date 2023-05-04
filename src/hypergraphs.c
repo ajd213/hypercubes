@@ -16,31 +16,31 @@ static PyObject* H_hypercube(PyObject *self, PyObject *args)
     ul N; // hypercube dimension
     float p; // percolation concentration
 
-    // per https://docs.python.org/3/c-api/arg.html#numbers 
-    // parse two long unsigneds and a float
-
     if (!PyArg_ParseTuple(args, "kf", &N, &p))
     {
         return NULL;
     }
 
     int error = 0;
-    if (!check_args(N, 1, p)) {error = 3; return NULL;}
+    if (!check_args(N, 1, p)) 
+    {
+        PyErr_SetString(PyExc_ValueError, "Invalid input arguments");
+        return NULL;
+    }
 
     // the size of the graph
     ul NH = intpower(2, N); 
 
     // Create a new NumPy array of integers with the same dimensions
     npy_intp dimensions[2] = {NH, NH};
-    PyObject *numpy_array = PyArray_ZEROS(2, dimensions, NPY_INT, 0);
+    PyArrayObject *numpy_array = (PyArrayObject *) PyArray_ZEROS(2, dimensions, NPY_INT, 0);
     if (!numpy_array)
     {
-        printf("Error: Unable to create NumPy array in MatrixToNumPyArray.\n");
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create NumPy array in MatrixToNumPyArray");
         return NULL;
     }
 
     int connected = 1;
-
     // Loop over the matrix elements
     for (ul row = 0; row < NH; row++) 
     {
@@ -52,7 +52,8 @@ static PyObject* H_hypercube(PyObject *self, PyObject *args)
             // with probability p, create a link
             if (gsl_rng_uniform(RNG) < p)
             {
-                *((int *)PyArray_GETPTR2((PyArrayObject *) numpy_array, row, col)) = connected;
+                int *array_ptr = (int *) PyArray_GETPTR2(numpy_array, row, col);
+                *array_ptr = connected;
             }
         }
     }
@@ -71,13 +72,10 @@ static PyObject *hypercube_clusters(PyObject *self, PyObject *args)
     ul NR; // Number of Realisations
     float p; // percolation concentration
 
-    // per https://docs.python.org/3/c-api/arg.html#numbers 
-    // parse two long unsigneds and a float
     if (!PyArg_ParseTuple(args, "kkf", &N, &NR, &p))
     {
         return NULL;
     }
-
 
     // get the clusters
     int errorflag = 0;
@@ -87,10 +85,8 @@ static PyObject *hypercube_clusters(PyObject *self, PyObject *args)
         return NULL;
     }
 
-
     PyObject* cs_python = CArrayToNumPyArray(cs, NR);
 
-    // free(cs);
     gsl_rng_free(RNG);
     return cs_python;
 
@@ -106,8 +102,6 @@ static PyObject *PXP_clusters(PyObject *self, PyObject *args)
     ul NR; // Number of Realisations
     float p; // percolation concentration
 
-    // per https://docs.python.org/3/c-api/arg.html#numbers 
-    // parse two long unsigneds and a float
     if (!PyArg_ParseTuple(args, "kkf", &N, &NR, &p))
     {
         return NULL;
@@ -145,7 +139,6 @@ PyObject *CArrayToNumPyArray(ul *cs, ul NR)
     return numpy_array;
 }
 
-
 static PyObject *version(PyObject *self)
 {
     return Py_BuildValue("s", "Version 1.1");
@@ -169,8 +162,9 @@ static struct PyModuleDef hypergraphs = {
 
 PyMODINIT_FUNC PyInit_hypergraphs(void)
 {
+    PyObject *module = PyModule_Create(&hypergraphs);
     // Initialize the NumPy C API
     import_array();
 
-    return PyModule_Create(&hypergraphs);
+    return module;
 }

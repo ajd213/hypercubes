@@ -109,7 +109,7 @@ def get_clusters_hypercube(N : int, NR : int, p : float, data_path : str) -> np.
         clusters = hypergraphs.hypercube_clusters(int(N), int(NR), p)
         np.save(data_path + name, clusters)
     
-    return np.array(clusters)
+    return clusters
 
 
 def get_clusters_PXP(N : int, NR : int, p : float, data_path : str) -> np.ndarray:
@@ -124,4 +124,4 @@ def get_clusters_PXP(N : int, NR : int, p : float, data_path : str) -> np.ndarra
         clusters = hypergraphs.PXP_clusters(int(N), int(NR), p)
         np.save(data_path + name, clusters)
     
-    return np.array(clusters)
+    return clusters
