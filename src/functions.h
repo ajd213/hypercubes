@@ -23,7 +23,6 @@ void reset_visited(bool visited[], ul length);
 
 /* Hypercube functions */
 ul DFS_hypercube(stack *s, bool visited[], float p, ul N, ul start_state, gsl_rng *RNG, int *error);
-ul *clusters_hypercube(ul N, ul NR, float p, gsl_rng *RNG, int *error);
 
 /* PXP functions */
 void populate_sites_PXP(ul *sites, ul N);
