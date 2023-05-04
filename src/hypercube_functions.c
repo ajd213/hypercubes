@@ -3,10 +3,7 @@ dimension for the percolation problem. */
 
 #include "functions.h"
 #include <stdlib.h>
-#include <stdbool.h>
 #include <stdio.h>
-#include <assert.h>
-#include <time.h>
 
 
 /*

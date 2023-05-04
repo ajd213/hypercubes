@@ -1,13 +1,10 @@
 /* Core algorithms for growing percolation clusters on the PXP model graph, also called
 the Fibonacci cube. */
 
-#include <stdlib.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <assert.h>
-#include <time.h>
-#include <gsl/gsl_rng.h> 
 #include "functions.h"
+#include <stdlib.h>
+#include <stdio.h>
+
 
 
 /*

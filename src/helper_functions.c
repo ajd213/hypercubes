@@ -1,13 +1,12 @@
 /* Helper functions for the module hypercubes. E.g. for operating the stack, for checking
 user input, and for computing common mathematical functions, like binomial coefficients. */
 
+#include "functions.h"
 #include <stdlib.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <assert.h>
 #include <time.h>
-#include <gsl/gsl_rng.h> 
-#include "functions.h"
+
 
 
 /*

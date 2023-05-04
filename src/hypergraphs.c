@@ -1,7 +1,5 @@
-#define PY_SSIZE_T_CLEAN
 #include "functions.h"
 #include <stdlib.h>
-#include <stdbool.h>
 #include <time.h>
 #include <stdio.h>
 
