@@ -85,10 +85,7 @@ static PyObject *hypercube_clusters(PyObject *self, PyObject *args)
     int NR; // Number of Realisations
     float p; // percolation concentration
 
-    if (!PyArg_ParseTuple(args, "kif", &N, &NR, &p))
-    {
-        goto error;
-    }
+    if (!PyArg_ParseTuple(args, "kif", &N, &NR, &p)) goto error;
 
     ul NH = intpower(2, N); // the size of the graph
 
@@ -121,8 +118,7 @@ static PyObject *hypercube_clusters(PyObject *self, PyObject *args)
         goto error;
     }
 
-
-    // Create a new NumPy array of uls with the same dimensions
+    // Create a NumPy array of uls
     npy_intp dimensions[1] = {NR};
     PyArrayObject *numpy_array = (PyArrayObject *) PyArray_SimpleNew(1, dimensions, NPY_ULONG);
     if (!numpy_array)

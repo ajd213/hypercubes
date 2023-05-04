@@ -24,7 +24,7 @@ the Fibonacci cube. */
  *
  *  returns: the size of the cluster. I.e., the number of sites visited by the DFS algorithm.
  */
-ul DFS_PXP(stack *s, ul *sites, bool visited[], float p, ul N, ul start_state, gsl_rng *RNG, int *error)
+ul DFS_PXP(stack *s, ul *sites, bool visited[], const float p, const ul N, const ul start_state, gsl_rng *RNG, int *error)
 {
     ul size = 0; // cluster size
     ul NH = fibonacci(N+2);
