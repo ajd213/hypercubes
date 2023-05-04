@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 gsl_rng *RNG; // random number generator
-PyObject *ClustersToPyList(ul *cs, ul NR);
+PyObject *CArrayToNumPyArray(ul *cs, ul NR);
 
 
 static PyObject* H_hypercube(PyObject *self, PyObject *args)
@@ -88,9 +88,9 @@ static PyObject *hypercube_clusters(PyObject *self, PyObject *args)
     }
 
 
-    PyObject* cs_python = ClustersToPyList(cs, NR);
+    PyObject* cs_python = CArrayToNumPyArray(cs, NR);
 
-    free(cs);
+    // free(cs);
     gsl_rng_free(RNG);
     return cs_python;
 
@@ -124,42 +124,25 @@ static PyObject *PXP_clusters(PyObject *self, PyObject *args)
     }
 
 
-    PyObject* cs_python = ClustersToPyList(cs, NR);
-    free(cs);
+    PyObject* cs_python = CArrayToNumPyArray(cs, NR);
+
     gsl_rng_free(RNG);
     return cs_python;
 
 }
 
-
-PyObject *ClustersToPyList(ul *cs, ul NR)
+PyObject *CArrayToNumPyArray(ul *cs, ul NR)
 {
-    PyObject* cs_python = PyList_New(NR);
-    if (!cs_python)
+    npy_intp dims[] = {NR};
+    PyObject *numpy_array = PyArray_SimpleNewFromData(1, dims, NPY_ULONGLONG, (void *)cs);
+
+    if (!numpy_array)
     {
+        PyErr_SetString(PyExc_RuntimeError, "Error: Unable to create NumPy array in CArrayToNumPyArray.");
         return NULL;
     }
 
-    for (ul i = 0; i < NR; i++)
-    {
-        PyObject* python_int = Py_BuildValue("k", cs[i]);
-        if (!python_int)
-        {
-            // error! Perhaps OOB.
-            // Release the items that were already added to the list
-            for (ul j = 0; j < i; j++)
-            {
-                Py_DECREF(PyList_GetItem(cs_python, j));
-            }
-            // Release the list itself
-            Py_DECREF(cs_python);
-            return NULL;
-        }
-
-        PyList_SetItem(cs_python, i, python_int);
-    }
-
-    return cs_python;
+    return numpy_array;
 }
 
 
