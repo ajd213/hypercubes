@@ -1,7 +1,9 @@
 import unittest
 import distributions
+import hypergraphs
 import numpy as np
 import os, shutil
+import networkx as nx
 
 # where to save the temp data for testing
 DATA_PATH = "./data/testing/"
@@ -169,7 +171,6 @@ class Testdistributions(unittest.TestCase):
         cs = distributions.get_clusters_hypercube(N, NR, p, DATA_PATH)
         S = distributions.S(cs)
         self.assertEqual(S, 2**N)
-    
 
     def test_PXP_clusters(self):
         
@@ -178,7 +179,7 @@ class Testdistributions(unittest.TestCase):
         p = 1
 
         # the first 25 Fibonacci numbers
-        fibs = [0,1,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597,2584,4181,6765,10946,17711,28657,46368]
+        fibs = np.array([0,1,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597,2584,4181,6765,10946,17711,28657,46368])
 
         for index in range(1, 23):
             N = index
@@ -211,8 +212,66 @@ class Testdistributions(unittest.TestCase):
         s, w_s = distributions.w_s(cs)
         self.assertAlmostEqual(1, sum(w_s), places=5)
 
+    def test_H(self):
+
+        Nlist = range(1, 11)
+        HS_DIM_LIST = np.power(2, Nlist)
+
+
+        # first test p = 1. The Hamiltonian should represent a complete hypercube
+        p = 1
+        for j in range(len(Nlist)):
+            N = Nlist[j]
+            NH = HS_DIM_LIST[j]
+            H = hypergraphs.H_hypercube(N, p)
+
+            # ensure that the Hamiltonian matrix has dim 2**N by 2**N
+            np.testing.assert_equal(H.shape, (NH, NH))
+
+            # ensure that all rows and all columns sum to N
+            np.testing.assert_equal(np.fromiter((np.sum(row) for row in H), dtype=int), N)
+            np.testing.assert_equal(np.fromiter((np.sum(row) for row in H.T), dtype=int), N)
 
         
+        # next, let's use NetworkX to check if we get a hypercube for large N
+        # this is INREDIBLY slow, so use it once
+
+        N = 10
+        nx_hypercube = nx.hypercube_graph(N)
+        H = hypergraphs.H_hypercube(N, 1)
+        self.assertTrue(nx.is_isomorphic(nx_hypercube, nx.from_numpy_array(H)))
+
+
+
+        # test p = 0: in this limit, each node is disconnected
+        p = 0
+
+        for j in range(len(Nlist)):
+            N = Nlist[j]
+            NH = HS_DIM_LIST[j]
+            H = hypergraphs.H_hypercube(N, p)
+
+            # ensure that the Hamiltonian matrix has dim 2**N by 2**N
+            np.testing.assert_equal(H.shape, (NH, NH))
+
+            # ensure that everything is just zeros!
+            np.testing.assert_equal(H, 0)
+
+        
+        # a couple of tests for p = 0.5
+        p = 0.5
+        N = 10
+
+        NH = 2**N
+        H = hypergraphs.H_hypercube(N, p)
+
+        # ensure that the Hamiltonian matrix has dim 2**N by 2**N
+        np.testing.assert_equal(H.shape, (NH, NH))
+
+        # the number of edges should be between the two limits
+        # (almost certainly for N = 10)
+        self.assertTrue(0 < np.sum(H) < N*NH)
+
 
 
 
