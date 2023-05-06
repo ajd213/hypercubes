@@ -3,6 +3,7 @@ import distributions
 import hypergraphs
 import numpy as np
 import os, shutil
+from scipy.special import comb
 import networkx as nx
 
 # where to save the temp data for testing
@@ -275,8 +276,22 @@ class Testdistributions(unittest.TestCase):
     
     def test_H_PXP(self):
         
+        """ Test the Fibonacci cube against analytic results from the 
+        mathematics literature. """
+
+
         # source: http://fare.tunes.org/files/fun/fibonacci.lisp
         fib = lambda n:pow(2<<n,n+1,(4<<2*n)-(2<<n)-1)%(2<<n)
+
+        def number_edges(n):
+            """ The number of edges a Fibonacci cube of dim N has.
+            see: https://www.sciencedirect.com/science/article/pii/S0012365X05002748"""
+
+            fiblist1 = np.array([fib(i) for i in range(1, n-1)])
+            fiblist2 = np.array([fib(n+1-i) for i in range(1, n-1)])
+            num_e = fib(n+1) + np.sum(fiblist1 * fiblist2)
+
+            return num_e
 
         Nlist = range(1, 11)
         HS_DIM_LIST = np.array([fib(N+2) for N in Nlist])
@@ -285,11 +300,32 @@ class Testdistributions(unittest.TestCase):
         p = 1
         for Ni, N in enumerate(Nlist):
             NH = HS_DIM_LIST[Ni]
-            print(N, p)
+
             H = hypergraphs.H_PXP(N, p)
-            print(H)
-            # ensure that the Hamiltonian matrix has dim 2**N by 2**N
+
+            # ensure that the Hamiltonian matrix has correct dimensions
             np.testing.assert_equal(H.shape, (NH, NH))
+
+            # ensure that the total number of edges is correct
+            self.assertEqual(np.sum(H)/2, number_edges(N))
+
+            # ensure that the matrix is Hermitian
+            np.testing.assert_array_equal(H, H.T)
+
+
+
+
+            # for i in range(len(connect)):
+            #     degree = connect[i]
+            #     number = count[i]
+
+            #     self.assertEqual(number_nodes_coord_k(N, degree), number)
+
+
+
+
+
+
 
 
 

@@ -86,7 +86,6 @@ PyObject* H_PXP(PyObject *self, PyObject *args)
     
 
     gsl_rng_free(RNG);
-    printf("Made it through function\n");
     return numpy_array;
 
     error:
