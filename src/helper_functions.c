@@ -8,6 +8,29 @@ user input, and for computing common mathematical functions, like binomial coeff
 #include <time.h>
 
 
+/*
+ * Function:  CArrayToNumPyArray
+ * --------------------
+ *  Wrap a pointer to clusters data in a NumPy array.
+ * 
+ * cs: a pointer to a C array of clusters 
+ * NR: Number of Realisations (length of array)
+ * 
+ * returns: a pointer of type PyObject * to the clusters data
+ */
+PyObject *CArrayToNumPyArray(ul *cs, ul NR)
+{
+    npy_intp dims[] = {NR};
+    PyObject *numpy_array = PyArray_SimpleNewFromData(1, dims, NPY_ULONGLONG, (void *)cs);
+
+    if (!numpy_array)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Error: Unable to create NumPy array in CArrayToNumPyArray.");
+        return NULL;
+    }
+
+    return numpy_array;
+}
 
 /*
  * Function:  check_args

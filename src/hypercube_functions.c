@@ -5,6 +5,70 @@ dimension for the percolation problem. */
 #include <stdlib.h>
 #include <stdio.h>
 
+/*
+ * Function:  H_hypercube
+ * --------------------
+ * build the Hamiltonian (adjacency matrix) for the hypercube, as a NumPy array.
+ *
+ *  N: the dimension of the hypercube
+ *  p: the percolation concentration
+ *
+ *  returns: a pointer to the Ndarray (Hamiltonian matrix).
+ */
+PyObject* H_hypercube(PyObject *self, PyObject *args)
+{
+    // set and seed the RNG
+    gsl_rng *RNG = gsl_rng_alloc(gsl_rng_mt19937);
+    gsl_rng_set(RNG, time(NULL));
+
+    ul N; // hypercube dimension
+    float p; // percolation concentration
+
+    if (!PyArg_ParseTuple(args, "kf", &N, &p))
+    {
+        return NULL;
+    }
+
+    int error = 0;
+    if (!check_args(N, 1, p)) 
+    {
+        PyErr_SetString(PyExc_ValueError, "Invalid input arguments");
+        return NULL;
+    }
+
+    // the size of the graph
+    ul NH = intpower(2, N); 
+
+    // Create a new NumPy array of integers with the same dimensions
+    npy_intp dimensions[2] = {NH, NH};
+    PyArrayObject *numpy_array = (PyArrayObject *) PyArray_ZEROS(2, dimensions, NPY_INT, 0);
+    if (!numpy_array)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create NumPy array in MatrixToNumPyArray");
+        return NULL;
+    }
+
+    int connected = 1;
+    // Loop over the matrix elements
+    for (ul row = 0; row < NH; row++) 
+    {
+        for (ul i = 0; i < N; i++)
+        {
+            // flip the ith bit
+            ul col = row ^ (1UL << i);
+
+            // with probability p, create a link
+            if (gsl_rng_uniform(RNG) < p)
+            {
+                int *array_ptr = (int *) PyArray_GETPTR2(numpy_array, row, col);
+                *array_ptr = connected;
+            }
+        }
+    }
+
+    gsl_rng_free(RNG);
+    return numpy_array;
+}
 
 /*
  * Function:  DFS_hypercube
@@ -69,7 +133,6 @@ ul DFS_hypercube(stack *s, bool visited[], const float p, const ul N, const ul s
     }
     return size;
 }
-
 
 /*
  * Function:  hypercube_clusters
