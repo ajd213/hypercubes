@@ -111,12 +111,6 @@ static PyObject *hypercube_clusters(PyObject *self, PyObject *args)
 
 
     ul start_site = 0; 
-    ul *cluster_sizes = malloc(NR*sizeof(ul));
-    if (!cluster_sizes)
-    {
-        PyErr_SetString(PyExc_RuntimeError, "Error setting up cluster_sizes");
-        goto error;
-    }
 
     // Create a NumPy array of uls
     npy_intp dimensions[1] = {NR};
@@ -169,36 +163,126 @@ static PyObject *hypercube_clusters(PyObject *self, PyObject *args)
 
 }
 
+
+
+
+
+/*
+ * Function:  PXP_clusters
+ * --------------------
+ *  driver code for running DFS_PXP many times and returning a pointer to the cluster sizes.
+ *  Checks the user input. For each realisation, starts from a random site
+ *
+ *  N: the dimension of the hypercube
+ *  NR: the Number of Realisations: number of clusters to grow
+ *  p: the percolation concentration. 0 <= p <= 1
+ *  error: a pointer to an error flag in case of probems.
+ *
+ *  returns: a pointer to an NumPy array of NR cluster sizes, of type ul (unsigned long)
+ */
 static PyObject *PXP_clusters(PyObject *self, PyObject *args)
 {
     // set and seed the RNG
-    RNG = gsl_rng_alloc(gsl_rng_mt19937);
-    gsl_rng_set(RNG, time(NULL));
+    gsl_rng *RNG2 = gsl_rng_alloc(gsl_rng_mt19937);
+    gsl_rng_set(RNG2, time(NULL));
 
-    ul N; // pxp model dimension
-    ul NR; // Number of Realisations
+    ul N; // hypercube dimension
+    int NR; // Number of Realisations
     float p; // percolation concentration
 
-    if (!PyArg_ParseTuple(args, "kkf", &N, &NR, &p))
+    if (!PyArg_ParseTuple(args, "kif", &N, &NR, &p)) goto error;
+
+    // the size of the graph
+    ul NH = fibonacci(N+2);
+
+    if (!check_args(N, NR, p)) 
     {
-        return NULL;
+        PyErr_SetString(PyExc_ValueError, "Invalid input arguments");
+        goto error;
+    }
+
+    stack *s = setup_stack(NH);
+    if (!s)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Error setting up stack");
+        goto error;
+    }
+
+    // a list of the sites
+    ul *sitelist = malloc(sizeof(ul)*NH);
+    if (sitelist == NULL)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Error setting up sitelist");
+        goto error;
+    }
+
+    // fill sitelist with PXP nodes
+    populate_sites_PXP(sitelist, N);
+
+    // keep track of visited nodes
+    bool *visited = malloc(sizeof(bool)*NH);
+    if (!visited)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Error setting up visited");
+        goto error;
     }
 
 
-    // get the clusters
-    int errorflag = 0;
-    ul *cs = clusters_PXP(N, NR, p, RNG, &errorflag);
-    if (errorflag != 0 || !cs)
+    // where we will grow the cluster from
+    ul start_site;
+
+    // Create a NumPy array of uls
+    npy_intp dimensions[1] = {NR};
+    PyArrayObject *numpy_array = (PyArrayObject *) PyArray_SimpleNew(1, dimensions, NPY_ULONG);
+    if (!numpy_array)
     {
-        
-        return NULL;
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create NumPy array in PXP_clusters");
+        goto error;
     }
 
+    int error_flag = 0;
+    // run the DFS algorithm over NR realisations
+    npy_intp index[1];
+    for (npy_intp i = 0; i < NR; i++)
+    {
+        // set all nodes to not visited
+        reset_visited(visited, NH); 
+        // choose a random start site
+        start_site = sitelist[gsl_rng_uniform_int(RNG2, NH)];
 
-    PyObject* cs_python = CArrayToNumPyArray(cs, NR);
+        // run DFS algorithm, get a cluster size
+        index[0] = i;
+        ul *array_ptr = (ul *) PyArray_GetPtr(numpy_array, index);
+        *array_ptr =  DFS_PXP(s, sitelist, visited, p, N, start_site, RNG2, &error_flag);
 
-    gsl_rng_free(RNG);
-    return cs_python;
+        if (error_flag == -1)
+        {
+            // error!
+            PyErr_SetString(PyExc_RuntimeError, "Error in DFS algorithm!");
+            goto error;
+        }
+    }
+
+    // free heap memory, except cluster sizes
+    free(s->sites);
+    free(s);
+    free(visited);
+    free(sitelist);
+    gsl_rng_free(RNG2);
+
+    return numpy_array;
+
+    error:
+        if (s)
+        {
+            free(s->sites);
+            free(s);
+        }
+        if (visited) free(visited);
+        if (numpy_array) Py_DECREF(numpy_array);
+        if (RNG2) gsl_rng_free(RNG2);
+        if (sitelist) free(sitelist);
+        return NULL;
 
 }
 

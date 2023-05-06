@@ -26,7 +26,6 @@ ul DFS_hypercube(stack *s, bool visited[], const float p, const ul N, const ul s
 
 /* PXP functions */
 void populate_sites_PXP(ul *sites, ul N);
-ul *clusters_PXP(ul N, ul NR, float p, gsl_rng *RNG, int *error);
 bool PXP_flip_allowed(ul u, ul i, ul N);
 ul DFS_PXP(stack *s, ul *sites, bool visited[], const float p, const ul N, const ul start_state, gsl_rng *RNG, int *error);
 
