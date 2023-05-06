@@ -5,6 +5,97 @@ the Fibonacci cube. */
 #include <stdlib.h>
 #include <stdio.h>
 
+/*
+ * Function:  H_PXP
+ * --------------------
+ * build the Hamiltonian (adjacency matrix) for the PXP model, as a NumPy array.
+ *
+ *  N: the dimension of the Fibonacci cube
+ *  p: the percolation concentration
+ *
+ *  returns: a pointer to the Ndarray (Hamiltonian matrix).
+ */
+PyObject* H_PXP(PyObject *self, PyObject *args)
+{
+    // set and seed the RNG
+    gsl_rng *RNG = gsl_rng_alloc(gsl_rng_mt19937);
+    gsl_rng_set(RNG, time(NULL));
+
+    ul N; // Fibonacci cube dimension
+    float p; // percolation concentration
+
+    // parse and check arguments
+    if (!PyArg_ParseTuple(args, "kf", &N, &p)) goto error;
+    if (!check_args(N, 1, p)) 
+    {
+        PyErr_SetString(PyExc_ValueError, "Invalid input arguments");
+        goto error;
+    }
+
+    // the size of the graph
+    ul NH = fibonacci(N+2);
+
+    // a list of the PXP sites
+    ul *sitelist = malloc(sizeof(ul)*NH);
+    if (sitelist == NULL)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Error setting up sitelist");
+        goto error;
+    }
+
+    // fill sitelist with PXP nodes
+    populate_sites_PXP(sitelist, N);
+
+
+    // Create a zeroed NH x NH Ndarray of ints
+    npy_intp dimensions[2] = {NH, NH};
+    PyArrayObject *numpy_array = (PyArrayObject *) PyArray_ZEROS(2, dimensions, NPY_INT, 0);
+    if (!numpy_array)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create NumPy array in H_PXP");
+        return NULL;
+    }
+
+
+    int error = 0;
+    int connected = 1;
+    ul row, col, flipped;
+
+    // Loop over the PXP nodes
+    for (ul j = 0; j < NH; j++) 
+    {
+        row = sitelist[j];
+
+        for (ul i = 0; i < N; i++)
+        {
+            // flip the ith bit
+            if (PXP_flip_allowed(row, i, N))
+            {
+                flipped = row ^ (1UL << i);
+                col = index_site(sitelist, flipped, 0, NH-1, &error);
+                if (error != 0) { goto error; }
+
+                // with probability p, create a link
+                if (gsl_rng_uniform(RNG) < p)
+                {
+                    // ptr to matrix[row, col]
+                    int *array_ptr = (int *) PyArray_GETPTR2(numpy_array, row, col);
+                    *array_ptr = connected;
+                }
+            }
+        }
+    }
+
+    gsl_rng_free(RNG);
+    return numpy_array;
+
+    error:
+        if (!PyErr_Occurred()) PyErr_SetString(PyExc_RuntimeError, "Fatal error occurred");
+        if (sitelist) free(sitelist);
+        if (numpy_array) Py_DECREF(numpy_array);
+        if (RNG) gsl_rng_free(RNG);
+        return NULL;
+}
 
 /*
  * Function:  PXP_clusters

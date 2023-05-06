@@ -24,16 +24,13 @@ PyObject* H_hypercube(PyObject *self, PyObject *args)
     ul N; // hypercube dimension
     float p; // percolation concentration
 
-    if (!PyArg_ParseTuple(args, "kf", &N, &p))
-    {
-        return NULL;
-    }
+    if (!PyArg_ParseTuple(args, "kf", &N, &p)) goto error;
 
     int error = 0;
     if (!check_args(N, 1, p)) 
     {
         PyErr_SetString(PyExc_ValueError, "Invalid input arguments");
-        return NULL;
+        goto error;
     }
 
     // the size of the graph
@@ -45,7 +42,7 @@ PyObject* H_hypercube(PyObject *self, PyObject *args)
     if (!numpy_array)
     {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create NumPy array in MatrixToNumPyArray");
-        return NULL;
+        goto error;
     }
 
     int connected = 1;
@@ -68,6 +65,12 @@ PyObject* H_hypercube(PyObject *self, PyObject *args)
 
     gsl_rng_free(RNG);
     return numpy_array;
+
+    error:
+        if (!PyErr_Occurred()) PyErr_SetString(PyExc_RuntimeError, "Fatal error occurred");
+        if (numpy_array) Py_DECREF(numpy_array);
+        if (RNG) gsl_rng_free(RNG);
+        return NULL;
 }
 
 /*
