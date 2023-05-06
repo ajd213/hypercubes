@@ -272,6 +272,28 @@ class Testdistributions(unittest.TestCase):
         # (almost certainly for N = 10)
         self.assertTrue(0 < np.sum(H) < N*NH)
 
+    
+    def test_H_PXP(self):
+        
+        # source: http://fare.tunes.org/files/fun/fibonacci.lisp
+        fib = lambda n:pow(2<<n,n+1,(4<<2*n)-(2<<n)-1)%(2<<n)
+
+        Nlist = range(1, 11)
+        HS_DIM_LIST = np.array([fib(N+2) for N in Nlist])
+
+        # first test p = 1. The Hamiltonian should represent a complete PXP graph
+        p = 1
+        for Ni, N in enumerate(Nlist):
+            NH = HS_DIM_LIST[Ni]
+            print(N, p)
+            H = hypergraphs.H_PXP(N, p)
+            print(H)
+            # ensure that the Hamiltonian matrix has dim 2**N by 2**N
+            np.testing.assert_equal(H.shape, (NH, NH))
+
+
+
+
 
 
 

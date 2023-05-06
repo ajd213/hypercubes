@@ -32,6 +32,7 @@ void populate_sites_PXP(ul *sites, ul N);
 bool PXP_flip_allowed(ul u, ul i, ul N);
 ul DFS_PXP(stack *s, ul *sites, bool visited[], const float p, const ul N, const ul start_state, gsl_rng *RNG, int *error);
 PyObject *PXP_clusters(PyObject *self, PyObject *args);
+PyObject* H_PXP(PyObject *self, PyObject *args);
 
 /* Maths functions */
 ul intpower(ul base, ul exponent);

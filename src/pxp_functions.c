@@ -46,7 +46,6 @@ PyObject* H_PXP(PyObject *self, PyObject *args)
     // fill sitelist with PXP nodes
     populate_sites_PXP(sitelist, N);
 
-
     // Create a zeroed NH x NH Ndarray of ints
     npy_intp dimensions[2] = {NH, NH};
     PyArrayObject *numpy_array = (PyArrayObject *) PyArray_ZEROS(2, dimensions, NPY_INT, 0);
@@ -56,10 +55,9 @@ PyObject* H_PXP(PyObject *self, PyObject *args)
         return NULL;
     }
 
-
     int error = 0;
     int connected = 1;
-    ul row, col, flipped;
+    ul row, col_index, flipped;
 
     // Loop over the PXP nodes
     for (ul j = 0; j < NH; j++) 
@@ -72,24 +70,27 @@ PyObject* H_PXP(PyObject *self, PyObject *args)
             if (PXP_flip_allowed(row, i, N))
             {
                 flipped = row ^ (1UL << i);
-                col = index_site(sitelist, flipped, 0, NH-1, &error);
+                col_index = index_site(sitelist, flipped, 0, NH-1, &error);
                 if (error != 0) { goto error; }
 
                 // with probability p, create a link
                 if (gsl_rng_uniform(RNG) < p)
                 {
                     // ptr to matrix[row, col]
-                    int *array_ptr = (int *) PyArray_GETPTR2(numpy_array, row, col);
+                    int *array_ptr = (int *) PyArray_GETPTR2(numpy_array, j, col_index);
                     *array_ptr = connected;
                 }
             }
         }
     }
+    
 
     gsl_rng_free(RNG);
+    printf("Made it through function\n");
     return numpy_array;
 
     error:
+        printf("Insite error block\n");
         if (!PyErr_Occurred()) PyErr_SetString(PyExc_RuntimeError, "Fatal error occurred");
         if (sitelist) free(sitelist);
         if (numpy_array) Py_DECREF(numpy_array);
