@@ -6,7 +6,6 @@
 gsl_rng *RNG; // random number generator
 PyObject *CArrayToNumPyArray(ul *cs, ul NR);
 
-
 static PyObject* H_hypercube(PyObject *self, PyObject *args)
 {
     // set and seed the RNG
@@ -62,6 +61,7 @@ static PyObject* H_hypercube(PyObject *self, PyObject *args)
     return numpy_array;
 }
 
+
 /*
  * Function:  hypercube_clusters
  * --------------------
@@ -78,8 +78,8 @@ static PyObject* H_hypercube(PyObject *self, PyObject *args)
 static PyObject *hypercube_clusters(PyObject *self, PyObject *args)
 {
     // set and seed the RNG
-    RNG = gsl_rng_alloc(gsl_rng_mt19937);
-    gsl_rng_set(RNG, time(NULL));
+    gsl_rng *RNG2 = gsl_rng_alloc(gsl_rng_mt19937);
+    gsl_rng_set(RNG2, time(NULL));
 
     ul N; // hypercube dimension
     int NR; // Number of Realisations
@@ -138,7 +138,7 @@ static PyObject *hypercube_clusters(PyObject *self, PyObject *args)
         // run DFS algorithm, get a cluster size
         index[0] = i;
         ul *array_ptr = (ul *) PyArray_GetPtr(numpy_array, index);
-        *array_ptr = DFS_hypercube(s, visited, p, N, start_site, RNG, &error_flag);
+        *array_ptr = DFS_hypercube(s, visited, p, N, start_site, RNG2, &error_flag);
 
         if (error_flag == -1)
         {
@@ -152,7 +152,7 @@ static PyObject *hypercube_clusters(PyObject *self, PyObject *args)
     free(s->sites);
     free(s);
     free(visited);
-    gsl_rng_free(RNG);
+    gsl_rng_free(RNG2);
 
     return numpy_array;
 
@@ -164,6 +164,7 @@ static PyObject *hypercube_clusters(PyObject *self, PyObject *args)
         }
         if (visited) free(visited);
         if (numpy_array) Py_DECREF(numpy_array);
+        if (RNG2) gsl_rng_free(RNG2);
         return NULL;
 
 }
