@@ -1,6 +1,6 @@
 /* Helper functions for the module hypercubes. E.g. for operating the stack, for checking
 user input, and for computing common mathematical functions, like binomial coefficients. */
-
+#define NO_IMPORT_ARRAY
 #include "functions.h"
 #include <stdlib.h>
 #include <stdio.h>

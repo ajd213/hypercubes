@@ -1,4 +1,5 @@
 #define PY_SSIZE_T_CLEAN
+#define PY_ARRAY_UNIQUE_SYMBOL hypergraphs_ARRAY_API
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include <Python.h>
 #include <numpy/arrayobject.h>
@@ -23,6 +24,7 @@ void reset_visited(bool visited[], ul length);
 
 /* Hypercube functions */
 ul DFS_hypercube(stack *s, bool visited[], const float p, const ul N, const ul start_state, gsl_rng *RNG, int *error);
+PyObject *hypercube_clusters(PyObject *self, PyObject *args);
 
 /* PXP functions */
 void populate_sites_PXP(ul *sites, ul N);
