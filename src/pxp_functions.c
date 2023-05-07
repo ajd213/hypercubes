@@ -57,6 +57,7 @@ PyObject* H_PXP(PyObject *self, PyObject *args)
 
     int error = 0;
     int connected = 1;
+    int disconnected = 0;
     ul row, col_index, flipped;
 
     // Loop over the PXP nodes
@@ -73,12 +74,25 @@ PyObject* H_PXP(PyObject *self, PyObject *args)
                 col_index = index_site(sitelist, flipped, 0, NH-1, &error);
                 if (error != 0) { goto error; }
 
+                
+                // ptr to matrix[row, col]
+                int *array_ptr = (int *) PyArray_GETPTR2(numpy_array, j, col_index);
+
+                // ptr to the transpose element
+                int *array_ptr_T = (int *) PyArray_GETPTR2(numpy_array, col_index, j);
+
                 // with probability p, create a link
+                // of course, we double the number of operations: but this is needed 
+                // to preserve Hermiticity!
                 if (gsl_rng_uniform(RNG) < p)
                 {
-                    // ptr to matrix[row, col]
-                    int *array_ptr = (int *) PyArray_GETPTR2(numpy_array, j, col_index);
                     *array_ptr = connected;
+                    *array_ptr_T = connected;
+                }
+                else
+                {
+                    *array_ptr = disconnected;
+                    *array_ptr_T = disconnected;
                 }
             }
         }

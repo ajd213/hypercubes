@@ -46,6 +46,7 @@ PyObject* H_hypercube(PyObject *self, PyObject *args)
     }
 
     int connected = 1;
+    int disconnected = 0;
     // Loop over the matrix elements
     for (ul row = 0; row < NH; row++) 
     {
@@ -54,11 +55,21 @@ PyObject* H_hypercube(PyObject *self, PyObject *args)
             // flip the ith bit
             ul col = row ^ (1UL << i);
 
+            int *array_ptr = (int *) PyArray_GETPTR2(numpy_array, row, col);
+            // ptr to the transpose element
+            int *array_ptr_T = (int *) PyArray_GETPTR2(numpy_array, col, row);
+
             // with probability p, create a link
             if (gsl_rng_uniform(RNG) < p)
             {
-                int *array_ptr = (int *) PyArray_GETPTR2(numpy_array, row, col);
+                
                 *array_ptr = connected;
+                *array_ptr_T = connected;
+            }
+            else
+            {
+                *array_ptr = disconnected;
+                *array_ptr_T = disconnected;
             }
         }
     }

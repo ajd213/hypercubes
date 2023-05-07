@@ -1,3 +1,13 @@
+""" Unit tests for the hypergraphs module, as well as the functions contained
+in distributions.py. Test cluster and Hamiltonian generation for both the 
+hypercube and the PXP model (Fibonacci cube).
+
+As some of these test are probabilistic, there is a small chance they will fail,
+though there is no error present. If any failures occur, check the details and run
+the tests again. For instance, one test is to check that the Hamiltonian has 50% of
+the edges of the full graph when p=0.5. As the percolation process is random, there
+is a probability that this test could fail, if unusually many or few edges are present."""
+
 import unittest
 import distributions
 import hypergraphs
@@ -261,19 +271,26 @@ class Testdistributions(unittest.TestCase):
         
         # a couple of tests for p = 0.5
         p = 0.5
-        N = 10
 
+        for j in range(len(Nlist)):
+            N = Nlist[j]
+            NH = HS_DIM_LIST[j]
+            H = hypergraphs.H_hypercube(N, p)
+
+            # ensure that the Hamiltonian matrix has dim 2**N by 2**N
+            np.testing.assert_equal(H.shape, (NH, NH))
+
+            # ensure hermiticity
+            np.testing.assert_array_equal(H, H.T)
+
+        
+        N = 14
         NH = 2**N
         H = hypergraphs.H_hypercube(N, p)
 
-        # ensure that the Hamiltonian matrix has dim 2**N by 2**N
-        np.testing.assert_equal(H.shape, (NH, NH))
+        # for large N, ensure that approx. the correct number of nodes are present
+        np.testing.assert_almost_equal(np.sum(H)/(N*(2**N)), 0.5, decimal=1)
 
-        # the number of edges should be between the two limits
-        # (almost certainly for N = 10)
-        self.assertTrue(0 < np.sum(H) < N*NH)
-
-    
     def test_H_PXP(self):
         
         """ Test the Fibonacci cube against analytic results from the 
@@ -312,14 +329,82 @@ class Testdistributions(unittest.TestCase):
             # ensure that the matrix is Hermitian
             np.testing.assert_array_equal(H, H.T)
 
+            # finally, test against Wouter's code to give independent test
+            wouters_H = Wouters_PXP_H(N)
+            np.testing.assert_array_equal(H, wouters_H)
+        
+        p = 0
+        for Ni, N in enumerate(Nlist):
+            NH = HS_DIM_LIST[Ni]
+
+            H = hypergraphs.H_PXP(N, p)
+            
+            # ensure that the Hamiltonian matrix has correct dimensions
+            np.testing.assert_equal(H.shape, (NH, NH))
+
+            # ensure that the total number of edges is correct
+            self.assertEqual(np.sum(H), 0)
+
+            # ensure that the matrix is Hermitian
+            np.testing.assert_array_equal(H, H.T)
+
+
+        p = 0.5
+        for Ni, N in enumerate(Nlist):
+            NH = HS_DIM_LIST[Ni]
+
+            H = hypergraphs.H_PXP(N, p)
+            
+            # ensure that the Hamiltonian matrix has correct dimensions
+            np.testing.assert_equal(H.shape, (NH, NH))
+
+            # ensure that the matrix is Hermitian
+            np.testing.assert_array_equal(H, H.T)
+        
+        # for large enough N, ensure that we have approx. the correct number of edges
+        N = 20; p = 0.5
+        H = hypergraphs.H_PXP(N, p)
+        np.testing.assert_almost_equal(np.sum(H)/(2*number_edges(N)), 0.5, decimal=1)
 
 
 
-            # for i in range(len(connect)):
-            #     degree = connect[i]
-            #     number = count[i]
+def Wouters_PXP_H(L):
+    """ Code to construct the PXP Hamiltonian courtesy of Wouter.
+    Included as an independent test against my own code. """
+    states = np.zeros((2**L, L), dtype=int)
+                            
+    for i in np.arange(2**L):
+        ibin =  np.binary_repr(i, width=L)
 
-            #     self.assertEqual(number_nodes_coord_k(N, degree), number)
+        for j in np.arange(L):
+            states[i,j] = int(ibin[j])
+
+    # filter out allowed basis states
+    trig = np.zeros(2**L, dtype=int)
+
+    for i in np.arange(2**L):
+        
+        # boundary sites
+        trig[i] =  0 # obc
+
+        # bulk sites
+        for j in np.arange(L-1):
+            trig[i] = trig[i] + states[i,j] * states[i,j+1]
+
+    states = states[np.where(trig == 0), :]
+    states = states[0]
+
+
+    # construct Hamiltonian
+    dimH = np.shape(states)[0]
+    H = np.zeros((dimH, dimH), dtype=int)
+
+    for i in np.arange(dimH):
+        for j in np.arange(i):
+            if np.sum(np.abs(states[i] - states[j])) == 1:
+                H[i,j] = 1
+                H[j,i] = 1
+    return np.array(H)
 
 
 
