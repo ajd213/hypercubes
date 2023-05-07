@@ -13,15 +13,15 @@ user input, and for computing common mathematical functions, like binomial coeff
  * --------------------
  *  Wrap a pointer to clusters data in a NumPy array.
  * 
- * cs: a pointer to a C array of clusters 
- * NR: Number of Realisations (length of array)
+ * arr: a pointer to an array of uls
+ * length: length of array
  * 
- * returns: a pointer of type PyObject * to the clusters data
+ * returns: a pointer of type PyObject * to the array
  */
-PyObject *CArrayToNumPyArray(ul *cs, ul NR)
+PyObject *CArrayToNumPyArray(ul *arr, ul length)
 {
-    npy_intp dims[] = {NR};
-    PyObject *numpy_array = PyArray_SimpleNewFromData(1, dims, NPY_ULONGLONG, (void *)cs);
+    npy_intp dims[] = {length};
+    PyObject *numpy_array = PyArray_SimpleNewFromData(1, dims, NPY_ULONGLONG, (void *)arr);
 
     if (!numpy_array)
     {

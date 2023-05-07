@@ -5,6 +5,37 @@ the Fibonacci cube. */
 #include <stdlib.h>
 #include <stdio.h>
 
+
+
+
+
+PyObject *PXP_sites(PyObject *self, PyObject *args)
+{   
+    ul N; // Fibonacci cube dimension
+
+    // parse and check arguments
+    if (!PyArg_ParseTuple(args, "k", &N)) goto error;
+    if (!check_args(N, 1, 1)) 
+    {
+        PyErr_SetString(PyExc_ValueError, "Invalid input arguments");
+        goto error;
+    }
+
+    // the size of the graph
+    ul NH = fibonacci(N+2);
+
+    ul *sitelist = construct_PXP_sitelist(N);
+    if (!sitelist) goto error;
+
+    return CArrayToNumPyArray(sitelist, NH);
+
+    error:
+        if (!PyErr_Occurred()) PyErr_SetString(PyExc_RuntimeError, "Fatal error occurred");
+        if (sitelist) free(sitelist);
+        return NULL;
+}
+
+
 /*
  * Function:  H_PXP
  * --------------------
@@ -15,7 +46,7 @@ the Fibonacci cube. */
  *
  *  returns: a pointer to the Ndarray (Hamiltonian matrix).
  */
-PyObject* H_PXP(PyObject *self, PyObject *args)
+PyObject *H_PXP(PyObject *self, PyObject *args)
 {
     // set and seed the RNG
     gsl_rng *RNG = gsl_rng_alloc(gsl_rng_mt19937);
@@ -36,15 +67,8 @@ PyObject* H_PXP(PyObject *self, PyObject *args)
     ul NH = fibonacci(N+2);
 
     // a list of the PXP sites
-    ul *sitelist = malloc(sizeof(ul)*NH);
-    if (sitelist == NULL)
-    {
-        PyErr_SetString(PyExc_RuntimeError, "Error setting up sitelist");
-        goto error;
-    }
-
-    // fill sitelist with PXP nodes
-    populate_sites_PXP(sitelist, N);
+    ul *sitelist = construct_PXP_sitelist(N);
+    if (!sitelist) goto error;
 
     // Create a zeroed NH x NH Ndarray of ints
     npy_intp dimensions[2] = {NH, NH};
@@ -103,7 +127,6 @@ PyObject* H_PXP(PyObject *self, PyObject *args)
     return numpy_array;
 
     error:
-        printf("Insite error block\n");
         if (!PyErr_Occurred()) PyErr_SetString(PyExc_RuntimeError, "Fatal error occurred");
         if (sitelist) free(sitelist);
         if (numpy_array) Py_DECREF(numpy_array);
@@ -393,4 +416,33 @@ void populate_sites_PXP(ul *sites, ul N)
             counter++;
         }
     }
+}
+
+/*
+ * Function:  construct_PXP_sitelist
+ * --------------------
+ * Allocate memory for and construct a list of the sites (nodes) of the PXP graph (Fibonacci cube)
+ *
+ *  N: the dimension of the graph
+ * 
+ * returns: a pointer to an array of uls containing the sites
+
+ */
+ul *construct_PXP_sitelist(ul N)
+{
+    // the size of the graph
+    ul NH = fibonacci(N+2);
+
+    // a list of the PXP sites
+    ul *sitelist = malloc(sizeof(ul)*NH);
+    if (sitelist == NULL)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Error setting up sitelist");
+        return NULL;
+    }
+
+    // fill sitelist with PXP nodes
+    populate_sites_PXP(sitelist, N);
+
+    return sitelist;
 }
