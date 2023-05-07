@@ -2,6 +2,8 @@
 
 A Python module written in C to analyse percolation problems on hypergraphs, such as the N-dimensional Hypercube or Fibonacci cube. 
 
+** NEW ** added functions H_hypercube(N, p) and H_PXP(N, p) to generate Hamiltonians (adjacency matrices) for the Hypercube and Fibonacci cube.
+
 # Introduction
 
 
@@ -106,6 +108,8 @@ This is just one example: the D. Stauffer & A. Aharony textbook contains many mo
 ### Unit tests
 
 Included also in analysis/ is a set of unit tests designed to test both the core hypergraphs code, and the functions included in distributions.py. This includes checking properties of the outputs, as well as comparing the code to some analytic results.
+
+In the case of the Hamiltonians, we check output against third-party code. For the hypercube, this is NetworkX, and for the PXP model a colleague's Python code.
 
 ## Authors
 
