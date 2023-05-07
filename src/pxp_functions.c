@@ -10,12 +10,28 @@ the Fibonacci cube. */
 
 
 PyObject *PXP_sites(PyObject *self, PyObject *args)
-{   
+{
+    PyObject *py_N = NULL; // N as a Python object
     ul N; // Fibonacci cube dimension
 
     // parse and check arguments
-    if (!PyArg_ParseTuple(args, "k", &N)) goto error;
-    if (!check_args(N, 1, 1)) 
+    if (!PyArg_ParseTuple(args, "O", &py_N)) goto error;
+
+    // Convert the input to a Python int
+    PyObject *py_int = PyNumber_Long(py_N);
+    if (!py_int)
+    {
+        PyErr_SetString(PyExc_TypeError, "Invalid input type. Expected an integer.");
+        goto error;
+    }
+
+    // Convert Python int to C unsigned long
+    N = (ul) PyLong_AsUnsignedLong(py_int);
+
+    // Check for overflow
+    if (PyErr_Occurred()) goto error;
+
+    if (!check_args(N, 1, 1))
     {
         PyErr_SetString(PyExc_ValueError, "Invalid input arguments");
         goto error;
@@ -27,13 +43,18 @@ PyObject *PXP_sites(PyObject *self, PyObject *args)
     ul *sitelist = construct_PXP_sitelist(N);
     if (!sitelist) goto error;
 
+    // Clean up the temporary Python objects
+    Py_DECREF(py_int);
+
     return CArrayToNumPyArray(sitelist, NH);
 
-    error:
-        if (!PyErr_Occurred()) PyErr_SetString(PyExc_RuntimeError, "Fatal error occurred");
-        if (sitelist) free(sitelist);
-        return NULL;
+error:
+    if (!PyErr_Occurred()) PyErr_SetString(PyExc_RuntimeError, "Fatal error occurred");
+    if (sitelist) free(sitelist);
+    Py_XDECREF(py_int);
+    return NULL;
 }
+
 
 
 /*

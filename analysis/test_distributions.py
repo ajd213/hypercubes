@@ -367,7 +367,6 @@ class Testdistributions(unittest.TestCase):
         H = hypergraphs.H_PXP(N, p)
         np.testing.assert_almost_equal(np.sum(H)/(2*number_edges(N)), 0.5, decimal=1)
 
-    
     def test_PXP_site_generation(self):
 
         def basis_states(N):
@@ -379,7 +378,7 @@ class Testdistributions(unittest.TestCase):
         # to be present in the PXP graph. Check that they are indeed not there.
 
         # WARNING: NEXT FEW LINES ARE HARD-CODED
-        Nlist = [2, 5, 8, 11, 13]
+        Nlist = np.array([2, 5, 8, 11, 13])
         disallowed_sites = [[0b11],
                            [0b11111, 0b10011, 0b11000], 
                            [0b00001111, 0b11011010, 0b00101101], 
@@ -399,6 +398,7 @@ class Testdistributions(unittest.TestCase):
             np.testing.assert_array_equal(sites, basis_states(N))
 
 
+# ancillary functions
 
 def Wouters_PXP_H(L):
     """ Code to construct the PXP Hamiltonian courtesy of Wouter.
@@ -437,18 +437,6 @@ def Wouters_PXP_H(L):
                 H[i,j] = 1
                 H[j,i] = 1
     return np.array(H)
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 if __name__ == "__main__":
