@@ -45,6 +45,7 @@ ul fibonacci(ul n);
 /* Misc functions */
 bool check_args(ul N, ul NR, float p);
 PyObject *CArrayToNumPyArray(ul *arr, ul length);
+ul pyobject_to_ul(PyObject *positive_int);
 
 
 

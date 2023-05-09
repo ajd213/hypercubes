@@ -17,23 +17,13 @@ PyObject *PXP_sites(PyObject *self, PyObject *args)
     // parse and check arguments
     if (!PyArg_ParseTuple(args, "O", &py_N)) goto error;
 
-    // Convert the input to a Python int
-    PyObject *py_int = PyNumber_Long(py_N);
-    if (!py_int)
-    {
-        PyErr_SetString(PyExc_TypeError, "Invalid input type. Expected an integer.");
-        goto error;
-    }
-
-    // Convert Python int to C unsigned long
-    N = (ul) PyLong_AsUnsignedLong(py_int);
-
+    N = pyobject_to_ul(py_N);
     // Check for overflow
     if (PyErr_Occurred()) goto error;
 
     if (!check_args(N, 1, 1))
     {
-        PyErr_SetString(PyExc_ValueError, "Invalid input arguments");
+        PyErr_SetString(PyExc_ValueError, "Invalid input arguments: 0 < N < 32");
         goto error;
     }
 
@@ -42,19 +32,14 @@ PyObject *PXP_sites(PyObject *self, PyObject *args)
 
     ul *sitelist = construct_PXP_sitelist(N);
     if (!sitelist) goto error;
-
-    // Clean up the temporary Python objects
-    Py_DECREF(py_int);
-
+    
     return CArrayToNumPyArray(sitelist, NH);
 
 error:
     if (!PyErr_Occurred()) PyErr_SetString(PyExc_RuntimeError, "Fatal error occurred");
     if (sitelist) free(sitelist);
-    Py_XDECREF(py_int);
     return NULL;
 }
-
 
 
 /*
@@ -73,11 +58,18 @@ PyObject *H_PXP(PyObject *self, PyObject *args)
     gsl_rng *RNG = gsl_rng_alloc(gsl_rng_mt19937);
     gsl_rng_set(RNG, time(NULL));
 
+    PyObject *py_N = NULL; // N as a Python object
     ul N; // Fibonacci cube dimension
     float p; // percolation concentration
 
     // parse and check arguments
-    if (!PyArg_ParseTuple(args, "kf", &N, &p)) goto error;
+    if (!PyArg_ParseTuple(args, "Of", &py_N, &p)) goto error;
+
+    N = pyobject_to_ul(py_N);
+    // Check for overflow
+    if (PyErr_Occurred()) goto error;
+
+
     if (!check_args(N, 1, p)) 
     {
         PyErr_SetString(PyExc_ValueError, "Invalid input arguments");
@@ -174,11 +166,17 @@ PyObject *PXP_clusters(PyObject *self, PyObject *args)
     gsl_rng *RNG2 = gsl_rng_alloc(gsl_rng_mt19937);
     gsl_rng_set(RNG2, time(NULL));
 
+    PyObject *py_N = NULL; // N as a Python object
     ul N; // hypercube dimension
     int NR; // Number of Realisations
     float p; // percolation concentration
 
-    if (!PyArg_ParseTuple(args, "kif", &N, &NR, &p)) goto error;
+    if (!PyArg_ParseTuple(args, "Oif", &py_N, &NR, &p)) goto error;
+
+    N = pyobject_to_ul(py_N);
+    // Check for overflow
+    if (PyErr_Occurred()) goto error;
+
 
     // the size of the graph
     ul NH = fibonacci(N+2);

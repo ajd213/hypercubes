@@ -20,13 +20,17 @@ PyObject* H_hypercube(PyObject *self, PyObject *args)
     // set and seed the RNG
     gsl_rng *RNG = gsl_rng_alloc(gsl_rng_mt19937);
     gsl_rng_set(RNG, time(NULL));
-
+    
+    PyObject *py_N = NULL; // N as a Python object
     ul N; // hypercube dimension
     float p; // percolation concentration
 
-    if (!PyArg_ParseTuple(args, "kf", &N, &p)) goto error;
+    if (!PyArg_ParseTuple(args, "Of", &py_N, &p)) goto error;
 
-    int error = 0;
+    N = pyobject_to_ul(py_N);
+    // Check for overflow
+    if (PyErr_Occurred()) goto error;
+
     if (!check_args(N, 1, p)) 
     {
         PyErr_SetString(PyExc_ValueError, "Invalid input arguments");
@@ -167,11 +171,16 @@ PyObject *hypercube_clusters(PyObject *self, PyObject *args)
     gsl_rng *RNG2 = gsl_rng_alloc(gsl_rng_mt19937);
     gsl_rng_set(RNG2, time(NULL));
 
+    PyObject *py_N = NULL; // N as a Python object
     ul N; // hypercube dimension
     int NR; // Number of Realisations
     float p; // percolation concentration
 
-    if (!PyArg_ParseTuple(args, "kif", &N, &NR, &p)) goto error;
+    if (!PyArg_ParseTuple(args, "Oif", &py_N, &NR, &p)) goto error;
+
+    N = pyobject_to_ul(py_N);
+    // Check for overflow
+    if (PyErr_Occurred()) goto error;
 
     ul NH = intpower(2, N); // the size of the graph
 

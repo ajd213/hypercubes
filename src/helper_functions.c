@@ -33,6 +33,36 @@ PyObject *CArrayToNumPyArray(ul *arr, ul length)
 }
 
 /*
+ * Function:  pyobject_to_ul
+ * --------------------
+ * Take any python integer (int, np.int64, etc.) and parse it as a C unsigned long
+ * 
+ * positive_int: a pointer to a PyObject representing a positive integer
+ * 
+ * returns: N, an unsigned long
+ */
+ul pyobject_to_ul(PyObject *positive_int)
+{
+    // should be followed by if (PyErr_Occurred()) {...} to catch overflow error
+    ul N;
+
+    // Convert the input to a Python int
+    PyObject *py_int = PyNumber_Long(positive_int);
+    if (!py_int)
+    {
+        PyErr_SetString(PyExc_TypeError, "Invalid input type. N must be a positive integer.");
+    }
+
+    // Convert Python int to C unsigned long
+    N = PyLong_AsUnsignedLong(py_int);
+
+    Py_DECREF(py_int);
+
+    return N;
+}
+
+
+/*
  * Function:  check_args
  * --------------------
  *  check user arguments N, NR and p.
