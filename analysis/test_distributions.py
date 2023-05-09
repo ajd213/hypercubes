@@ -397,6 +397,34 @@ class Testdistributions(unittest.TestCase):
             # same basis states.
             np.testing.assert_array_equal(sites, basis_states(N))
 
+    def test_Hamming_distance(self):
+        
+        # two states a Hamming distance of 3 apart
+        s1 = 0b1001010001111
+        s2 = 0b0001110001011
+
+        self.assertTrue(hypergraphs.Hamming_distance(s1, s2) == 3)
+
+        N = 7
+        H = hypergraphs.H_PXP(N, 1)
+        basis_states = hypergraphs.PXP_sites(N)
+
+        # a dumb test: all sites which are adjacent according to H should
+        # have a hamming distance of 1
+        for i in range(len(basis_states)):
+            for j in range(len(basis_states)):
+                if H[i][j] == 1:
+                    self.assertTrue(hypergraphs.Hamming_distance(basis_states[i], basis_states[j]) == 1)
+                else:
+                    self.assertTrue(hypergraphs.Hamming_distance(basis_states[i], basis_states[j]) > 1 or hypergraphs.Hamming_distance(basis_states[i], basis_states[j]) == 0)
+
+
+        # Now, generate two random integers and compute the HD both manually and using the hypergraphs function
+        randint1 = np.random.randint(low=0, high = 109000)
+        randint2 = np.random.randint(low=0, high = 109000)
+        self.assertTrue(hypergraphs.Hamming_distance(randint1, randint2) == gmpy2.popcount(randint1 ^ randint2))
+
+
 
 # ancillary functions
 

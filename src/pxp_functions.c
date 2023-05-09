@@ -12,12 +12,12 @@ the Fibonacci cube. */
 PyObject *PXP_sites(PyObject *self, PyObject *args)
 {
     PyObject *py_N = NULL; // N as a Python object
-    ul N; // Fibonacci cube dimension
 
     // parse and check arguments
     if (!PyArg_ParseTuple(args, "O", &py_N)) goto error;
 
-    N = pyobject_to_ul(py_N);
+    // Fibonacci cube dimension
+    ul N = pyobject_to_ul(py_N);
     // Check for overflow
     if (PyErr_Occurred()) goto error;
 
@@ -63,8 +63,11 @@ PyObject *H_PXP(PyObject *self, PyObject *args)
     float p; // percolation concentration
 
     // parse and check arguments
-    if (!PyArg_ParseTuple(args, "Of", &py_N, &p)) goto error;
-
+    if (!PyArg_ParseTuple(args, "Of", &py_N, &p)) 
+    {
+        PyErr_SetString(PyExc_ValueError, "Invalid input arguments in H_PXP(N, p)");
+        goto error;
+    }
     N = pyobject_to_ul(py_N);
     // Check for overflow
     if (PyErr_Occurred()) goto error;

@@ -9,6 +9,38 @@ user input, and for computing common mathematical functions, like binomial coeff
 
 
 /*
+ * Function:  Hamming_distance
+ * --------------------
+ * Compute the Hamming distance between two basis sites (integers). This is 
+ * the number of bits different between the two sites, i.e., the minimum number
+ * of spin-flips required to go from one to the other. 
+ * 
+ * args: two positive Python integers
+ * 
+ * returns: a pointer of type PyObject * to the Hamming distance
+ */
+PyObject *Hamming_distance(PyObject *self, PyObject *args)
+{
+    PyObject *state1, *state2;
+
+    // parse and check arguments
+    if (!PyArg_ParseTuple(args, "OO", &state1, &state2)) goto error;
+
+    ul s1 = pyobject_to_ul(state1);
+    ul s2 = pyobject_to_ul(state2);
+    if (PyErr_Occurred()) goto error;
+
+    int hd = __builtin_popcount(s1 ^ s2);
+
+    return PyLong_FromLong(hd);
+
+    error:
+        PyErr_SetString(PyExc_RuntimeError, "Fatal error occurred in Hamming_distance");
+        return NULL;
+}
+
+
+/*
  * Function:  CArrayToNumPyArray
  * --------------------
  *  Wrap a pointer to clusters data in a NumPy array.

@@ -14,6 +14,7 @@ static PyMethodDef myMethods[] = {
     {"H_hypercube", H_hypercube, METH_VARARGS, "Compute the Hamiltonian for the Hypercube with concentration p."},
     {"H_PXP", H_PXP, METH_VARARGS, "Compute the Hamiltonian for the PXP model with concentration p."},
     {"PXP_sites", PXP_sites, METH_VARARGS, "Return an array containing the basis sites/nodes of the PXP graph."},
+    {"Hamming_distance", Hamming_distance, METH_VARARGS, "Return the Hamming distance between two integers."},
     {"version", (PyCFunction) version, METH_NOARGS, "returns the version."},
     {NULL, NULL, 0, NULL}
 };

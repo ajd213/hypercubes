@@ -46,6 +46,7 @@ ul fibonacci(ul n);
 bool check_args(ul N, ul NR, float p);
 PyObject *CArrayToNumPyArray(ul *arr, ul length);
 ul pyobject_to_ul(PyObject *positive_int);
+PyObject *Hamming_distance(PyObject *self, PyObject *args);
 
 
 
