@@ -191,12 +191,12 @@ class Testdistributions(unittest.TestCase):
         p = 1
 
         # the first 25 Fibonacci numbers
-        fibs = np.array([0,1,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597,2584,4181,6765,10946,17711,28657,46368])
+        fib = lambda n:pow(2<<n,n+1,(4<<2*n)-(2<<n)-1)%(2<<n)
 
         for index in range(1, 23):
             N = index
             cs = distributions.get_clusters_PXP(N, NR, p, DATA_PATH)
-            np.testing.assert_equal(cs, fibs[N+2])
+            np.testing.assert_equal(cs, fib(N+2))
         
         # check that for p=0, the cluster size should be 1
         NR = 16
