@@ -8,7 +8,7 @@ import numpy as np
 import hypergraphs
 
 
-def cluster_numbers(cs: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+def cluster_numbers(cs: np.ndarray) -> tuple[np.ndarray, np.ndarray]: 
     """From an array of cluster sizes, compute the cluster numbers.
     
     The cluster number n_s for a particular cluster size s is the number of s-clusters
