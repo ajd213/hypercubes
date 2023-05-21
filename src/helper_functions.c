@@ -44,7 +44,6 @@ PyObject *Hamming_distance(PyObject *self, PyObject *args)
 PyObject *RNG_test(PyObject *self, PyObject *args)
 {
     int number = gsl_rng_uniform_int(RNG, INT_MAX);
-
     return PyLong_FromLong(number);
 
 }
