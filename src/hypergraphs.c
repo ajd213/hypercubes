@@ -17,6 +17,7 @@ static PyMethodDef myMethods[] = {
     {"H_PXP", H_PXP, METH_VARARGS, "Compute the Hamiltonian for the PXP model with concentration p."},
     {"PXP_sites", PXP_sites, METH_VARARGS, "Return an array containing the basis sites/nodes of the PXP graph."},
     {"Hamming_distance", Hamming_distance, METH_VARARGS, "Return the Hamming distance between two integers."},
+    {"RNG_test", RNG_test, METH_NOARGS, "Return a random int between 0 and INT_MAX"},
     {"version", (PyCFunction) version, METH_NOARGS, "returns the version."},
     {NULL, NULL, 0, NULL}
 };

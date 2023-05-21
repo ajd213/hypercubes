@@ -409,7 +409,15 @@ class Testdistributions(unittest.TestCase):
             # same basis states.
             np.testing.assert_array_equal(sites, basis_states(N))
 
+    def test_RNG(self):
+        """A probabilistic test, which might therefore fail with a small probability!"""
 
+        randints = [hypergraphs.RNG_test() for _ in range(100)]
+
+        # by checking that successive calls to RNG_test(), which returns a random integer,
+        # we are checking for collisions. I.e., that the RNG is sucessfully seeded once.
+        for k in range(len(randints) - 1):
+            self.assertNotEqual(randints[k], randints[k+1])
 
 # ancillary functions
 

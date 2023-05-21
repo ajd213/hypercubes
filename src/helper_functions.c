@@ -6,7 +6,9 @@ user input, and for computing common mathematical functions, like binomial coeff
 #include <stdio.h>
 #include <assert.h>
 #include <time.h>
+#include <limits.h>
 
+extern gsl_rng *RNG;
 
 /*
  * Function:  Hamming_distance
@@ -39,6 +41,13 @@ PyObject *Hamming_distance(PyObject *self, PyObject *args)
         return NULL;
 }
 
+PyObject *RNG_test(PyObject *self, PyObject *args)
+{
+    int number = gsl_rng_uniform_int(RNG, INT_MAX);
+
+    return PyLong_FromLong(number);
+
+}
 
 /*
  * Function:  CArrayToNumPyArray
