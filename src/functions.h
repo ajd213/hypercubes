@@ -23,7 +23,7 @@ stack *setup_stack(ul NH);
 void reset_visited(bool visited[], ul length);
 
 /* Hypercube functions */
-ul DFS_hypercube(stack *s, bool visited[], const float p, const ul N, const ul start_state, gsl_rng *RNG, int *error);
+ul DFS_hypercube(stack *s, bool visited[], const float p, const ul N, const ul start_state, int *error);
 PyObject *hypercube_clusters(PyObject *self, PyObject *args);
 PyObject* H_hypercube(PyObject *self, PyObject *args);
 

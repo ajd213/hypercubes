@@ -19,9 +19,6 @@ extern gsl_rng *RNG;
  */
 PyObject* H_hypercube(PyObject *self, PyObject *args)
 {
-    // set and seed the RNG
-    // gsl_rng *RNG = gsl_rng_alloc(gsl_rng_mt19937);
-    // gsl_rng_set(RNG, time(NULL));
     
     PyObject *py_N = NULL; // N as a Python object
     ul N; // hypercube dimension
@@ -80,13 +77,11 @@ PyObject* H_hypercube(PyObject *self, PyObject *args)
         }
     }
 
-    gsl_rng_free(RNG);
     return numpy_array;
 
     error:
         if (!PyErr_Occurred()) PyErr_SetString(PyExc_RuntimeError, "Fatal error occurred");
         if (numpy_array) Py_DECREF(numpy_array);
-        if (RNG) gsl_rng_free(RNG);
         return NULL;
 }
 
@@ -105,7 +100,7 @@ PyObject* H_hypercube(PyObject *self, PyObject *args)
  *
  *  returns: the size of the cluster. I.e., the number of sites visited by the DFS algorithm.
  */
-ul DFS_hypercube(stack *s, bool visited[], const float p, const ul N, const ul start_state, gsl_rng *RNG, int *error)
+ul DFS_hypercube(stack *s, bool visited[], const float p, const ul N, const ul start_state, int *error)
 {
     ul size = 0; // cluster size
     ul u, v;
@@ -169,9 +164,6 @@ ul DFS_hypercube(stack *s, bool visited[], const float p, const ul N, const ul s
  */
 PyObject *hypercube_clusters(PyObject *self, PyObject *args)
 {
-    // set and seed the RNG
-    gsl_rng *RNG2 = gsl_rng_alloc(gsl_rng_mt19937);
-    gsl_rng_set(RNG2, time(NULL));
 
     PyObject *py_N = NULL; // N as a Python object
     ul N; // hypercube dimension
@@ -229,7 +221,7 @@ PyObject *hypercube_clusters(PyObject *self, PyObject *args)
         // run DFS algorithm, get a cluster size
         index[0] = i;
         ul *array_ptr = (ul *) PyArray_GetPtr(numpy_array, index);
-        *array_ptr = DFS_hypercube(s, visited, p, N, start_site, RNG2, &error_flag);
+        *array_ptr = DFS_hypercube(s, visited, p, N, start_site, &error_flag);
 
         if (error_flag == -1)
         {
@@ -243,7 +235,6 @@ PyObject *hypercube_clusters(PyObject *self, PyObject *args)
     free(s->sites);
     free(s);
     free(visited);
-    gsl_rng_free(RNG2);
 
     return numpy_array;
 
@@ -255,7 +246,6 @@ PyObject *hypercube_clusters(PyObject *self, PyObject *args)
         }
         if (visited) free(visited);
         if (numpy_array) Py_DECREF(numpy_array);
-        if (RNG2) gsl_rng_free(RNG2);
         return NULL;
 
 }
