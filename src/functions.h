@@ -8,12 +8,12 @@
 #include <stdbool.h>
 typedef unsigned long ul;
 typedef struct stack
-    {
-        ul *sites;
-        ul length;
-        ul top;
-        ul NH;
-    }
+{
+    ul *sites;
+    ul length;
+    ul top;
+    ul NH;
+}
 stack;
 
 /* Stack functions */

@@ -5,6 +5,8 @@ dimension for the percolation problem. */
 #include <stdlib.h>
 #include <stdio.h>
 
+extern gsl_rng *RNG;
+
 /*
  * Function:  H_hypercube
  * --------------------
@@ -18,8 +20,8 @@ dimension for the percolation problem. */
 PyObject* H_hypercube(PyObject *self, PyObject *args)
 {
     // set and seed the RNG
-    gsl_rng *RNG = gsl_rng_alloc(gsl_rng_mt19937);
-    gsl_rng_set(RNG, time(NULL));
+    // gsl_rng *RNG = gsl_rng_alloc(gsl_rng_mt19937);
+    // gsl_rng_set(RNG, time(NULL));
     
     PyObject *py_N = NULL; // N as a Python object
     ul N; // hypercube dimension

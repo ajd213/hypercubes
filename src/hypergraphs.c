@@ -3,6 +3,8 @@
 #include <time.h>
 #include <stdio.h>
 
+gsl_rng *RNG;
+
 static PyObject *version(PyObject *self)
 {
     return Py_BuildValue("s", "Version 1.1");
@@ -32,6 +34,9 @@ PyMODINIT_FUNC PyInit_hypergraphs(void)
     PyObject *module = PyModule_Create(&hypergraphs);
     // Initialize the NumPy C API
     import_array();
+
+    RNG = gsl_rng_alloc(gsl_rng_mt19937);
+    gsl_rng_set(RNG, time(NULL));
 
     return module;
 }
