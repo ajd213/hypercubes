@@ -5,9 +5,7 @@ the Fibonacci cube. */
 #include <stdlib.h>
 #include <stdio.h>
 
-
-
-
+extern gsl_rng *RNG;
 
 PyObject *PXP_sites(PyObject *self, PyObject *args)
 {
@@ -54,9 +52,6 @@ error:
  */
 PyObject *H_PXP(PyObject *self, PyObject *args)
 {
-    // set and seed the RNG
-    gsl_rng *RNG = gsl_rng_alloc(gsl_rng_mt19937);
-    gsl_rng_set(RNG, time(NULL));
 
     PyObject *py_N = NULL; // N as a Python object
     ul N; // Fibonacci cube dimension
@@ -139,14 +134,12 @@ PyObject *H_PXP(PyObject *self, PyObject *args)
     }
     
 
-    gsl_rng_free(RNG);
     return numpy_array;
 
     error:
         if (!PyErr_Occurred()) PyErr_SetString(PyExc_RuntimeError, "Fatal error occurred");
         if (sitelist) free(sitelist);
         if (numpy_array) Py_DECREF(numpy_array);
-        if (RNG) gsl_rng_free(RNG);
         return NULL;
 }
 
@@ -165,9 +158,6 @@ PyObject *H_PXP(PyObject *self, PyObject *args)
  */
 PyObject *PXP_clusters(PyObject *self, PyObject *args)
 {
-    // set and seed the RNG
-    gsl_rng *RNG2 = gsl_rng_alloc(gsl_rng_mt19937);
-    gsl_rng_set(RNG2, time(NULL));
 
     PyObject *py_N = NULL; // N as a Python object
     ul N; // hypercube dimension
@@ -237,12 +227,12 @@ PyObject *PXP_clusters(PyObject *self, PyObject *args)
         // set all nodes to not visited
         reset_visited(visited, NH); 
         // choose a random start site
-        start_site = sitelist[gsl_rng_uniform_int(RNG2, NH)];
+        start_site = sitelist[gsl_rng_uniform_int(RNG, NH)];
 
         // run DFS algorithm, get a cluster size
         index[0] = i;
         ul *array_ptr = (ul *) PyArray_GetPtr(numpy_array, index);
-        *array_ptr =  DFS_PXP(s, sitelist, visited, p, N, start_site, RNG2, &error_flag);
+        *array_ptr =  DFS_PXP(s, sitelist, visited, p, N, start_site, &error_flag);
 
         if (error_flag == -1)
         {
@@ -257,7 +247,6 @@ PyObject *PXP_clusters(PyObject *self, PyObject *args)
     free(s);
     free(visited);
     free(sitelist);
-    gsl_rng_free(RNG2);
 
     return numpy_array;
 
@@ -269,7 +258,6 @@ PyObject *PXP_clusters(PyObject *self, PyObject *args)
         }
         if (visited) free(visited);
         if (numpy_array) Py_DECREF(numpy_array);
-        if (RNG2) gsl_rng_free(RNG2);
         if (sitelist) free(sitelist);
         return NULL;
 
@@ -287,12 +275,11 @@ PyObject *PXP_clusters(PyObject *self, PyObject *args)
  *  p: the percolation strength. 0 <= p <= 1
  *  N: the dimension of the hypercube. (E.g. N=3 is a regular cube.)
  *  start_state: which site on the hypercube to grow the cluster from
- *  RNG: a random number generator from the gsl library
  *  error: a pointer to an error flag, in case something goes wrong
  *
  *  returns: the size of the cluster. I.e., the number of sites visited by the DFS algorithm.
  */
-ul DFS_PXP(stack *s, ul *sites, bool visited[], const float p, const ul N, const ul start_state, gsl_rng *RNG, int *error)
+ul DFS_PXP(stack *s, ul *sites, bool visited[], const float p, const ul N, const ul start_state, int *error)
 {
     ul size = 0; // cluster size
     ul NH = fibonacci(N+2);

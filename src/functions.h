@@ -6,6 +6,7 @@
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_rng.h> 
 #include <stdbool.h>
+
 typedef unsigned long ul;
 typedef struct stack
 {
@@ -31,7 +32,7 @@ PyObject* H_hypercube(PyObject *self, PyObject *args);
 void populate_sites_PXP(ul *sites, ul N);
 ul *construct_PXP_sitelist(ul N);
 bool PXP_flip_allowed(ul u, ul i, ul N);
-ul DFS_PXP(stack *s, ul *sites, bool visited[], const float p, const ul N, const ul start_state, gsl_rng *RNG, int *error);
+ul DFS_PXP(stack *s, ul *sites, bool visited[], const float p, const ul N, const ul start_state, int *error);
 PyObject *PXP_clusters(PyObject *self, PyObject *args);
 PyObject* H_PXP(PyObject *self, PyObject *args);
 PyObject *PXP_sites(PyObject *self, PyObject *args);
