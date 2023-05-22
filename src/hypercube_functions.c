@@ -44,7 +44,7 @@ PyObject* H_hypercube(PyObject *self, PyObject *args)
     PyArrayObject *numpy_array = (PyArrayObject *) PyArray_ZEROS(2, dimensions, NPY_INT, 0);
     if (!numpy_array)
     {
-        PyErr_SetString(PyExc_RuntimeError, "Unable to create NumPy array in MatrixToNumPyArray");
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create NumPy array in H_hypercube");
         goto error;
     }
 
