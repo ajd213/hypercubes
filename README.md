@@ -1,4 +1,4 @@
-# Hypercubes
+# Hypergraphs
 
 A Python module written in C to analyse percolation problems on hypercubes and other related graphs, such as the Fibonacci cube. 
 
