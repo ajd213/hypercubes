@@ -1,6 +1,6 @@
-# Hypergraphs
+# Hypercubes
 
-A Python module written in C to analyse percolation problems on hypergraphs, such as the N-dimensional Hypercube or Fibonacci cube. 
+A Python module written in C to analyse percolation problems on hypercubes and other related graphs, such as the Fibonacci cube. 
 
 **NEW** added functions H_hypercube(N, p) and H_PXP(N, p) to generate Hamiltonians (adjacency matrices) for the Hypercube and Fibonacci cube.
 
