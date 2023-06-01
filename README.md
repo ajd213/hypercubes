@@ -83,6 +83,8 @@ H_p = hypergraphs.H_PXP(N, p)
 
 ```
 
+In the directory `analysis/`, the `test_distributions.py` file includes many unit tests pertaining to properties of the Hamiltonians.
+
 ## An example calculation: locating the percolation transition
 
 It is known analytically that the location of the percolation transition is $p_c = 1/N$ in the limit $N\to\infty$. In this example, we show that the transition is apparent even for modest $N$. The code for this example is located in analysis/percolation_transition.py.
