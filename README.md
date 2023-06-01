@@ -2,8 +2,6 @@
 
 A Python module written in C to analyse percolation problems on hypercubes and other related graphs, such as the Fibonacci cube. 
 
-**NEW** added functions H_hypercube(N, p) and H_PXP(N, p) to generate Hamiltonians (adjacency matrices) for the Hypercube and Fibonacci cube.
-
 # Introduction
 
 
@@ -67,6 +65,23 @@ mean_size = distributions.S(cs)
 The useful functions `get_clusters_hypercube(N, NR, p, <data_path>)` and `get_clusters_PXP(N, NR, p, <data_path>)` are defined in distributions.py. Given values of N, NR and p, as well as a directory used for data storage, the function will attempt to load the required cluster sizes. If data cannot be found, then it will call the hypergraphs module to generate it, and then save it for next time.
 
 Note that the number of nodes in a hypercube of dimension $N$ is $N_\mathcal{H} = 2^N$, and hence the complexity of the hypergraphs algorithm grows exponentially with $N$. We impose a limit of $N=32$, though computational power will likely limit studies to around $N=20$.
+
+### Creating Hamiltonians
+
+The functions `H_hypercube(N, p)` and `H_PXP(N, p)` generate Hamiltonians (adjacency matrices) for the Hypercube and Fibonacci cube. The RNG is seeded only upon importing the module, so it is safe to create many instances of a Hamiltonian with a particular $p$ value in a short period of time.
+
+```
+N = 12
+p = 0.5
+
+# create an instance of a hypercube Hamiltonian
+H_hyp = hypergraphs.H_hypercube(N, p)
+
+# create an instance of a PXP Hamiltonian
+H_p = hypergraphs.H_PXP(N, p)
+
+
+```
 
 ## An example calculation: locating the percolation transition
 
