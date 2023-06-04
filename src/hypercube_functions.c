@@ -81,7 +81,7 @@ PyObject *hypercube_dijkstra(PyObject *self, PyObject *args)
             // flip the ith bit
             v = u ^ (1UL << i);
 
-            if (!visited[v])
+            if (!visited[v] && (gsl_rng_uniform(RNG) < p))
             {
                 old_cost = distances[v];
                 new_cost = distances[u] + 1;
