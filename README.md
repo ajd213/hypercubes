@@ -138,7 +138,7 @@ In the case of the Hamiltonians, we check output against third-party code. For t
  *  NR (int): the Number of Realisations: number of clusters to grow
  *  p (float): the percolation concentration. $0 <= p <= 1$
 
-`H_hypercube(N, p)`: generate the Hamiltonian (adjacency matrix) for the hypercube, as a NumPy array.
+`hypercube_H(N, p)`: generate the Hamiltonian (adjacency matrix) for the hypercube, as a NumPy array.
 
  *  N (int): the dimension of the hypercube
  *  p (float): the percolation concentration. $0 <= p <= 1$
@@ -154,7 +154,7 @@ In the case of the Hamiltonians, we check output against third-party code. For t
  *  NR (int): the Number of Realisations: number of clusters to grow
  *  p (float): the percolation concentration. $0 <= p <= 1$
 
- `H_PXP(N, p)`: generate the Hamiltonian (adjacency matrix) for the hypercube, as a NumPy array of type NPY_ULONG.
+ `PXP_H(N, p)`: generate the Hamiltonian (adjacency matrix) for the hypercube, as a NumPy array of type NPY_ULONG.
 
  *  N (int): the dimension of the hypercube
  *  p (float): the percolation concentration. $0 <= p <= 1$
