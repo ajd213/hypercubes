@@ -158,7 +158,6 @@ ul DFS_hypercube(stack *s, bool visited[], const float p, const ul N, const ul s
  *  N: the dimension of the hypercube
  *  NR: the Number of Realisations: number of clusters to grow
  *  p: the percolation concentration. 0 <= p <= 1
- *  error: a pointer to an error flag in case of probems.
  *
  *  returns: a PyObject * (NumPy array) of NR cluster sizes, of type NPY_ULONG (unsigned long)
  */

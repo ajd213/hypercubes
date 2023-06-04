@@ -132,6 +132,12 @@ In the case of the Hamiltonians, we check output against third-party code. For t
 
 ` hypercube_clusters(N, NR, p)`: generate the sizes of NR clusters on a hypercube with percolation concentration $p$, returned as a NumPy array of type NPY_ULONG.
 
+ *  N (int): the dimension of the hypercube
+ *  NR (int): the Number of Realisations: number of clusters to grow
+ *  p (float): the percolation concentration. $0 <= p <= 1$
+
+
+
 ## Authors
 
 * **Alexander Duthie** [GitHub](https://github.com/ajd213)
