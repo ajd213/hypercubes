@@ -130,7 +130,7 @@ In the case of the Hamiltonians, we check output against third-party code. For t
 
 ## Full list of functions
 
-` hypercube_clusters(N, NR, p)`
+` hypercube_clusters(N, NR, p)`: generate the sizes of NR clusters on a hypercube with percolation concentration $p$, returned as a NumPy array of type NPY_ULONG.
 
 ## Authors
 
