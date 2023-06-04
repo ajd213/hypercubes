@@ -130,6 +130,8 @@ In the case of the Hamiltonians, we check output against third-party code. For t
 
 ## Full list of functions
 
+` hypercube_clusters(N, NR, p)`
+
 ## Authors
 
 * **Alexander Duthie** [GitHub](https://github.com/ajd213)
