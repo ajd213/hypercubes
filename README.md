@@ -128,6 +128,8 @@ Included also in analysis/ is a set of unit tests designed to test both the core
 
 In the case of the Hamiltonians, we check output against third-party code. For the hypercube, this is NetworkX, and for the PXP model a colleague's Python code.
 
+## Full list of functions
+
 ## Authors
 
 * **Alexander Duthie** [GitHub](https://github.com/ajd213)
