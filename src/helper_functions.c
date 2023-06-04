@@ -345,3 +345,52 @@ ul fibonacci(ul n)
     }
     return b;
 }
+
+
+queue *setup_queue(ul length)
+{
+    queue *q = malloc(sizeof(queue));
+    if (!q) return NULL;
+
+    q->writeIdx = 0;
+    q->readIdx = 0;
+    q->length = length + 1; // one extra value needed
+    q->sites = malloc(q->length*sizeof(ul));
+
+    if (!q->sites) return NULL;
+
+    return q;
+}
+
+void enqueue(queue *q, ul item, int *err)
+{
+    if ((q->writeIdx + 1) % q->length == q->readIdx)
+    {
+        // buffer is full, avoid overflow
+        printf("Error! Queue is full!\n");
+        *err = 1;
+        return;
+    }
+    q->sites[q->writeIdx] = item;
+    q->writeIdx = (q->writeIdx + 1) % q->length;
+}
+
+ul dequeue(queue *q, int *err)
+{
+    if (q->readIdx == q->writeIdx)
+    {
+        // empty
+        printf("Error! Buffer is empty!\n");
+        *err = 2;
+        return 1;
+    }
+    ul value = q->sites[q->readIdx];
+    q->readIdx = (q->readIdx + 1) % q->length;
+    return value;
+}
+
+bool empty(queue *q)
+{
+    if (q->readIdx == q->writeIdx) return true;
+    return false;
+}

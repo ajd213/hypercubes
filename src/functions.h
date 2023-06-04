@@ -17,16 +17,31 @@ typedef struct stack
 }
 stack;
 
+typedef struct queue {
+    ul *sites;
+    ul writeIdx;
+    ul readIdx;
+    ul length;
+}
+queue;
+
 /* Stack functions */
 int push(stack *s, ul site);
 ul pop(stack *s, int *error);
 stack *setup_stack(ul NH);
 void reset_visited(bool visited[], ul length);
 
+/* Queue functions */
+queue *setup_queue(ul length);
+void enqueue(queue *q, ul item, int *err);
+ul dequeue(queue *q, int *err);
+bool empty(queue *q);
+
 /* Hypercube functions */
 ul DFS_hypercube(stack *s, bool visited[], const float p, const ul N, const ul start_state, int *error);
 PyObject *hypercube_clusters(PyObject *self, PyObject *args);
 PyObject *hypercube_H(PyObject *self, PyObject *args);
+PyObject *hypercube_dijkstra(PyObject *self, PyObject *args);
 
 /* PXP functions */
 void populate_sites_PXP(ul *sites, ul N);

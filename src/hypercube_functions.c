@@ -4,8 +4,151 @@ dimension for the percolation problem. */
 #include "functions.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <limits.h>
 
 extern gsl_rng *RNG;
+
+
+
+PyObject *hypercube_dijkstra(PyObject *self, PyObject *args)
+{
+    PyObject *py_N = NULL; // N as a Python object
+    ul N; // hypercube dimension
+    float p; // percolation concentration
+
+    if (!PyArg_ParseTuple(args, "Of", &py_N, &p)) goto error;
+
+    N = pyobject_to_ul(py_N);
+    // Check for overflow
+    if (PyErr_Occurred()) goto error;
+
+    if (!check_args(N, 1, p)) 
+    {
+        PyErr_SetString(PyExc_ValueError, "Invalid input arguments");
+        goto error;
+    }
+
+    // the size of the graph
+    ul NH = intpower(2, N); 
+
+    queue *q = setup_queue(NH);
+    if (!q)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Error setting up queue!");
+        goto error;
+    }
+
+    // Each node is initially NOT visited
+    bool *visited = malloc(sizeof(bool)*NH);
+    if (!visited)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Error setting up visited");
+        goto error;
+    }
+    reset_visited(visited, NH);
+
+    // Set all distances to ULONG_MAX except the start site, 0
+    ul *distances = malloc(sizeof(ul)*NH);
+    if (!distances)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Error setting up distances");
+        goto error;
+    }
+    for (ul i = 0; i < NH; i++)
+    {
+        distances[i] = ULONG_MAX;
+    }
+    distances[0] = 0;
+
+    // Actual algorithm begins
+    ul u, v, dist;
+    ul old_cost, new_cost;
+    int err = 0;
+    while(!empty(q))
+    {
+        u = dequeue(q, &err);
+        if (err)
+        {
+            PyErr_SetString(PyExc_RuntimeError, "Something wrong with dequeue!");
+            goto error;
+        }
+        dist = distances[u];
+        visited[u] = true;
+
+        // Explore the neighbours of u
+        for (ul i = 0; i < N; i++)
+        {
+            // flip the ith bit
+            v = u ^ (1UL << i);
+
+            if (!visited[v])
+            {
+                old_cost = distances[v];
+                new_cost = distances[u] + 1;
+
+                if (new_cost < old_cost)
+                {
+                    enqueue(q, v, &err);
+                    if (err)
+                    {
+                        PyErr_SetString(PyExc_RuntimeError, "Something wrong with enqueue!");
+                        goto error;
+                    }
+                    distances[v] = new_cost;
+                }
+            }
+        }
+    }
+
+    ul number_visited = 0;
+    for (ul i = 0; i < NH; i++)
+    {
+        if (visited[i]) number_visited++;
+    }
+
+    ul *finite_distances = malloc(sizeof(ul)*number_visited);
+
+    ul counter = 0;
+    for (ul i = 0; i < NH; i++)
+    {
+        if (visited[i])
+        {
+            finite_distances[counter] = distances[i];
+            counter++;
+        }
+    }
+
+    free(distances);
+    free(q->sites);
+    free(q);
+    free(visited);
+
+    return CArrayToNumPyArray(finite_distances, number_visited);
+
+    error:
+        if (q)
+        {
+            free(q->sites);
+            free(q);
+        }
+        if (visited) free(visited);
+        if (distances) free(distances);
+        return NULL;
+}
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
 
 /*
  * Function:  H_hypercube
@@ -17,7 +160,7 @@ extern gsl_rng *RNG;
  *
  *  returns: a pointer to the Ndarray (Hamiltonian matrix).
  */
-PyObject* hypercube_H(PyObject *self, PyObject *args)
+PyObject *hypercube_H(PyObject *self, PyObject *args)
 {
     
     PyObject *py_N = NULL; // N as a Python object
@@ -67,12 +210,12 @@ PyObject* hypercube_H(PyObject *self, PyObject *args)
             {
                 
                 *array_ptr = connected;
-                *array_ptr_T = connected;
+                *array_ptr_T = connected; // hermiticity!
             }
             else
             {
                 *array_ptr = disconnected;
-                *array_ptr_T = disconnected;
+                *array_ptr_T = disconnected; // hermiticity!
             }
         }
     }
@@ -85,69 +228,6 @@ PyObject* hypercube_H(PyObject *self, PyObject *args)
         return NULL;
 }
 
-/*
- * Function:  DFS_hypercube
- * --------------------
- * grows a percolation cluster on a hypercube with a depth-first search:
- *
- *  s: a pointer to a stack, defined in functions.h
- *  visited: an array of bools of length NH, to record whether each site has been visited
- *  p: the percolation strength. 0 <= p <= 1
- *  N: the dimension of the hypercube. (E.g. N=3 is a regular cube.)
- *  start_state: which site on the hypercube to grow the cluster from
- *  RNG: a random number generator from the gsl library
- *  error: a pointer to an error flag, in case something goes wrong
- *
- *  returns: the size of the cluster. I.e., the number of sites visited by the DFS algorithm.
- */
-ul DFS_hypercube(stack *s, bool visited[], const float p, const ul N, const ul start_state, int *error)
-{
-    ul size = 0; // cluster size
-    ul u, v;
-
-    if (s->top != 0)
-    {
-        printf("Error! Stack not empty!\n");
-        *error = -1; 
-        return 0;
-    }
-    push(s, start_state);
-
-    while (s->top > 0)
-    {
-
-        u = pop(s, error);
-        if (*error == -1)
-        {
-            // error flag has been set, so return.
-            return 0;
-        }
-
-        if (visited[u])
-        {
-            continue;
-        }
-        visited[u] = true;
-        size++;
-
-        for (ul i = 0; i < N; i++)
-        {
-            // flip the ith bit
-            v = u ^ (1UL << i);
-
-            if (!visited[v] && (gsl_rng_uniform(RNG) < p))
-            {
-                if (push(s, v) == 1) 
-                { 
-                    // stack error!
-                    *error = -1; 
-                    return 0;
-                }
-            }
-        }
-    }
-    return size;
-}
 
 /*
  * Function:  hypercube_clusters
@@ -247,4 +327,69 @@ PyObject *hypercube_clusters(PyObject *self, PyObject *args)
         if (numpy_array) Py_DECREF(numpy_array);
         return NULL;
 
+}
+
+
+/*
+ * Function:  DFS_hypercube
+ * --------------------
+ * grows a percolation cluster on a hypercube with a depth-first search:
+ *
+ *  s: a pointer to a stack, defined in functions.h
+ *  visited: an array of bools of length NH, to record whether each site has been visited
+ *  p: the percolation strength. 0 <= p <= 1
+ *  N: the dimension of the hypercube. (E.g. N=3 is a regular cube.)
+ *  start_state: which site on the hypercube to grow the cluster from
+ *  RNG: a random number generator from the gsl library
+ *  error: a pointer to an error flag, in case something goes wrong
+ *
+ *  returns: the size of the cluster. I.e., the number of sites visited by the DFS algorithm.
+ */
+ul DFS_hypercube(stack *s, bool visited[], const float p, const ul N, const ul start_state, int *error)
+{
+    ul size = 0; // cluster size
+    ul u, v;
+
+    if (s->top != 0)
+    {
+        printf("Error! Stack not empty!\n");
+        *error = -1; 
+        return 0;
+    }
+    push(s, start_state);
+
+    while (s->top > 0)
+    {
+
+        u = pop(s, error);
+        if (*error == -1)
+        {
+            // error flag has been set, so return.
+            return 0;
+        }
+
+        if (visited[u])
+        {
+            continue;
+        }
+        visited[u] = true;
+        size++;
+
+        for (ul i = 0; i < N; i++)
+        {
+            // flip the ith bit
+            v = u ^ (1UL << i);
+
+            if (!visited[v] && (gsl_rng_uniform(RNG) < p))
+            {
+                if (push(s, v) == 1) 
+                { 
+                    // stack error!
+                    *error = -1; 
+                    return 0;
+                }
+            }
+        }
+    }
+    return size;
 }
