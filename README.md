@@ -132,7 +132,7 @@ In the case of the Hamiltonians, we check output against third-party code. For t
 
 ### Hypercube
 
-` hypercube_clusters(N, NR, p)`: generate the sizes of NR clusters on a hypercube with percolation concentration $p$, returned as a NumPy array of type NPY_ULONG.
+`hypercube_clusters(N, NR, p)`: generate the sizes of NR clusters on a hypercube with percolation concentration $p$, returned as a NumPy array of type NPY_ULONG.
 
  *  N (int): the dimension of the hypercube
  *  NR (int): the Number of Realisations: number of clusters to grow
@@ -148,7 +148,7 @@ In the case of the Hamiltonians, we check output against third-party code. For t
 ### PXP graph/Fibonacci cube
 
 
- ` PXP_clusters(N, NR, p)`: generate the sizes of NR clusters on a PXP graph (Fibonacci cube) with percolation concentration $p$, returned as a NumPy array of type NPY_ULONG.
+ `PXP_clusters(N, NR, p)`: generate the sizes of NR clusters on a PXP graph (Fibonacci cube) with percolation concentration $p$, returned as a NumPy array of type NPY_ULONG.
 
  *  N (int): the dimension of the hypercube
  *  NR (int): the Number of Realisations: number of clusters to grow
