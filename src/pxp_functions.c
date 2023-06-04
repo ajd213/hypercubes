@@ -59,7 +59,7 @@ error:
  *
  *  returns: a pointer to the Ndarray (Hamiltonian matrix).
  */
-PyObject *H_PXP(PyObject *self, PyObject *args)
+PyObject *PXP_H(PyObject *self, PyObject *args)
 {
 
     PyObject *py_N = NULL; // N as a Python object

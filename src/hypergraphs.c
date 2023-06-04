@@ -13,8 +13,8 @@ static PyObject *version(PyObject *self)
 static PyMethodDef myMethods[] = {
     {"hypercube_clusters", hypercube_clusters, METH_VARARGS, "Computes the sizes of NR clusters on a hypercube of dimension N with concentration p."},
     {"PXP_clusters", PXP_clusters, METH_VARARGS, "Computes the sizes of NR clusters on a PXP graph (Fibonacci cube) of dimension N with concentration p."},
-    {"H_hypercube", H_hypercube, METH_VARARGS, "Compute the Hamiltonian for the Hypercube with concentration p."},
-    {"H_PXP", H_PXP, METH_VARARGS, "Compute the Hamiltonian for the PXP model with concentration p."},
+    {"hypercube_H", hypercube_H, METH_VARARGS, "Compute the Hamiltonian for the Hypercube with concentration p."},
+    {"PXP_H", PXP_H, METH_VARARGS, "Compute the Hamiltonian for the PXP model with concentration p."},
     {"PXP_sites", PXP_sites, METH_VARARGS, "Return an array containing the basis sites/nodes of the PXP graph."},
     {"Hamming_distance", Hamming_distance, METH_VARARGS, "Return the Hamming distance between two integers."},
     {"RNG_test", RNG_test, METH_NOARGS, "Return a random int between 0 and INT_MAX"},

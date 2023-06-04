@@ -235,7 +235,7 @@ class Testdistributions(unittest.TestCase):
         for j in range(len(Nlist)):
             N = Nlist[j]
             NH = HS_DIM_LIST[j]
-            H = hypergraphs.H_hypercube(N, p)
+            H = hypergraphs.hypercube_H(N, p)
 
             # ensure that the Hamiltonian matrix has dim 2**N by 2**N
             np.testing.assert_equal(H.shape, (NH, NH))
@@ -250,7 +250,7 @@ class Testdistributions(unittest.TestCase):
 
         N = 10
         nx_hypercube = nx.hypercube_graph(N)
-        H = hypergraphs.H_hypercube(N, 1)
+        H = hypergraphs.hypercube_H(N, 1)
         self.assertTrue(nx.is_isomorphic(nx_hypercube, nx.from_numpy_array(H)))
 
 
@@ -261,7 +261,7 @@ class Testdistributions(unittest.TestCase):
         for j in range(len(Nlist)):
             N = Nlist[j]
             NH = HS_DIM_LIST[j]
-            H = hypergraphs.H_hypercube(N, p)
+            H = hypergraphs.hypercube_H(N, p)
 
             # ensure that the Hamiltonian matrix has dim 2**N by 2**N
             np.testing.assert_equal(H.shape, (NH, NH))
@@ -276,7 +276,7 @@ class Testdistributions(unittest.TestCase):
         for j in range(len(Nlist)):
             N = Nlist[j]
             NH = HS_DIM_LIST[j]
-            H = hypergraphs.H_hypercube(N, p)
+            H = hypergraphs.hypercube_H(N, p)
 
             # ensure that the Hamiltonian matrix has dim 2**N by 2**N
             np.testing.assert_equal(H.shape, (NH, NH))
@@ -287,7 +287,7 @@ class Testdistributions(unittest.TestCase):
         
         N = 14
         NH = 2**N
-        H = hypergraphs.H_hypercube(N, p)
+        H = hypergraphs.hypercube_H(N, p)
 
         # for large N, ensure that approx. the correct number of nodes are present
         np.testing.assert_almost_equal(np.sum(H)/(N*(2**N)), 0.5, decimal=1)
@@ -298,7 +298,7 @@ class Testdistributions(unittest.TestCase):
         N = 12
         p = 1
 
-        H = hypergraphs.H_PXP(N, p)
+        H = hypergraphs.PXP_H(N, p)
 
         eigs, vecs = np.linalg.eigh(H)
 
@@ -331,7 +331,7 @@ class Testdistributions(unittest.TestCase):
         for Ni, N in enumerate(Nlist):
             NH = HS_DIM_LIST[Ni]
 
-            H = hypergraphs.H_PXP(N, p)
+            H = hypergraphs.PXP_H(N, p)
 
             # ensure that the Hamiltonian matrix has correct dimensions
             np.testing.assert_equal(H.shape, (NH, NH))
@@ -350,7 +350,7 @@ class Testdistributions(unittest.TestCase):
         for Ni, N in enumerate(Nlist):
             NH = HS_DIM_LIST[Ni]
 
-            H = hypergraphs.H_PXP(N, p)
+            H = hypergraphs.PXP_H(N, p)
             
             # ensure that the Hamiltonian matrix has correct dimensions
             np.testing.assert_equal(H.shape, (NH, NH))
@@ -366,7 +366,7 @@ class Testdistributions(unittest.TestCase):
         for Ni, N in enumerate(Nlist):
             NH = HS_DIM_LIST[Ni]
 
-            H = hypergraphs.H_PXP(N, p)
+            H = hypergraphs.PXP_H(N, p)
             
             # ensure that the Hamiltonian matrix has correct dimensions
             np.testing.assert_equal(H.shape, (NH, NH))
@@ -376,7 +376,7 @@ class Testdistributions(unittest.TestCase):
         
         # for large enough N, ensure that we have approx. the correct number of edges
         N = 20; p = 0.5
-        H = hypergraphs.H_PXP(N, p)
+        H = hypergraphs.PXP_H(N, p)
         np.testing.assert_almost_equal(np.sum(H)/(2*number_edges(N)), 0.5, decimal=1)
 
     def test_PXP_site_generation(self):

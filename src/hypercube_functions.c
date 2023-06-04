@@ -17,7 +17,7 @@ extern gsl_rng *RNG;
  *
  *  returns: a pointer to the Ndarray (Hamiltonian matrix).
  */
-PyObject* H_hypercube(PyObject *self, PyObject *args)
+PyObject* hypercube_H(PyObject *self, PyObject *args)
 {
     
     PyObject *py_N = NULL; // N as a Python object

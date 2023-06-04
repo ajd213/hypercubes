@@ -26,7 +26,7 @@ void reset_visited(bool visited[], ul length);
 /* Hypercube functions */
 ul DFS_hypercube(stack *s, bool visited[], const float p, const ul N, const ul start_state, int *error);
 PyObject *hypercube_clusters(PyObject *self, PyObject *args);
-PyObject* H_hypercube(PyObject *self, PyObject *args);
+PyObject *hypercube_H(PyObject *self, PyObject *args);
 
 /* PXP functions */
 void populate_sites_PXP(ul *sites, ul N);
@@ -34,7 +34,7 @@ ul *construct_PXP_sitelist(ul N);
 bool PXP_flip_allowed(ul u, ul i, ul N);
 ul DFS_PXP(stack *s, ul *sites, bool visited[], const float p, const ul N, const ul start_state, int *error);
 PyObject *PXP_clusters(PyObject *self, PyObject *args);
-PyObject* H_PXP(PyObject *self, PyObject *args);
+PyObject* PXP_H(PyObject *self, PyObject *args);
 PyObject *PXP_sites(PyObject *self, PyObject *args);
 
 /* Maths functions */
