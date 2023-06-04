@@ -64,6 +64,8 @@ PyObject *hypercube_dijkstra(PyObject *self, PyObject *args)
     ul u, v, dist;
     ul old_cost, new_cost;
     int err = 0;
+
+    enqueue(q, 0, &err);
     while(!empty(q))
     {
         u = dequeue(q, &err);
