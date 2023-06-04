@@ -7,6 +7,15 @@ the Fibonacci cube. */
 
 extern gsl_rng *RNG;
 
+/*
+ * Function:  PXP_sites
+ * --------------------
+ * construct the (ordered) list of nodes/sites for the PXP graph
+ *
+ *  N: the dimension of the Fibonacci cube
+ *
+ *  returns: a NumPy array of sites of type NPY_ULONGLONG
+ */
 PyObject *PXP_sites(PyObject *self, PyObject *args)
 {
     PyObject *py_N = NULL; // N as a Python object

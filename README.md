@@ -144,6 +144,7 @@ In the case of the Hamiltonians, we check output against third-party code. For t
  *  p (float): the percolation concentration. $0 <= p <= 1$
 
 
+
 ### PXP graph/Fibonacci cube
 
 
@@ -153,12 +154,22 @@ In the case of the Hamiltonians, we check output against third-party code. For t
  *  NR (int): the Number of Realisations: number of clusters to grow
  *  p (float): the percolation concentration. $0 <= p <= 1$
 
- `H_PXP(N, p)`: generate the Hamiltonian (adjacency matrix) for the hypercube, as a NumPy array.
+ `H_PXP(N, p)`: generate the Hamiltonian (adjacency matrix) for the hypercube, as a NumPy array of type NPY_ULONG.
 
  *  N (int): the dimension of the hypercube
  *  p (float): the percolation concentration. $0 <= p <= 1$
 
+ `PXP_Sites(N)`: generate the (ordered) array of nodes for the PXP graph, as a NumPy array of type NPY_ULONGLONG.
 
+  *  N: the dimension of the Fibonacci cube
+
+
+### Helper functions
+
+`Hamming_distance(state1, state2)`: Compute the Hamming distance between two basis sites (integers). This is the number of bits different between the two sites, i.e., the minimum number of spin-flips required to go from one to the other. 
+
+ *  state1 (int): the first basis site
+ *  state2 (int): the second basis site
 
 ## Authors
 
