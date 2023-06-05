@@ -143,6 +143,10 @@ In the case of the Hamiltonians, we check output against third-party code. For t
  *  N (int): the dimension of the hypercube
  *  p (float): the percolation concentration. $0 <= p <= 1$
 
+ `hypercube_dijkstra(N, p)`: run Dijkstra's algorithm for the hypercube, returning the distances to all of the sites in the same cluster as the $0$ site as a NumPy array. That is, the length of the returned array depends on how many sites are in the cluster.
+
+ *  N (int): the dimension of the hypercube
+ *  p (float): the percolation concentration. $0 <= p <= 1$
 
 
 ### PXP graph/Fibonacci cube
