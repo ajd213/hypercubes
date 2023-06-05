@@ -117,19 +117,19 @@ bool check_args(ul N, ul NR, float p)
 {
     if (N < 1 || N > 32)
     {
-        printf("N must be between 1 and 32.\n");
+        PyErr_SetString(PyExc_ValueError, "Invalid input arguments! N must be between 1 and 32.");
         return false;
     }
 
     if (p < 0 || p > 1)
     {
-        printf("p is a probability, and must satisfy 0 <= p <= 1.\n");
+        PyErr_SetString(PyExc_ValueError, "Invalid input arguments! p is a probability, and must satisfy 0 <= p <= 1.");
         return false;
     }
 
     if (NR < 1)
     {
-        printf("Please use one or more realisations: NR > 1.\n");
+        PyErr_SetString(PyExc_ValueError, "Invalid input arguments! Please use one or more realisations: NR > 1.");
         return false;
     }
     return true;
@@ -157,6 +157,7 @@ stack *setup_stack(ul NH)
     s->sites = malloc(s->length*sizeof(ul));
     if (!s->sites)
     {
+        PyErr_SetString(PyExc_RuntimeError, "Error setting up stack");
         return NULL;
     }
 
@@ -182,7 +183,7 @@ int push(stack *s, ul site)
         ul *new_stackmem = realloc(s->sites, (s->length + s->NH)*sizeof(ul));
         if (new_stackmem == NULL)
         {
-            printf("Error with realloc in stack!\n");
+            PyErr_SetString(PyExc_RuntimeError, "Error with realloc in push().");
             return 1;
         }
         else
@@ -357,7 +358,11 @@ queue *setup_queue(ul length)
     q->length = length + 1; // one extra value needed
     q->sites = malloc(q->length*sizeof(ul));
 
-    if (!q->sites) return NULL;
+    if (!q->sites) 
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Error setting up queue!");
+        return NULL;
+    }
 
     return q;
 }
@@ -367,7 +372,7 @@ void enqueue(queue *q, ul item, int *err)
     if ((q->writeIdx + 1) % q->length == q->readIdx)
     {
         // buffer is full, avoid overflow
-        printf("Error! Queue is full!\n");
+        PyErr_SetString(PyExc_RuntimeError, "Error! Queue full.");
         *err = 1;
         return;
     }
@@ -380,7 +385,7 @@ ul dequeue(queue *q, int *err)
     if (q->readIdx == q->writeIdx)
     {
         // empty
-        printf("Error! Buffer is empty!\n");
+        PyErr_SetString(PyExc_RuntimeError, "Error! Queue empty!");
         *err = 2;
         return 1;
     }

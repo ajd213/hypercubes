@@ -17,26 +17,16 @@ PyObject *hypercube_dijkstra(PyObject *self, PyObject *args)
     float p; // percolation concentration
 
     if (!PyArg_ParseTuple(args, "Of", &py_N, &p)) goto error;
-
     N = pyobject_to_ul(py_N);
-    // Check for overflow
-    if (PyErr_Occurred()) goto error;
 
-    if (!check_args(N, 1, p)) 
-    {
-        PyErr_SetString(PyExc_ValueError, "Invalid input arguments");
-        goto error;
-    }
+    // Check for overflow or invalid arguments
+    if (PyErr_Occurred() || !check_args(N, 1, p)) goto error;
 
     // the size of the graph
     ul NH = intpower(2, N); 
 
     queue *q = setup_queue(NH);
-    if (!q)
-    {
-        PyErr_SetString(PyExc_RuntimeError, "Error setting up queue!");
-        goto error;
-    }
+    if (!q) goto error;
 
     // Each node is initially NOT visited
     bool *visited = malloc(sizeof(bool)*NH);
@@ -69,11 +59,7 @@ PyObject *hypercube_dijkstra(PyObject *self, PyObject *args)
     while(!empty(q))
     {
         u = dequeue(q, &err);
-        if (err)
-        {
-            PyErr_SetString(PyExc_RuntimeError, "Something wrong with dequeue!");
-            goto error;
-        }
+        if (err) goto error;
         dist = distances[u];
         visited[u] = true;
 
@@ -91,11 +77,7 @@ PyObject *hypercube_dijkstra(PyObject *self, PyObject *args)
                 if (new_cost < old_cost)
                 {
                     enqueue(q, v, &err);
-                    if (err)
-                    {
-                        PyErr_SetString(PyExc_RuntimeError, "Something wrong with enqueue!");
-                        goto error;
-                    }
+                    if (err) goto error;
                     distances[v] = new_cost;
                 }
             }
@@ -139,19 +121,6 @@ PyObject *hypercube_dijkstra(PyObject *self, PyObject *args)
 }
 
 
-
-
-
-
-
-
-
-    
-
-
-
-
-
 /*
  * Function:  H_hypercube
  * --------------------
@@ -173,13 +142,7 @@ PyObject *hypercube_H(PyObject *self, PyObject *args)
 
     N = pyobject_to_ul(py_N);
     // Check for overflow
-    if (PyErr_Occurred()) goto error;
-
-    if (!check_args(N, 1, p)) 
-    {
-        PyErr_SetString(PyExc_ValueError, "Invalid input arguments");
-        goto error;
-    }
+    if (PyErr_Occurred() || !check_args(N, 1, p)) goto error;
 
     // the size of the graph
     ul NH = intpower(2, N); 
@@ -225,7 +188,6 @@ PyObject *hypercube_H(PyObject *self, PyObject *args)
     return numpy_array;
 
     error:
-        if (!PyErr_Occurred()) PyErr_SetString(PyExc_RuntimeError, "Fatal error occurred");
         if (numpy_array) Py_DECREF(numpy_array);
         return NULL;
 }
@@ -245,7 +207,6 @@ PyObject *hypercube_H(PyObject *self, PyObject *args)
  */
 PyObject *hypercube_clusters(PyObject *self, PyObject *args)
 {
-
     PyObject *py_N = NULL; // N as a Python object
     ul N; // hypercube dimension
     int NR; // Number of Realisations
@@ -255,22 +216,12 @@ PyObject *hypercube_clusters(PyObject *self, PyObject *args)
 
     N = pyobject_to_ul(py_N);
     // Check for overflow
-    if (PyErr_Occurred()) goto error;
+    if (PyErr_Occurred() || !check_args(N, NR, p)) goto error;
 
     ul NH = intpower(2, N); // the size of the graph
 
-    if (!check_args(N, NR, p)) 
-    {
-        PyErr_SetString(PyExc_ValueError, "Invalid input arguments");
-        goto error;
-    }
-
     stack *s = setup_stack(NH);
-    if (!s)
-    {
-        PyErr_SetString(PyExc_RuntimeError, "Error setting up stack");
-        goto error;
-    }
+    if (!s) goto error;
 
     bool *visited = malloc(sizeof(bool)*NH);
     if (!visited)
@@ -304,12 +255,7 @@ PyObject *hypercube_clusters(PyObject *self, PyObject *args)
         ul *array_ptr = (ul *) PyArray_GetPtr(numpy_array, index);
         *array_ptr = DFS_hypercube(s, visited, p, N, start_site, &error_flag);
 
-        if (error_flag == -1)
-        {
-            // error!
-            PyErr_SetString(PyExc_RuntimeError, "Error in DFS algorithm!");
-            goto error;
-        }
+        if (error_flag == -1) goto error;
     }
 
     // free heap memory, except cluster sizes
@@ -354,7 +300,7 @@ ul DFS_hypercube(stack *s, bool visited[], const float p, const ul N, const ul s
 
     if (s->top != 0)
     {
-        printf("Error! Stack not empty!\n");
+        PyErr_SetString(PyExc_RuntimeError, "Error in DFS algorithm! Stack not empty.");
         *error = -1; 
         return 0;
     }
@@ -386,7 +332,6 @@ ul DFS_hypercube(stack *s, bool visited[], const float p, const ul N, const ul s
             {
                 if (push(s, v) == 1) 
                 { 
-                    // stack error!
                     *error = -1; 
                     return 0;
                 }
