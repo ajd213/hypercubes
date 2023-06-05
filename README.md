@@ -85,6 +85,22 @@ H_p = hypergraphs.H_PXP(N, p)
 
 In the directory `analysis/`, the `test_distributions.py` file includes many unit tests pertaining to properties of the Hamiltonians.
 
+### Running Dijkstra's algorithm
+
+The function `hypercube_dijkstra(N, p)` runs an instance of Dijkstra's algorithm from the $0$ site of the hypercube, returning the shortest distances to all of the sites in the same cluster as the $0$ site. By running this function many times, we can plot probability distributions of the shortest paths, which can also be used to diagnose the percolation transition.
+
+```
+N = 22
+p = 2/N
+
+# run Dijkstra's algorithm
+shortest_paths = hypergraphs.hypercube_dijkstra(N, p)
+
+...
+
+
+```
+
 ## An example calculation: locating the percolation transition
 
 It is known analytically that the location of the percolation transition is $p_c = 1/N$ in the limit $N\to\infty$. In this example, we show that the transition is apparent even for modest $N$. The code for this example is located in analysis/percolation_transition.py.
