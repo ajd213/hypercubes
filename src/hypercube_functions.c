@@ -9,7 +9,19 @@ dimension for the percolation problem. */
 extern gsl_rng *RNG;
 
 
-
+/*
+ * Function:  hypercube_dijkstra
+ * --------------------
+ * Run Dijkstra's algorithm from the root (0) site of the Hypercube. Return
+ * a NumPy array of minimum distances to all the other nodes IN THE CLUSTER. 
+ * In other words, the length of the returned array is equal to the size of
+ * the cluster containing 0.
+ *
+ *  N: the dimension of the hypercube
+ *  p: the percolation concentration
+ *
+ *  returns: a pointer to the Ndarray.
+ */
 PyObject *hypercube_dijkstra(PyObject *self, PyObject *args)
 {
     PyObject *py_N = NULL; // N as a Python object
@@ -54,12 +66,15 @@ PyObject *hypercube_dijkstra(PyObject *self, PyObject *args)
     ul u, v, dist;
     ul old_cost, new_cost;
     int err = 0;
+    ul number_visited = 0;
 
     enqueue(q, 0, &err);
     while(!empty(q))
     {
         u = dequeue(q, &err);
         if (err) goto error;
+        number_visited++;
+
         dist = distances[u];
         visited[u] = true;
 
@@ -84,16 +99,10 @@ PyObject *hypercube_dijkstra(PyObject *self, PyObject *args)
         }
     }
 
-    ul number_visited = 0;
-    for (ul i = 0; i < NH; i++)
-    {
-        if (visited[i]) number_visited++;
-    }
-
+    // Copy the distances of the nodes which have been visited
+    // to a new array
     ul *finite_distances = malloc(sizeof(ul)*number_visited);
-
-    ul counter = 0;
-    for (ul i = 0; i < NH; i++)
+    for (ul i = 0, counter = 0; i < NH; i++)
     {
         if (visited[i])
         {
@@ -119,7 +128,6 @@ PyObject *hypercube_dijkstra(PyObject *self, PyObject *args)
         if (distances) free(distances);
         return NULL;
 }
-
 
 /*
  * Function:  H_hypercube
@@ -191,7 +199,6 @@ PyObject *hypercube_H(PyObject *self, PyObject *args)
         if (numpy_array) Py_DECREF(numpy_array);
         return NULL;
 }
-
 
 /*
  * Function:  hypercube_clusters
@@ -276,7 +283,6 @@ PyObject *hypercube_clusters(PyObject *self, PyObject *args)
         return NULL;
 
 }
-
 
 /*
  * Function:  DFS_hypercube
