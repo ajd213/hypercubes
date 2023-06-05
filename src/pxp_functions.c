@@ -25,14 +25,8 @@ PyObject *PXP_sites(PyObject *self, PyObject *args)
 
     // Fibonacci cube dimension
     ul N = pyobject_to_ul(py_N);
-    // Check for overflow
-    if (PyErr_Occurred()) goto error;
-
-    if (!check_args(N, 1, 1))
-    {
-        PyErr_SetString(PyExc_ValueError, "Invalid input arguments: 0 < N < 32");
-        goto error;
-    }
+    // Check for overflow and invalid arguments
+    if (PyErr_Occurred() || !check_args(N, 1, 1)) goto error;
 
     // the size of the graph
     ul NH = fibonacci(N+2);
@@ -73,15 +67,8 @@ PyObject *PXP_H(PyObject *self, PyObject *args)
         goto error;
     }
     N = pyobject_to_ul(py_N);
-    // Check for overflow
-    if (PyErr_Occurred()) goto error;
-
-
-    if (!check_args(N, 1, p)) 
-    {
-        PyErr_SetString(PyExc_ValueError, "Invalid input arguments");
-        goto error;
-    }
+    // Check for overflow/arguements
+    if (PyErr_Occurred() || !check_args(N, 1, p)) goto error;
 
     // the size of the graph
     ul NH = fibonacci(N+2);
@@ -146,7 +133,6 @@ PyObject *PXP_H(PyObject *self, PyObject *args)
     return numpy_array;
 
     error:
-        if (!PyErr_Occurred()) PyErr_SetString(PyExc_RuntimeError, "Fatal error occurred");
         if (sitelist) free(sitelist);
         if (numpy_array) Py_DECREF(numpy_array);
         return NULL;
@@ -176,36 +162,18 @@ PyObject *PXP_clusters(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "Oif", &py_N, &NR, &p)) goto error;
 
     N = pyobject_to_ul(py_N);
-    // Check for overflow
-    if (PyErr_Occurred()) goto error;
-
+    // Check for overflow & arguments
+    if (PyErr_Occurred() || !check_args(N, NR, p)) goto error;
 
     // the size of the graph
     ul NH = fibonacci(N+2);
 
-    if (!check_args(N, NR, p)) 
-    {
-        PyErr_SetString(PyExc_ValueError, "Invalid input arguments");
-        goto error;
-    }
-
     stack *s = setup_stack(NH);
-    if (!s)
-    {
-        PyErr_SetString(PyExc_RuntimeError, "Error setting up stack");
-        goto error;
-    }
+    if (!s) goto error;
 
     // a list of the sites
-    ul *sitelist = malloc(sizeof(ul)*NH);
-    if (sitelist == NULL)
-    {
-        PyErr_SetString(PyExc_RuntimeError, "Error setting up sitelist");
-        goto error;
-    }
-
-    // fill sitelist with PXP nodes
-    populate_sites_PXP(sitelist, N);
+    ul *sitelist = construct_PXP_sitelist(N);
+    if (!sitelist) goto error;
 
     // keep track of visited nodes
     bool *visited = malloc(sizeof(bool)*NH);
@@ -214,7 +182,6 @@ PyObject *PXP_clusters(PyObject *self, PyObject *args)
         PyErr_SetString(PyExc_RuntimeError, "Error setting up visited");
         goto error;
     }
-
 
     // where we will grow the cluster from
     ul start_site;
@@ -243,12 +210,7 @@ PyObject *PXP_clusters(PyObject *self, PyObject *args)
         ul *array_ptr = (ul *) PyArray_GetPtr(numpy_array, index);
         *array_ptr =  DFS_PXP(s, sitelist, visited, p, N, start_site, &error_flag);
 
-        if (error_flag == -1)
-        {
-            // error!
-            PyErr_SetString(PyExc_RuntimeError, "Error in DFS algorithm!");
-            goto error;
-        }
+        if (error_flag == -1) goto error;
     }
 
     // free heap memory, except cluster sizes
@@ -297,7 +259,7 @@ ul DFS_PXP(stack *s, ul *sites, bool visited[], const float p, const ul N, const
 
     if (s->top != 0)
     {
-        printf("Error! Stack not empty!\n");
+        PyErr_SetString(PyExc_RuntimeError, "Error! Stack not empty in DFS_PXP");
         *error = -1; 
         return 0;
     }
@@ -316,7 +278,6 @@ ul DFS_PXP(stack *s, ul *sites, bool visited[], const float p, const ul N, const
         idx_u = index_site(sites, u, 0, NH-1, &idx_flag);
         if (idx_flag == -1)
         {
-            printf("Error! Site u not found!\n");
             *error = -1;
             return 0;
         }
@@ -341,7 +302,6 @@ ul DFS_PXP(stack *s, ul *sites, bool visited[], const float p, const ul N, const
                 idx_v = index_site(sites, v, 0, NH-1, &idx_flag);
                 if (idx_flag == -1)
                 {
-                    printf("Error! Site v not found!\n");
                     *error = -1;
                     return 0;
                 }

@@ -265,6 +265,7 @@ ul index_site(ul *sites, ul site, ul left, ul right, int *idx_flag)
         return index_site(sites, site, mid + 1, right, idx_flag);
     }
     // not found
+    PyErr_SetString(PyExc_RuntimeError, "Error! Site not found in index_site(). Is the input list ordered?");
     *idx_flag = -1;
     return 0;
 }

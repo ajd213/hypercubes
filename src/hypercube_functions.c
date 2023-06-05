@@ -102,6 +102,11 @@ PyObject *hypercube_dijkstra(PyObject *self, PyObject *args)
     // Copy the distances of the nodes which have been visited
     // to a new array
     ul *finite_distances = malloc(sizeof(ul)*number_visited);
+    if (!finite_distances)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Error setting up finite_distances");
+        goto error;
+    }
     for (ul i = 0, counter = 0; i < NH; i++)
     {
         if (visited[i])
