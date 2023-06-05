@@ -12,9 +12,9 @@ extern gsl_rng *RNG;
  * --------------------
  * construct the (ordered) list of nodes/sites for the PXP graph
  *
- *  N: the dimension of the Fibonacci cube
+ * N: the dimension of the Fibonacci cube
  *
- *  returns: a NumPy array of sites of type NPY_ULONGLONG
+ * returns: a NumPy array of sites of type NPY_ULONGLONG
  */
 PyObject *PXP_sites(PyObject *self, PyObject *args)
 {
@@ -42,16 +42,15 @@ error:
     return NULL;
 }
 
-
 /*
- * Function:  H_PXP
+ * Function:  PXP_H
  * --------------------
  * build the Hamiltonian (adjacency matrix) for the PXP model, as a NumPy array.
  *
- *  N: the dimension of the Fibonacci cube
- *  p: the percolation concentration
+ * N: the dimension of the Fibonacci cube
+ * p: the percolation concentration
  *
- *  returns: a pointer to the Ndarray (Hamiltonian matrix).
+ * returns: a pointer to the Ndarray (Hamiltonian matrix).
  */
 PyObject *PXP_H(PyObject *self, PyObject *args)
 {
@@ -141,15 +140,15 @@ PyObject *PXP_H(PyObject *self, PyObject *args)
 /*
  * Function:  PXP_clusters
  * --------------------
- *  driver code for running DFS_PXP many times and returning a pointer to the cluster sizes.
- *  Checks the user input. For each realisation, starts from a random site
+ * driver code for running DFS_PXP many times and returning a pointer to the cluster sizes.
+ * Checks the user input. For each realisation, starts from a random site
  *
- *  N: the dimension of the hypercube
- *  NR: the Number of Realisations: number of clusters to grow
- *  p: the percolation concentration. 0 <= p <= 1
- *  error: a pointer to an error flag in case of probems.
+ * N: the dimension of the hypercube
+ * NR: the Number of Realisations: number of clusters to grow
+ * p: the percolation concentration. 0 <= p <= 1
+ * error: a pointer to an error flag in case of probems.
  *
- *  returns: a pointer to an NumPy array of NR cluster sizes, of type ul (unsigned long)
+ * returns: a pointer to an NumPy array of NR cluster sizes, of type ul (unsigned long)
  */
 PyObject *PXP_clusters(PyObject *self, PyObject *args)
 {
@@ -240,13 +239,13 @@ PyObject *PXP_clusters(PyObject *self, PyObject *args)
  * grows a percolation cluster on a Fibonacci cube (the HS of the PXP model) using a depth-
  * first search.
  *
- *  s: a pointer to a stack, defined in functions.h
- *  sites: a pointer to an array of sites, which contains the Fibonacci cube nodes
- *  visited: an array of bools of length NH, to record whether each site has been visited
- *  p: the percolation strength. 0 <= p <= 1
- *  N: the dimension of the hypercube. (E.g. N=3 is a regular cube.)
- *  start_state: which site on the hypercube to grow the cluster from
- *  error: a pointer to an error flag, in case something goes wrong
+ * s: a pointer to a stack, defined in functions.h
+ * sites: a pointer to an array of sites, which contains the Fibonacci cube nodes
+ * visited: an array of bools of length NH, to record whether each site has been visited
+ * p: the percolation strength. 0 <= p <= 1
+ * N: the dimension of the hypercube. (E.g. N=3 is a regular cube.)
+ * start_state: which site on the hypercube to grow the cluster from
+ * error: a pointer to an error flag, in case something goes wrong
  *
  *  returns: the size of the cluster. I.e., the number of sites visited by the DFS algorithm.
  */
@@ -379,8 +378,8 @@ bool PXP_flip_allowed(ul u, ul i, ul N)
  * For the PXP model, populate an ordered list of the graph nodes. The largest sector of the HS is called the Fibonacci cube, and consists
  * of all nodes which have no adjacent set bits.
  *
- *  sites: a pointer to an array of sites (unsigned long integers)
- *  N: the dimension of the graph
+ * sites: a pointer to an array of sites (unsigned long integers)
+ * N: the dimension of the graph
 
  */
 void populate_sites_PXP(ul *sites, ul N)
@@ -401,7 +400,7 @@ void populate_sites_PXP(ul *sites, ul N)
  * --------------------
  * Allocate memory for and construct a list of the sites (nodes) of the PXP graph (Fibonacci cube)
  *
- *  N: the dimension of the graph
+ * N: the dimension of the graph
  * 
  * returns: a pointer to an array of uls containing the sites
 

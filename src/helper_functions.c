@@ -41,6 +41,14 @@ PyObject *Hamming_distance(PyObject *self, PyObject *args)
         return NULL;
 }
 
+/*
+ * Function:  RNG_test
+ * --------------------
+ * Compute a single random integer from the global RNG. Used for unit testing
+ * the RNG, specifically to check for collisions/improper seeding.
+ * 
+ * returns: a PyLong object containing a single positive random integer.
+ */
 PyObject *RNG_test(PyObject *self, PyObject *args)
 {
     int number = gsl_rng_uniform_int(RNG, INT_MAX);
@@ -51,7 +59,7 @@ PyObject *RNG_test(PyObject *self, PyObject *args)
 /*
  * Function:  CArrayToNumPyArray
  * --------------------
- *  Wrap a pointer to clusters data in a NumPy array.
+ * Wrap a pointer to clusters data in a NumPy array.
  * 
  * arr: a pointer to an array of uls
  * length: length of array
@@ -101,17 +109,16 @@ ul pyobject_to_ul(PyObject *positive_int)
     return N;
 }
 
-
 /*
  * Function:  check_args
  * --------------------
- *  check user arguments N, NR and p.
+ * check user arguments N, NR and p.
  *
- *  N: the dimension of the hypercube: 1 <= N <= 32
- *  NR: the Number of Realisations: number of clusters to grow. NR >= 1
- *  p: the percolation concentration. 0 <= p <= 1
+ * N: the dimension of the hypercube: 1 <= N <= 32
+ * NR: the Number of Realisations: number of clusters to grow. NR >= 1
+ * p: the percolation concentration. 0 <= p <= 1
  *
- *  returns: true if arguments are OK, else false.
+ * returns: true if arguments are OK, else false.
  */
 bool check_args(ul N, ul NR, float p)
 {
@@ -138,11 +145,11 @@ bool check_args(ul N, ul NR, float p)
 /*
  * Function:  setup_stack
  * --------------------
- *  allocate memory for the stack and initialise values.
+ * allocate memory for the stack and initialise values.
  *
- *  NH: the Hilbert space dimension / the dimension of the graph / the total number of nodes
+ * NH: the Hilbert space dimension / the dimension of the graph / the total number of nodes
  *
- *  returns: a pointer (stack *) to a stack, or NULL if malloc fails.
+ * returns: a pointer (stack *) to a stack, or NULL if malloc fails.
  */
 stack *setup_stack(ul NH)
 {
@@ -170,10 +177,10 @@ stack *setup_stack(ul NH)
  * push a site to the stack, and re-size the stack with realloc() if necessary.
  * Stack struct defined in header file.
  *
- *  s: a pointer to a stack, defined in functions.h
- *  site: the graph site to be pushed to the stack
+ * s: a pointer to a stack
+ * site: the graph site to be pushed to the stack
  *
- *  returns: 0 if push successful, 1 otherwise.
+ * returns: 0 if push successful, 1 otherwise.
  */
 int push(stack *s, ul site)
 {
@@ -204,10 +211,10 @@ int push(stack *s, ul site)
  * --------------------
  * pop a site from the stack. Throw an error if the stack is empty.
  *
- *  s: a pointer to a stack, defined in functions.h
- *  error: a pointer to an error flag
+ * s: a pointer to a stack
+ * error: a pointer to an error flag
  *
- *  returns: the site popped from the stack, if successful. Otherwise 0 (and error raised).
+ * returns: the site popped from the stack, if successful. Otherwise 0 (and error raised).
  */
 ul pop(stack *s, int *error)
 {
@@ -227,8 +234,8 @@ ul pop(stack *s, int *error)
  * --------------------
  * loop through visited[], which tracks whether each site has been visited by the DFS algorithm.
  *
- *  visited: a list of bools equal to NH, the number of nodes in the graph.
- *  length: the length of visited (= NH)
+ * visited: a list of bools equal to NH, the number of nodes in the graph.
+ * length: the length of visited (= NH)
  */
 void reset_visited(bool visited[], ul length)
 {
@@ -243,13 +250,13 @@ void reset_visited(bool visited[], ul length)
  * --------------------
  * search an ordered list of sites for a particular site using a binary search.
  *
- *  sites: a pointer to an ordered list of sites
- *  site: the site to search for
- *  left: the left index of the list (use 0 when calling)
- *  right: the right index of the list (use len(sites) - 1 when calling)
- *  idx_flag: a pointer to a flag which is set to -1 if the site cannot be found
+ * sites: a pointer to an ordered list of sites
+ * site: the site to search for
+ * left: the left index of the list (use 0 when calling)
+ * right: the right index of the list (use len(sites) - 1 when calling)
+ * idx_flag: a pointer to a flag which is set to -1 if the site cannot be found
  *
- *  returns: the index of the site, if found. If not found, return 0 and set idx_flag to -1.
+ * returns: the index of the site, if found. If not found, return 0 and set idx_flag to -1.
  */
 ul index_site(ul *sites, ul site, ul left, ul right, int *idx_flag)
 {
@@ -275,10 +282,10 @@ ul index_site(ul *sites, ul site, ul left, ul right, int *idx_flag)
  * --------------------
  * recursive integer exponentiation for ul (unsigned long) type. Used seldomly.
  *
- *  base: the number to be exponentiated
- *  exponent: the power which the base is raised to
+ * base: the number to be exponentiated
+ * exponent: the power which the base is raised to
  *
- *  returns: base ** exponent (base to the power of exponent)
+ * returns: base ** exponent (base to the power of exponent)
  */
 ul intpower(ul base, ul exponent)
 {
@@ -299,10 +306,10 @@ ul intpower(ul base, ul exponent)
  * we must evaluate the k! term `backwards' to retain exact divisibiity.
  * O(r) time complexity and O(1) space complexity.
  *
- *  n: integer in C(n, r)
- *  r: integer in C(n, r)
+ * n: integer in C(n, r)
+ * r: integer in C(n, r)
  *
- *  returns: C(n, r) = n!/(r!(n-r)!)
+ * returns: C(n, r) = n!/(r!(n-r)!)
  */
 ul binomialCoeff(ul n, ul r)
 {
@@ -348,7 +355,16 @@ ul fibonacci(ul n)
     return b;
 }
 
-
+/*
+ * Function:  setup_queue
+ * --------------------
+ * allocate memory for the circular queue and initialise values.
+ *
+ * length: the (fixed!) size of the queue. Unlike the stack, the queue does NOT
+ *         dynamically increase its size.
+ *
+ * returns: a pointer (queue *) to a queue, or NULL if malloc fails.
+ */
 queue *setup_queue(ul length)
 {
     queue *q = malloc(sizeof(queue));
@@ -368,6 +384,15 @@ queue *setup_queue(ul length)
     return q;
 }
 
+/*
+ * Function:  enqueue
+ * --------------------
+ * add an item to the queue. Set the error flag and raise a PyErr 
+ * if the queue is full.
+ *
+ * q: a pointer to a queue
+ * site: the graph site to be pushed to the stack
+ */
 void enqueue(queue *q, ul item, int *err)
 {
     if ((q->writeIdx + 1) % q->length == q->readIdx)
@@ -381,6 +406,16 @@ void enqueue(queue *q, ul item, int *err)
     q->writeIdx = (q->writeIdx + 1) % q->length;
 }
 
+/*
+ * Function:  dequeue
+ * --------------------
+ * return the frontmost item in the queue, at index readIdx
+ *
+ * q: a pointer to a queue
+ * error: a pointer to an error flag
+ *
+ * returns: the item at the front of the queue, if successful. Otherwise 2 (and error raised).
+ */
 ul dequeue(queue *q, int *err)
 {
     if (q->readIdx == q->writeIdx)
@@ -395,6 +430,15 @@ ul dequeue(queue *q, int *err)
     return value;
 }
 
+/*
+ * Function:  empty
+ * --------------------
+ * check if the queue is empty
+ *
+ * q: a pointer to a queue
+ *
+ * returns: true if the queue is empty, otherwise false
+ */
 bool empty(queue *q)
 {
     if (q->readIdx == q->writeIdx) return true;

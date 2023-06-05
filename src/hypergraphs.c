@@ -34,8 +34,8 @@ static struct PyModuleDef hypergraphs = {
 PyMODINIT_FUNC PyInit_hypergraphs(void)
 {
     PyObject *module = PyModule_Create(&hypergraphs);
-    // Initialize the NumPy C API
-    import_array();
+    
+    import_array(); // Initialize the NumPy C API
 
     RNG = gsl_rng_alloc(gsl_rng_mt19937);
     gsl_rng_set(RNG, time(NULL));

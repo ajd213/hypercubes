@@ -8,6 +8,7 @@
 #include <stdbool.h>
 
 typedef unsigned long ul;
+
 typedef struct stack
 {
     ul *sites;

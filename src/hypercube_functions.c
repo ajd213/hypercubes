@@ -8,7 +8,6 @@ dimension for the percolation problem. */
 
 extern gsl_rng *RNG;
 
-
 /*
  * Function:  hypercube_dijkstra
  * --------------------
@@ -17,10 +16,10 @@ extern gsl_rng *RNG;
  * In other words, the length of the returned array is equal to the size of
  * the cluster containing 0.
  *
- *  N: the dimension of the hypercube
- *  p: the percolation concentration
+ * N: the dimension of the hypercube
+ * p: the percolation concentration
  *
- *  returns: a pointer to the Ndarray.
+ * returns: a pointer to the Ndarray.
  */
 PyObject *hypercube_dijkstra(PyObject *self, PyObject *args)
 {
@@ -139,10 +138,10 @@ PyObject *hypercube_dijkstra(PyObject *self, PyObject *args)
  * --------------------
  * build the Hamiltonian (adjacency matrix) for the hypercube, as a NumPy array.
  *
- *  N: the dimension of the hypercube
- *  p: the percolation concentration
+ * N: the dimension of the hypercube
+ * p: the percolation concentration
  *
- *  returns: a pointer to the Ndarray (Hamiltonian matrix).
+ * returns: a pointer to the Ndarray (Hamiltonian matrix).
  */
 PyObject *hypercube_H(PyObject *self, PyObject *args)
 {
@@ -208,14 +207,14 @@ PyObject *hypercube_H(PyObject *self, PyObject *args)
 /*
  * Function:  hypercube_clusters
  * --------------------
- *  driver code for running DFS_hypercube many times and returning a NumPy array of cluster sizes.
- *  Checks the user input.
+ * driver code for running DFS_hypercube many times and returning a NumPy array of cluster sizes.
+ * Checks the user input.
  *
- *  N: the dimension of the hypercube
- *  NR: the Number of Realisations: number of clusters to grow
- *  p: the percolation concentration. 0 <= p <= 1
+ * N: the dimension of the hypercube
+ * NR: the Number of Realisations: number of clusters to grow
+ * p: the percolation concentration. 0 <= p <= 1
  *
- *  returns: a PyObject * (NumPy array) of NR cluster sizes, of type NPY_ULONG (unsigned long)
+ * returns: a PyObject * (NumPy array) of NR cluster sizes, of type NPY_ULONG (unsigned long)
  */
 PyObject *hypercube_clusters(PyObject *self, PyObject *args)
 {
@@ -294,15 +293,15 @@ PyObject *hypercube_clusters(PyObject *self, PyObject *args)
  * --------------------
  * grows a percolation cluster on a hypercube with a depth-first search:
  *
- *  s: a pointer to a stack, defined in functions.h
- *  visited: an array of bools of length NH, to record whether each site has been visited
- *  p: the percolation strength. 0 <= p <= 1
- *  N: the dimension of the hypercube. (E.g. N=3 is a regular cube.)
- *  start_state: which site on the hypercube to grow the cluster from
- *  RNG: a random number generator from the gsl library
- *  error: a pointer to an error flag, in case something goes wrong
+ * s: a pointer to a stack, defined in functions.h
+ * visited: an array of bools of length NH, to record whether each site has been visited
+ * p: the percolation strength. 0 <= p <= 1
+ * N: the dimension of the hypercube. (E.g. N=3 is a regular cube.)
+ * start_state: which site on the hypercube to grow the cluster from
+ * RNG: a random number generator from the gsl library
+ * error: a pointer to an error flag, in case something goes wrong
  *
- *  returns: the size of the cluster. I.e., the number of sites visited by the DFS algorithm.
+ * returns: the size of the cluster. I.e., the number of sites visited by the DFS algorithm.
  */
 ul DFS_hypercube(stack *s, bool visited[], const float p, const ul N, const ul start_state, int *error)
 {
