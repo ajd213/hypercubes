@@ -14,7 +14,7 @@ Percolation theory gets its name from the physical processes of a fluid moving t
 
 When a graph is split into many disjoint clusters, we are primarily interested in how large those clusters are. Many properties of percolation, such as the value of $p$ at which the graph switches from the non-percolating to the percolating phase (the so-called "percolation transition"), can be computed if you know how likely clusters of different sizes are to form. Obtaining these probabilities, however, can be computationally expensive, especially for complex graphs such as the hypercube lattice. The most efficient method is often to 'grow' clusters from a starting site, generating the graph and evaluating the probabilities on-the-fly. By growing many clusters, we can estimate the cluster probabilities. 
 
-This process of growing clusters is what the hypergraphs module is for. At its core is an efficient depth-first-search-like algorithm for growing clusters, written in C. The output of this algorithm is a list of many cluster sizes, which can be analysed by the provided functions to compute percolation properties. The module also contains functions for creating Hamiltonians (adjacency matrices) for the two graphs, as well as for running Dijkstra's algorithm.
+This process of growing clusters is what the hypergraphs module is for. At its core is an efficient depth-first-search-like algorithm for growing clusters, written in C. The output of this algorithm is a list of many cluster sizes, which can be analysed by the provided functions to compute percolation properties.
 
 For more information on percolation, I recommend the book *Introduction to Percolation Theory, D. Stauffer & A. Aharony, Taylor & Francis (2003).*
 
@@ -85,22 +85,6 @@ H_p = hypergraphs.H_PXP(N, p)
 
 In the directory `analysis/`, the `test_distributions.py` file includes many unit tests pertaining to properties of the Hamiltonians.
 
-### Running Dijkstra's algorithm
-
-The function `hypercube_dijkstra(N, p)` runs an instance of Dijkstra's algorithm from the $0$ site of the hypercube, returning the shortest distances to all of the sites in the same cluster as the $0$ site. By running this function many times, we can plot probability distributions of the shortest paths, which can also be used to diagnose the percolation transition.
-
-```
-N = 22
-p = 2/N
-
-# run Dijkstra's algorithm
-shortest_paths = hypergraphs.hypercube_dijkstra(N, p)
-
-...
-
-
-```
-
 ## An example calculation: locating the percolation transition
 
 It is known analytically that the location of the percolation transition is $p_c = 1/N$ in the limit $N\to\infty$. In this example, we show that the transition is apparent even for modest $N$. The code for this example is located in analysis/percolation_transition.py.
@@ -148,33 +132,29 @@ In the case of the Hamiltonians, we check output against third-party code. For t
 
 ### Hypercube
 
-`hypercube_clusters(N, NR, p)`: generate the sizes of NR clusters on a hypercube with percolation concentration $p$, returned as a NumPy array of type NPY_ULONG. Because the sites of the hypercube are all equivalent, we always choose the site `0` as the starting site.
+` hypercube_clusters(N, NR, p)`: generate the sizes of NR clusters on a hypercube with percolation concentration $p$, returned as a NumPy array of type NPY_ULONG.
 
  *  N (int): the dimension of the hypercube
  *  NR (int): the Number of Realisations: number of clusters to grow
  *  p (float): the percolation concentration. $0 <= p <= 1$
 
-`hypercube_H(N, p)`: generate the Hamiltonian (adjacency matrix) for the hypercube, as a NumPy array.
+`H_hypercube(N, p)`: generate the Hamiltonian (adjacency matrix) for the hypercube, as a NumPy array.
 
  *  N (int): the dimension of the hypercube
  *  p (float): the percolation concentration. $0 <= p <= 1$
 
- `hypercube_dijkstra(N, p)`: run Dijkstra's algorithm for the hypercube, returning the distances to all of the sites in the same cluster as the $0$ site as a NumPy array. That is, the length of the returned array depends on how many sites are in the cluster.
-
- *  N (int): the dimension of the hypercube
- *  p (float): the percolation concentration. $0 <= p <= 1$
 
 
 ### PXP graph/Fibonacci cube
 
 
- `PXP_clusters(N, NR, p)`: generate the sizes of NR clusters on a PXP graph (Fibonacci cube) with percolation concentration $p$, returned as a NumPy array of type NPY_ULONG. Because the sites of the PXP graph are NOT equivalent, the starting site is randomly chosen for each realisation.
+ ` PXP_clusters(N, NR, p)`: generate the sizes of NR clusters on a PXP graph (Fibonacci cube) with percolation concentration $p$, returned as a NumPy array of type NPY_ULONG.
 
  *  N (int): the dimension of the hypercube
  *  NR (int): the Number of Realisations: number of clusters to grow
  *  p (float): the percolation concentration. $0 <= p <= 1$
 
- `PXP_H(N, p)`: generate the Hamiltonian (adjacency matrix) for the hypercube, as a NumPy array of type NPY_ULONG.
+ `H_PXP(N, p)`: generate the Hamiltonian (adjacency matrix) for the hypercube, as a NumPy array of type NPY_ULONG.
 
  *  N (int): the dimension of the hypercube
  *  p (float): the percolation concentration. $0 <= p <= 1$

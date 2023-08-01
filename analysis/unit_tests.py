@@ -477,7 +477,54 @@ class Testdistributions(unittest.TestCase):
         distances = sorted(hypergraphs.hypercube_dijkstra(N, p))
         np.testing.assert_array_equal(distances, [0, 1])
 
+    def test_hypercube_H_SC(self):
 
+        # First check that p=1 gives the same result
+        Nlist = np.arange(1, 11)
+        p = 1
+
+        for N in Nlist:
+            H_grown = hypergraphs.hypercube_H_SC(N, p)
+            H = hypergraphs.hypercube_H(N, p)
+            # Check that the two Hamiltonians are the same
+            np.testing.assert_array_equal(H, H_grown[0])
+
+            # Check that the cluster sizes are correct
+
+            NH = 2**N
+            self.assertEqual(H_grown[1], NH)
+
+
+
+        # Checks for p = 0
+        p = 0
+
+        for N in Nlist:
+            H_grown = hypergraphs.hypercube_H_SC(N, p)
+            np.testing.assert_array_equal(H_grown[0], 0)
+            self.assertEqual(H_grown[1], 1)
+
+
+        # Checks for intermediate p
+        p = 0.5
+
+        for N in Nlist:
+            H_grown = hypergraphs.hypercube_H_SC(N, p)
+            # Test Hermiticity
+            np.testing.assert_array_equal(H_grown[0], H_grown[0].T)
+
+            # Check that the size of the cluster fits with the Hamiltonian
+            row_sum = np.sum(H_grown[0], axis=0)
+            size = np.sum([1 for j in row_sum if j > 0])
+            if size == 0:
+                self.assertEqual(H_grown[1], 1)
+            else:
+                self.assertEqual(size, H_grown[1])
+        
+        # for large N, ensure that approx. the correct number of nodes are present
+        N = 14
+        H_grown = hypergraphs.hypercube_H_SC(N, p)
+        np.testing.assert_almost_equal(np.sum(H_grown[0])/(N*(2**N)), p, decimal=2)
 
 
 # ancillary functions

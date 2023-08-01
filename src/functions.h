@@ -42,6 +42,7 @@ bool empty(queue *q);
 ul DFS_hypercube(stack *s, bool visited[], const float p, const ul N, const ul start_state, int *error);
 PyObject *hypercube_clusters(PyObject *self, PyObject *args);
 PyObject *hypercube_H(PyObject *self, PyObject *args);
+PyObject *hypercube_H_SC(PyObject *self, PyObject *args);
 PyObject *hypercube_dijkstra(PyObject *self, PyObject *args);
 
 /* PXP functions */
