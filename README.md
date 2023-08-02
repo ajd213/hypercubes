@@ -68,17 +68,17 @@ Note that the number of nodes in a hypercube of dimension $N$ is $N_\mathcal{H} 
 
 ### Creating Hamiltonians
 
-The functions `H_hypercube(N, p)` and `H_PXP(N, p)` generate Hamiltonians (adjacency matrices) for the Hypercube and Fibonacci cube. The RNG is seeded only upon importing the module, so it is safe to create many instances of a Hamiltonian with a particular $p$ value in a short period of time.
+The functions `hypercube_H(N, p)` and `PXP_H(N, p)` generate Hamiltonians (adjacency matrices) for the Hypercube and Fibonacci cube. The RNG is seeded only upon importing the module, so it is safe to create many instances of a Hamiltonian with a particular $p$ value in a short period of time.
 
 ```
 N = 12
 p = 0.5
 
 # create an instance of a hypercube Hamiltonian
-H_hyp = hypergraphs.H_hypercube(N, p)
+H_hyp = hypergraphs.hypercube_H(N, p)
 
 # create an instance of a PXP Hamiltonian
-H_p = hypergraphs.H_PXP(N, p)
+H_p = hypergraphs.PXP_H(N, p)
 
 
 ```
@@ -138,7 +138,7 @@ In the case of the Hamiltonians, we check output against third-party code. For t
  *  NR (int): the Number of Realisations: number of clusters to grow
  *  p (float): the percolation concentration. $0 <= p <= 1$
 
-`H_hypercube(N, p)`: generate the Hamiltonian (adjacency matrix) for the hypercube, as a NumPy array.
+`hypercube_H(N, p)`: generate the Hamiltonian (adjacency matrix) for the hypercube, as a NumPy array.
 
  *  N (int): the dimension of the hypercube
  *  p (float): the percolation concentration. $0 <= p <= 1$
@@ -161,12 +161,12 @@ In the case of the Hamiltonians, we check output against third-party code. For t
  *  NR (int): the Number of Realisations: number of clusters to grow
  *  p (float): the percolation concentration. $0 <= p <= 1$
 
- `H_PXP(N, p)`: generate the Hamiltonian (adjacency matrix) for the hypercube, as a NumPy array of type NPY_ULONG.
+ `PXP_H(N, p)`: generate the Hamiltonian (adjacency matrix) for the hypercube, as a NumPy array of type NPY_ULONG.
 
  *  N (int): the dimension of the hypercube
  *  p (float): the percolation concentration. $0 <= p <= 1$
 
- `PXP_Sites(N)`: generate the (ordered) array of nodes for the PXP graph, as a NumPy array of type NPY_ULONGLONG.
+ `PXP_sites(N)`: generate the (ordered) array of nodes for the PXP graph, as a NumPy array of type NPY_ULONGLONG.
 
   *  N: the dimension of the Fibonacci cube
 
