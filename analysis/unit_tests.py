@@ -254,7 +254,6 @@ class Testdistributions(unittest.TestCase):
         self.assertTrue(nx.is_isomorphic(nx_hypercube, nx.from_numpy_array(H)))
 
 
-
         # test p = 0: in this limit, each node is disconnected
         p = 0
 
@@ -526,6 +525,37 @@ class Testdistributions(unittest.TestCase):
         H_grown = hypergraphs.hypercube_H_SC(N, p)
         np.testing.assert_almost_equal(np.sum(H_grown[0])/(N*(2**N)), p, decimal=2)
 
+    def test_hypercube_get_H_SC(self):
+        N = 6
+        NR = 12
+
+        # First test p = 1
+        p = 1
+        H_data = distributions.get_H_SC_hypercube(N, NR, p, DATA_PATH)
+
+        # Check the size of the data
+        self.assertEqual(len(H_data), NR)
+        self.assertEqual(len(H_data[0]), 2)
+
+        for data in H_data:
+            H = data[0].toarray()
+            size = data[1]
+            # Size of the cluster == NH == 2**N
+            self.assertEqual(size, 2**N)
+            # Check against whole H code
+            np.testing.assert_array_equal(H, hypergraphs.hypercube_H(N, p))
+        
+        # Now test p = 0
+        p = 0
+        H_data = distributions.get_H_SC_hypercube(N, NR, p, DATA_PATH)
+        for data in H_data:
+            H = data[0].toarray()
+            size = data[1]
+            # Size of the cluster == 1
+            self.assertEqual(size, 1)
+            # Check against whole H code
+            np.testing.assert_array_equal(H, hypergraphs.hypercube_H(N, p))
+
 
 # ancillary functions
 
@@ -567,7 +597,5 @@ def Wouters_PXP_H(L):
                 H[j,i] = 1
     return np.array(H)
 
-
 if __name__ == "__main__":
     unittest.main()
-

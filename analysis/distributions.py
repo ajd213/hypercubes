@@ -6,6 +6,7 @@ Introduction to Percolation Theory, D. Stauffer & A. Aharony, Taylor & Francis (
 
 import numpy as np
 import hypergraphs
+from scipy import sparse as spr
 
 
 def cluster_numbers(cs: np.ndarray) -> tuple[np.ndarray, np.ndarray]: 
@@ -125,3 +126,25 @@ def get_clusters_PXP(N : int, NR : int, p : float, data_path : str) -> np.ndarra
         np.save(data_path + name, clusters)
     
     return clusters
+
+def get_H_SC_hypercube(N : int, NR : int, p : float, data_path : str):
+    """Attempt to load H data, else generate and save it. H is stored
+    as a sparse matrix."""
+
+    name = f"H_SC_hypercube_N{N}_NR{NR}_p{p:.4f}.npy"
+
+    try:
+        H_data = np.load(data_path + name, allow_pickle=True)
+    
+    except FileNotFoundError:
+        print(f"Generating data: {name}")
+        H_data = []
+        for _ in range(NR):
+            data = hypergraphs.hypercube_H_SC(N, p)
+            H = spr.csr_matrix(data[0])
+            size = data[1]
+            H_data.append((H, size))
+
+        np.save(data_path + name, H_data)
+
+    return H_data

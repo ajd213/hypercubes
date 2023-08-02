@@ -133,7 +133,17 @@ PyObject *hypercube_dijkstra(PyObject *self, PyObject *args)
         return NULL;
 }
 
-
+/* Function: hypercube_H_SC
+ * ----------------------
+ * Construct the Hamiltonian matrix for a single cluster of the Hypercube.
+ * Return the matrix and the size of the cluster in a Python Tuple object.
+ * 
+ * N : the dimension of the hypercube
+ * p: the percolation concentration
+ * 
+ * returns: a tuple (H, size), where H is a NumPy ndarray of the Hamiltonian,
+ * and size the size of the cluster. Tuple returned as a pointer to a PyObject.
+*/
 PyObject *hypercube_H_SC(PyObject *self, PyObject *args)
 {
 
@@ -152,7 +162,7 @@ PyObject *hypercube_H_SC(PyObject *self, PyObject *args)
     // the size of the graph
     ul NH = intpower(2, N); 
 
-    // Create a new NumPy array of integers with the same dimensions
+    // Create a new NumPy array of integers of dimension (2**N, 2**N)
     npy_intp dimensions[2] = {NH, NH};
     PyArrayObject *numpy_array = (PyArrayObject *) PyArray_ZEROS(2, dimensions, NPY_INT, 0);
     if (!numpy_array)
@@ -230,7 +240,7 @@ PyObject *hypercube_H_SC(PyObject *self, PyObject *args)
         }
     }
 
-    /* Clean up and return tuple or handle errors. */
+    /* Clean up and return tuple, or handle errors. */
 
     PyObject *result = PyTuple_New(2);
     if (!result) goto error;
