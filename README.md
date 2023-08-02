@@ -143,6 +143,13 @@ In the case of the Hamiltonians, we check output against third-party code. For t
  *  N (int): the dimension of the hypercube
  *  p (float): the percolation concentration. $0 <= p <= 1$
 
+ `hypercube_H_SC(N, p)`: generate the Hamiltonian for a single cluster of the hypercube. Return the Hamiltonian and the cluster size, as a tuple.
+
+ *  N (int): the dimension of the hypercube
+ *  p (float): the percolation concentration. $0 <= p <= 1$
+
+ Returns $(H, s)$, where $H$ is the Hamiltonian, and $s$ the size of the cluster.
+
 
 
 ### PXP graph/Fibonacci cube
