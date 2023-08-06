@@ -585,12 +585,9 @@ class Testdistributions(unittest.TestCase):
             np.testing.assert_array_equal(sorted(lengths[i]), np.array([0]))
 
 
-
-
-
-
-
-# ancillary functions
+###############################
+##### ANCILLARY FUNCTIONS #####
+###############################
 
 def Hamming_distances_from_zero(N):
     """I.e., how many bits are set?"""
