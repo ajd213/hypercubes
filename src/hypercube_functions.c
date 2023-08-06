@@ -265,7 +265,6 @@ PyObject *hypercube_H_SC(PyObject *self, PyObject *args)
         return NULL;
 }
 
-
 /*
  * Function:  H_hypercube
  * --------------------

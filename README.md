@@ -138,6 +138,10 @@ In the case of the Hamiltonians, we check output against third-party code. For t
  *  NR (int): the Number of Realisations: number of clusters to grow
  *  p (float): the percolation concentration. $0 <= p <= 1$
 
+ `hypercube_dijkstra(N, p)`: run Dijksta's algorithm from the root site of the hypercube, and compute the distances
+ from the root site to all the other sites in the same cluster. The length of the returned array is equal to the size of
+ the cluster containing the $0$ site.
+
 `hypercube_H(N, p)`: generate the Hamiltonian (adjacency matrix) for the hypercube, as a NumPy array.
 
  *  N (int): the dimension of the hypercube
