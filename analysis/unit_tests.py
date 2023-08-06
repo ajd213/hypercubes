@@ -419,10 +419,6 @@ class Testdistributions(unittest.TestCase):
             self.assertNotEqual(randints[k], randints[k+1])
 
     def test_dijkstra(self):
-        def Hamming_distances_from_zero(N):
-            """I.e., how many bits are set?"""
-            NH = 2**N
-            return np.fromiter((gmpy2.popcount(i) for i in range(NH)), dtype=np.uint)
 
         # First test p = 1
 
@@ -555,9 +551,52 @@ class Testdistributions(unittest.TestCase):
             self.assertEqual(size, 1)
             # Check against whole H code
             np.testing.assert_array_equal(H, hypergraphs.hypercube_H(N, p))
+    
+    def test_get_path_lengths_hypercube(self):
+        N = 7
+        NH = 2**N
+        NR = 102
+
+        # Start with p = 1, where we know some analytic results
+        # Remember, we have already tested the hypercube_dijkstra() code
+
+        p = 1
+        lengths = distributions.get_path_lengths_hypercube(N, NR, p, DATA_PATH)
+        lengths = distributions.get_path_lengths_hypercube(N, NR, p, DATA_PATH)
+
+        # We should generate NR clusters
+        self.assertEqual(len(lengths), NR)
+
+        # Check clusters are correct size and compare result to analytic 
+        for i in range(NR): 
+            self.assertEqual(len(lengths[i]), NH)
+            np.testing.assert_array_equal(sorted(lengths[i]), sorted(Hamming_distances_from_zero(N)))
+
+
+        # Now check p = 0
+        p = 0
+        lengths = distributions.get_path_lengths_hypercube(N, NR, p, DATA_PATH)
+        
+        # We should generate NR clusters
+        self.assertEqual(len(lengths), NR)
+
+        # But each cluster is of size 1, and has path length zero
+        for i in range(NR): 
+            np.testing.assert_array_equal(sorted(lengths[i]), np.array([0]))
+
+
+
+
+
 
 
 # ancillary functions
+
+def Hamming_distances_from_zero(N):
+    """I.e., how many bits are set?"""
+    NH = 2**N
+    return np.fromiter((gmpy2.popcount(i) for i in range(NH)), dtype=np.uint)
+
 
 def Wouters_PXP_H(L):
     """ Code to construct the PXP Hamiltonian courtesy of Wouter.

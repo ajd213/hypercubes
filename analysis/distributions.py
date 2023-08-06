@@ -128,8 +128,8 @@ def get_clusters_PXP(N : int, NR : int, p : float, data_path : str) -> np.ndarra
     return clusters
 
 def get_H_SC_hypercube(N : int, NR : int, p : float, data_path : str):
-    """Attempt to load H data, else generate and save it. H is stored
-    as a sparse matrix."""
+    """Attempt to load H single cluster data, else generate and save it. H is stored
+    as a sparse matrix. Returns: (H,s), where s is the size of the cluster."""
 
     name = f"H_SC_hypercube_N{N}_NR{NR}_p{p:.4f}.npy"
 
@@ -148,3 +148,27 @@ def get_H_SC_hypercube(N : int, NR : int, p : float, data_path : str):
         np.save(data_path + name, H_data)
 
     return H_data
+
+
+def get_path_lengths_hypercube(N : int, NR : int, p : float, data_path : str):
+    """Attempt to load the distribution of path lengths for the cluster containing
+    the 0 site on the hypercube. Otherwise, generate and save the data. Returns:
+    list of length NR, where each element is an array of path lengths, of length
+    equal to the size of the cluster."""
+
+    name = f"paths_hypercube_N{N}_NR{NR}_p{p:.4f}.npy"
+
+    try:
+        data = np.load(data_path + name, allow_pickle=True)
+
+    except FileNotFoundError:
+        print(f"Generating data: {name}")
+        data = []
+        for _ in range(NR):
+            pathlengths = hypergraphs.hypercube_dijkstra(N, p)
+            data.append(pathlengths)
+
+        np.save(data_path + name, data)
+
+    return data
+
