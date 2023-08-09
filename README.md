@@ -8,24 +8,17 @@ A Python module written in C to analyse percolation problems on hypercubes and o
 
 A hypercube is a generalisation of a square (dimension $2$) or a cube (dimension $3$) to any dimension $N$. A Fibonacci cube (also called the PXP graph) is a subgraph of the Hypercube (see [wikipedia](https://en.wikipedia.org/wiki/Fibonacci_cube)).
 
-Percolation problems are simply stated. First, we choose a probability $p$ (where $0< p < 1$). We then take a graph and "activate" each of the edges independently with the probability $p$. After doing this for all edges, we are interested in whether the graph is split up into many disconnected clusters of sites ("non-percolating") or is still more-or-less one big connected graph, but with some edges missing ("percolating"). If the probability $p$ is small, then it is more likely that there will be many small clusters. Values of $p$ close to $1$, on the other hand, are more likely to leave the graph intact. There are some subtleties, but this is the big picture. 
+Percolation problems are simply stated. First, we choose a probability $p$ (where $0< p < 1$). We then take a graph and "activate" each of the edges independently with the probability $p$. After doing this for all edges, we are interested in whether the graph is split up into many disconnected clusters of sites ("non-percolating") or is still more-or-less one big connected graph, but with some edges missing ("percolating"). If the probability $p$ is small, then it is more likely that there will be many small clusters. Values of $p$ close to $1$, on the other hand, are more likely to leave the graph intact.
 
-Percolation theory gets its name from the physical processes of a fluid moving through a porous material, like water through coffee grounds in a percolating coffee machine, or oil in a porous rock bed. 
+When a graph is split into many disjoint clusters, we are interested in how large those clusters are. Many properties of percolation, such as the value of $p$ at which the percolation transition takes place, can be computed if you know how likely clusters of different sizes are to form. Obtaining these probabilities, however, can be computationally expensive, especially for complex graphs such as the hypercube lattice. The most efficient method is often to 'grow' clusters from a starting site, generating the graph and evaluating the probabilities on-the-fly. By growing many clusters, we can estimate the cluster probabilities. 
 
-When a graph is split into many disjoint clusters, we are primarily interested in how large those clusters are. Many properties of percolation, such as the value of $p$ at which the graph switches from the non-percolating to the percolating phase (the so-called "percolation transition"), can be computed if you know how likely clusters of different sizes are to form. Obtaining these probabilities, however, can be computationally expensive, especially for complex graphs such as the hypercube lattice. The most efficient method is often to 'grow' clusters from a starting site, generating the graph and evaluating the probabilities on-the-fly. By growing many clusters, we can estimate the cluster probabilities. 
+This process of growing clusters is what this module is for. At its core is an efficient depth-first-search-like algorithm for growing clusters, written in C. The output of this algorithm is a list of many cluster sizes, which can be analysed by the provided functions to compute percolation properties. The module has also been extended to generate Hamiltonians (adjacency matrices) and to compute distributions of shortest paths within individual clusters.
 
-This process of growing clusters is what the hypergraphs module is for. At its core is an efficient depth-first-search-like algorithm for growing clusters, written in C. The output of this algorithm is a list of many cluster sizes, which can be analysed by the provided functions to compute percolation properties.
-
-For more information on percolation, I recommend the book *Introduction to Percolation Theory, D. Stauffer & A. Aharony, Taylor & Francis (2003).*
+For more information on percolation, see the textbook *Introduction to Percolation Theory, D. Stauffer & A. Aharony, Taylor & Francis (2003).*
 
 ## Installation
 
 Navigate to pymodule/ and run `pip install .`. 
-
-Alternatively, you can avoid using pip by running `python3 setup.py build` from the pymodule/ directory. This will create a new directory, called build/, in one of the subdirectories, you will find a file with a .so extension, which should be copied to your working directory. The module can then be imported as usual.
-
-Included also is a `main.c` file and associated Makefile, which allows for the complication of the code into a standalone executable run via command line arguments.
-
 
 ### Prerequisites
 
@@ -64,7 +57,7 @@ mean_size = distributions.S(cs)
 
 The useful functions `get_clusters_hypercube(N, NR, p, <data_path>)` and `get_clusters_PXP(N, NR, p, <data_path>)` are defined in distributions.py. Given values of N, NR and p, as well as a directory used for data storage, the function will attempt to load the required cluster sizes. If data cannot be found, then it will call the hypergraphs module to generate it, and then save it for next time.
 
-Note that the number of nodes in a hypercube of dimension $N$ is $N_\mathcal{H} = 2^N$, and hence the complexity of the hypergraphs algorithm grows exponentially with $N$. We impose a limit of $N=32$, though computational power will likely limit studies to around $N=20$.
+Note that the number of nodes in a hypercube of dimension $N$ is $N_\mathcal{H} = 2^N$, and hence the complexity of the hypergraphs algorithm grows exponentially with $N$. We impose a limit of $N=32$, though computational power will likely limit studies before this cutoff is reached.
 
 ### Creating Hamiltonians
 
@@ -82,8 +75,6 @@ H_p = hypergraphs.PXP_H(N, p)
 
 
 ```
-
-In the directory `analysis/`, the `test_distributions.py` file includes many unit tests pertaining to properties of the Hamiltonians.
 
 ## An example calculation: locating the percolation transition
 
@@ -181,6 +172,7 @@ In the case of the Hamiltonians, we check output against third-party code. For t
 
  *  state1 (int): the first basis site
  *  state2 (int): the second basis site
+
 
 ## Authors
 
