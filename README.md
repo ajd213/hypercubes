@@ -174,6 +174,11 @@ In the case of the Hamiltonians, we check output against third-party code. For t
  *  state2 (int): the second basis site
 
 
+### Functions in `distributions.py`
+
+Included in `analysis/distributions.py` are functions both for analysing arrays of cluster sizes, as well as generating and saving/loading data. 
+
+
 ## Authors
 
 * **Alexander Duthie** [GitHub](https://github.com/ajd213)
