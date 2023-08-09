@@ -1,4 +1,5 @@
-"""Functions to compute statistical properties of percolation clusters. 
+"""
+Functions to compute statistical properties of percolation clusters. 
 
 For a good introduction to the theory of percolation, see:
 Introduction to Percolation Theory, D. Stauffer & A. Aharony, Taylor & Francis (2003). 

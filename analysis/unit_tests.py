@@ -594,7 +594,6 @@ def Hamming_distances_from_zero(N):
     NH = 2**N
     return np.fromiter((gmpy2.popcount(i) for i in range(NH)), dtype=np.uint)
 
-
 def Wouters_PXP_H(L):
     """ Code to construct the PXP Hamiltonian courtesy of Wouter.
     Included as an independent test against my own code. """
