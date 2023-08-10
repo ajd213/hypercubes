@@ -31,6 +31,19 @@ Python 3.9 and
 * NumPy
 * Matplotlib
 
+You may need to edit your CPATH and LIBRARY_PATH to include the Python, NumPy and GSL headers. For Python, you can find these by running:
+
+```
+from distutils.sysconfig import get_python_inc
+get_python_inc()
+```
+
+and for NumPy with:
+```
+import numpy
+numpy.get_include()
+```
+
 ## Using the module
 
 In the directory analysis/, we include a file distributions.py, which contains functions for analysing cluster sizes and saving/loading data. When analysing the data, be sure to import this file.
