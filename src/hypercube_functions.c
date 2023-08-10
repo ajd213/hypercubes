@@ -136,7 +136,69 @@ PyObject *hypercube_dijkstra(PyObject *self, PyObject *args)
 
 PyObject *hypercube_H_LC(PyObject *self, PyObject *args)
 {
-    return NULL;
+    /* Setup the matrix */
+
+    PyObject *py_N = NULL; // N as a Python object
+    ul N; // hypercube dimension
+    float p; // percolation concentration
+
+    if (!PyArg_ParseTuple(args, "Of", &py_N, &p)) goto error;
+
+    N = pyobject_to_ul(py_N);
+    // Check for overflow
+    if (PyErr_Occurred() || !check_args(N, 1, p)) goto error;
+
+    // the size of the graph
+    ul NH = intpower(2, N); 
+
+    // Create a new NumPy array of integers of dimension (2**N, 2**N)
+    npy_intp dimensions[2] = {NH, NH};
+    PyArrayObject *hamiltonian = (PyArrayObject *) PyArray_ZEROS(2, dimensions, NPY_INT, 0);
+    if (!hamiltonian)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create NumPy array in hypercube_H_SC");
+        goto error;
+    }
+
+    /* Setup objects needed for the DFS algorithm */
+
+    stack *s = setup_stack(NH);
+    if (!s) goto error;
+
+    bool *visited = malloc(sizeof(bool)*NH);
+    if (!visited)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Error setting up visited");
+        goto error;
+    }
+    reset_visited(visited, NH);
+
+    // at this point, we have an empty stack, and an array of false bools representing visited sites
+
+    // which cluster is each site in?
+    ul *labels = calloc(NH, sizeof(ul));
+
+    // and how big is that cluster?
+    ul sizes = calloc(NH, sizeof(ul));
+
+    // index of the largest cluster
+    ul largest_cluster = 0;
+
+    // increment this index to uniquely label each cluster
+    ul cluster_index = 0;
+
+    for (ul site = 0; site < NH; site++)
+    {
+        // loop over sites
+        if (!visited[site])
+        {
+            // DFS: update hamiltonian, update labels and sizes
+            // TODO : write DFS function. Pass pointers to everything
+
+            cluster_index++; // update label of cluster
+        }   
+    }
+
 }
 
 
