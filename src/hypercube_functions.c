@@ -133,6 +133,14 @@ PyObject *hypercube_dijkstra(PyObject *self, PyObject *args)
         return NULL;
 }
 
+
+PyObject *hypercube_H_LC(PyObject *self, PyObject *args)
+{
+    return NULL;
+}
+
+
+
 /* Function: hypercube_H_SC
  * ----------------------
  * Construct the Hamiltonian matrix for a single cluster of the Hypercube.
