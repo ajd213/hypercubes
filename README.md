@@ -44,6 +44,8 @@ import numpy
 numpy.get_include()
 ```
 
+The include path of GSL will depend on where it was installed.
+
 ## Using the module
 
 In the directory analysis/, we include a file distributions.py, which contains functions for analysing cluster sizes and saving/loading data. When analysing the data, be sure to import this file.
