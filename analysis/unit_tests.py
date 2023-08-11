@@ -626,7 +626,27 @@ class Testdistributions(unittest.TestCase):
                 number_clusters += 1
         self.assertTrue(number_clusters == 1)
 
+        # An expensive test: check the average size of the max cluster for
+        # a particular value of N and p
 
+        max_sizes_from_H = []
+
+        NR = 20000
+        N = 7
+        p = 0.3
+
+        for _ in range(NR):
+            H = hypergraphs.hypercube_H(N, p)
+            max_size = max([len(comp) for comp in nx.connected_components(nx.from_numpy_array(H))])
+            max_sizes_from_H.append(max_size)
+        
+        max_sizes_from_H_LC = []
+        for _ in range(NR):
+            H_LC = hypergraphs.hypercube_H_LC(N, p)
+            max_sizes_from_H_LC.append(H_LC[1])
+        
+        np.testing.assert_almost_equal(np.mean(max_sizes_from_H_LC), np.mean(max_sizes_from_H), decimal=0)
+    
 
 ###############################
 ##### ANCILLARY FUNCTIONS #####
