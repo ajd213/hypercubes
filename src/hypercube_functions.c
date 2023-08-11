@@ -134,71 +134,141 @@ PyObject *hypercube_dijkstra(PyObject *self, PyObject *args)
 }
 
 
-PyObject *hypercube_H_LC(PyObject *self, PyObject *args)
+// PyObject *hypercube_H_LC(PyObject *self, PyObject *args)
+// {
+//     /* Setup the matrix */
+
+//     PyObject *py_N = NULL; // N as a Python object
+//     ul N; // hypercube dimension
+//     float p; // percolation concentration
+
+//     if (!PyArg_ParseTuple(args, "Of", &py_N, &p)) goto error;
+
+//     N = pyobject_to_ul(py_N);
+//     // Check for overflow
+//     if (PyErr_Occurred() || !check_args(N, 1, p)) goto error;
+
+//     // the size of the graph
+//     ul NH = intpower(2, N); 
+
+//     // Create a new NumPy array of integers of dimension (2**N, 2**N)
+//     npy_intp dimensions[2] = {NH, NH};
+//     PyArrayObject *hamiltonian = (PyArrayObject *) PyArray_ZEROS(2, dimensions, NPY_INT, 0);
+//     if (!hamiltonian)
+//     {
+//         PyErr_SetString(PyExc_RuntimeError, "Unable to create NumPy array in hypercube_H_SC");
+//         goto error;
+//     }
+
+//     /* Setup objects needed for the DFS algorithm */
+
+//     stack *s = setup_stack(NH);
+//     if (!s) goto error;
+
+//     bool *visited = malloc(sizeof(bool)*NH);
+//     if (!visited)
+//     {
+//         PyErr_SetString(PyExc_RuntimeError, "Error setting up visited");
+//         goto error;
+//     }
+//     reset_visited(visited, NH);
+
+//     // at this point, we have an empty stack, and an array of false bools representing visited sites
+
+//     // which cluster is each site in?
+//     ul *labels = calloc(NH, sizeof(ul));
+
+//     // and how big is that cluster?
+//     ul sizes = calloc(NH, sizeof(ul));
+
+//     // index of the largest cluster
+//     ul largest_cluster = 0;
+
+//     // increment this index to uniquely label each cluster
+//     ul cluster_index = 0;
+
+//     // store the current cluster size
+//     ul cluster_size;
+
+//     for (ul site = 0; site < NH; site++)
+//     {
+//         // loop over sites
+//         if (!visited[site])
+//         {
+//             // DFS: update hamiltonian, update labels and sizes
+//             // TODO : write DFS function. Pass pointers to everything
+
+//             cluster_index++; // update label of cluster
+//         }   
+//     }
+
+//     // copy the largest cluster into a new hamiltonian
+//     // free the old hamiltonian
+//     // return H and its size as a tuple
+
+// }
+
+static void grow_H_cluster(const ul N, const float p, ul *size, stack *s, const ul start_state, PyArrayObject *numpy_array, bool visited[], int *error_flag)
 {
-    /* Setup the matrix */
+    ul u, v;
+    int connected = 1;
+    int disconnected = 0;
 
-    PyObject *py_N = NULL; // N as a Python object
-    ul N; // hypercube dimension
-    float p; // percolation concentration
-
-    if (!PyArg_ParseTuple(args, "Of", &py_N, &p)) goto error;
-
-    N = pyobject_to_ul(py_N);
-    // Check for overflow
-    if (PyErr_Occurred() || !check_args(N, 1, p)) goto error;
-
-    // the size of the graph
-    ul NH = intpower(2, N); 
-
-    // Create a new NumPy array of integers of dimension (2**N, 2**N)
-    npy_intp dimensions[2] = {NH, NH};
-    PyArrayObject *hamiltonian = (PyArrayObject *) PyArray_ZEROS(2, dimensions, NPY_INT, 0);
-    if (!hamiltonian)
+    if (s->top != 0)
     {
-        PyErr_SetString(PyExc_RuntimeError, "Unable to create NumPy array in hypercube_H_SC");
+        PyErr_SetString(PyExc_RuntimeError, "Error in DFS algorithm! Stack not empty.");
         goto error;
     }
+    push(s, start_state);
 
-    /* Setup objects needed for the DFS algorithm */
-
-    stack *s = setup_stack(NH);
-    if (!s) goto error;
-
-    bool *visited = malloc(sizeof(bool)*NH);
-    if (!visited)
+    while (s->top > 0)
     {
-        PyErr_SetString(PyExc_RuntimeError, "Error setting up visited");
-        goto error;
-    }
-    reset_visited(visited, NH);
 
-    // at this point, we have an empty stack, and an array of false bools representing visited sites
+        u = pop(s, error_flag);
+        if (*error_flag == -1) goto error;
 
-    // which cluster is each site in?
-    ul *labels = calloc(NH, sizeof(ul));
+        if (visited[u]) continue;
+        visited[u] = true;
+        (*size)++;
 
-    // and how big is that cluster?
-    ul sizes = calloc(NH, sizeof(ul));
-
-    // index of the largest cluster
-    ul largest_cluster = 0;
-
-    // increment this index to uniquely label each cluster
-    ul cluster_index = 0;
-
-    for (ul site = 0; site < NH; site++)
-    {
-        // loop over sites
-        if (!visited[site])
+        for (ul i = 0; i < N; i++)
         {
-            // DFS: update hamiltonian, update labels and sizes
-            // TODO : write DFS function. Pass pointers to everything
+            // flip the ith bit
+            v = u ^ (1UL << i);
 
-            cluster_index++; // update label of cluster
-        }   
+            if (!visited[v])
+            {
+                int *array_ptr = (int *) PyArray_GETPTR2(numpy_array, u, v);
+                // ptr to the transpose element
+                int *array_ptr_T = (int *) PyArray_GETPTR2(numpy_array, v, u);
+
+                // with probability p, create a link
+                if (gsl_rng_uniform(RNG) < p)
+                {
+                    if (push(s, v) == 1) goto error;
+                    *array_ptr = connected;
+                    *array_ptr_T = connected; // hermiticity!
+                }
+                else
+                {
+                    *array_ptr = disconnected;
+                    *array_ptr_T = disconnected; // hermiticity!
+                }
+            }
+        }
     }
 
+    return;
+
+    error:
+        if (!PyErr_Occurred()) PyErr_SetString(PyExc_RuntimeError, "Fatal error in grow_H_cluster()");
+        if (numpy_array) Py_DECREF(numpy_array);
+        if (s)
+        {
+            free(s->sites);
+            free(s);
+        }
+        if (visited) free(visited);
 }
 
 
@@ -229,7 +299,6 @@ PyObject *hypercube_H_SC(PyObject *self, PyObject *args)
     // Check for overflow
     if (PyErr_Occurred() || !check_args(N, 1, p)) goto error;
 
-    // the size of the graph
     ul NH = intpower(2, N); 
 
     // Create a new NumPy array of integers of dimension (2**N, 2**N)
@@ -257,74 +326,27 @@ PyObject *hypercube_H_SC(PyObject *self, PyObject *args)
     int error_flag = 0;
     ul start_state = 0;
     ul size = 0;
-    ul u, v;
-    int connected = 1;
-    int disconnected = 0;
-
-    /* ACTUAL ALGORITH BEGINS */
-
-    if (s->top != 0)
-    {
-        PyErr_SetString(PyExc_RuntimeError, "Error in DFS algorithm! Stack not empty.");
-        goto error;
-    }
-    push(s, start_state);
-
-    while (s->top > 0)
-    {
-
-        u = pop(s, &error_flag);
-        if (error_flag == -1) goto error;
-
-        if (visited[u])
-        {
-            continue;
-        }
-        visited[u] = true;
-        size++;
-
-        for (ul i = 0; i < N; i++)
-        {
-            // flip the ith bit
-            v = u ^ (1UL << i);
-
-            if (!visited[v])
-            {
-                int *array_ptr = (int *) PyArray_GETPTR2(numpy_array, u, v);
-                // ptr to the transpose element
-                int *array_ptr_T = (int *) PyArray_GETPTR2(numpy_array, v, u);
-
-                // with probability p, create a link
-                if (gsl_rng_uniform(RNG) < p)
-                {
-                    if (push(s, v) == 1) goto error;
-                    *array_ptr = connected;
-                    *array_ptr_T = connected; // hermiticity!
-                }
-                else
-                {
-                    *array_ptr = disconnected;
-                    *array_ptr_T = disconnected; // hermiticity!
-                }
-            }
-        }
-    }
+    
+    // RUN ALGORITHM HERE
+    grow_H_cluster(N, p, &size, s, start_state, numpy_array, visited, &error_flag);
 
     /* Clean up and return tuple, or handle errors. */
-
     PyObject *result = PyTuple_New(2);
     if (!result) goto error;
 
     PyTuple_SetItem(result, 0, (PyObject *)numpy_array);
     PyTuple_SetItem(result, 1, PyLong_FromUnsignedLong(size));
 
+
     free(s->sites);
     free(s);
     free(visited);
 
+
     return result;
 
     error:
+        if (!PyErr_Occurred()) PyErr_SetString(PyExc_RuntimeError, "Fatal error in hypercube_H_SC()");
         if (numpy_array) Py_DECREF(numpy_array);
         if (s)
         {

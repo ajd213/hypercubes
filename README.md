@@ -18,7 +18,7 @@ For more information on percolation, see the textbook *Introduction to Percolati
 
 ## Installation
 
-Navigate to pymodule/ and run `pip install .`. 
+Navigate to src/ and run `pip install .`. 
 
 ### Prerequisites
 
