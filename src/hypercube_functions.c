@@ -205,9 +205,20 @@ static void grow_H_cluster(const ul N, const float p, ul *size, stack *s, const 
 }
 
 
+/* Function: hypercube_H_LC
+ * ----------------------
+ * Construct the Hamiltonian matrix for the largest cluster of the Hypercube.
+ * To do this, we must enumerate all of the clusters in a single realisation.
+ * Return the matrix and the size of the cluster in a Python Tuple object.
+ * 
+ * N : the dimension of the hypercube
+ * p: the percolation concentration
+ * 
+ * returns: a tuple (H, size), where H is a NumPy ndarray of the Hamiltonian,
+ * and size the size of the cluster. Tuple returned as a pointer to a PyObject.
+*/
 PyObject *hypercube_H_LC(PyObject *self, PyObject *args)
 {
-    /* Setup the matrix */
 
     PyObject *py_N = NULL; // N as a Python object
     ul N; // hypercube dimension
@@ -222,7 +233,7 @@ PyObject *hypercube_H_LC(PyObject *self, PyObject *args)
     // the size of the graph
     ul NH = intpower(2, N); 
 
-    // Create a new NumPy array of integers of dimension (2**N, 2**N)
+    // Create the hamiltonian in which ALL the clusters will be placed
     npy_intp dimensions[2] = {NH, NH};
     PyArrayObject *hamiltonian = (PyArrayObject *) PyArray_ZEROS(2, dimensions, NPY_INT, 0);
     if (!hamiltonian)
@@ -232,7 +243,6 @@ PyObject *hypercube_H_LC(PyObject *self, PyObject *args)
     }
 
     /* Setup objects needed for the DFS algorithm */
-
     stack *s = setup_stack(NH);
     if (!s) goto error;
 
@@ -244,30 +254,25 @@ PyObject *hypercube_H_LC(PyObject *self, PyObject *args)
     }
     reset_visited(visited, NH);
 
-    // at this point, we have an empty stack, and an array of false bools representing visited sites
-
-    // which cluster is each site in?
+    // label each site by a cluster index, to keep track of the different clusters
+    // Set to ULONG_MAX in case of early exit after first cluster (which would result in
+    // all sites being labelled with index 0)
     ul *labels = calloc(NH, sizeof(ul));
+    for (ul i = 0; i < NH; i++) labels[i] = ULONG_MAX;
 
-    // TO OPTIMISE: only need to keep track of current largest cluster and its size, not
-    // ALL of the cluster sizes
-    ul *sizes = calloc(NH, sizeof(ul));
-
-    // index of the largest cluster
-    ul largest_cluster = 0;
+    // largest cluster seen so far
+    ul largest_cluster_index = 0;
+    ul largest_cluster_size = 0;
 
     // increment this index to uniquely label each cluster
     ul cluster_index = 0;
-
-    // store the current cluster size
-    ul cluster_size;
 
     // total number of sites grown so far
     ul total_size = 0;
 
     int error_flag = 0;
+    ul cluster_size;
 
-    // TO OPTIMISE: stop once we have a cluster large enough!
     for (ul site = 0; site < NH; site++)
     {
         // loop over sites
@@ -275,14 +280,18 @@ PyObject *hypercube_H_LC(PyObject *self, PyObject *args)
         {
             cluster_size = 0;
             grow_H_cluster(N, p, &cluster_size, s, site, hamiltonian, visited, &error_flag, cluster_index, labels);
-            sizes[cluster_index] = cluster_size;
             total_size += cluster_size;
-            if (cluster_size > sizes[largest_cluster]) largest_cluster = cluster_index;
-
+            if (cluster_size > largest_cluster_size)
+            {
+                largest_cluster_size = cluster_size;
+                largest_cluster_index = cluster_index;
+            }
             cluster_index++; // update label of cluster
+
+            // early exit condition
+            if (largest_cluster_size >= NH - total_size) break;
         }   
     }
-
 
     // Create a new Hamiltonian into which to copy only the largest cluster
     PyArrayObject *hamiltonian_LC = (PyArrayObject *) PyArray_ZEROS(2, dimensions, NPY_INT, 0);
@@ -291,17 +300,16 @@ PyObject *hypercube_H_LC(PyObject *self, PyObject *args)
         PyErr_SetString(PyExc_RuntimeError, "Unable to create hamiltonian_LC array in hypercube_H_SC");
         goto error;
     }
-
-    // copy the largest cluster into a new array
+    // copy the largest cluster into hamiltonian_LC
     for (ul i = 0; i < NH; i++)
     {
-        if (labels[i] == largest_cluster)
+        if (labels[i] == largest_cluster_index)
         {
             for (int k = 0; k < NH; k++)
             {
                 int *hamiltonian_ptr = (int *) PyArray_GETPTR2(hamiltonian, i, k);
                 int *hamiltonian_LC_ptr = (int *) PyArray_GETPTR2(hamiltonian, i, k);
-                int *hamiltonian_LC_ptr_T = (int *) PyArray_GETPTR2(hamiltonian, k, i);
+                int *hamiltonian_LC_ptr_T = (int *) PyArray_GETPTR2(hamiltonian_LC, k, i);
 
                 *hamiltonian_LC_ptr = *hamiltonian_ptr;
                 *hamiltonian_LC_ptr_T = *hamiltonian_ptr;
@@ -310,16 +318,16 @@ PyObject *hypercube_H_LC(PyObject *self, PyObject *args)
         
     }
 
+    // Package the tuple (H, size)
     PyObject *result = PyTuple_New(2);
     if (!result) goto error;
-
     PyTuple_SetItem(result, 0, (PyObject *)hamiltonian_LC);
-    PyTuple_SetItem(result, 1, PyLong_FromUnsignedLong(sizes[largest_cluster]));
+    PyTuple_SetItem(result, 1, PyLong_FromUnsignedLong(largest_cluster_size));
 
+    // Free memory and return
     Py_DECREF(hamiltonian);
     free(s->sites);
     free(s);
-    free(sizes);
     free(labels);
 
     return result;
@@ -328,7 +336,6 @@ PyObject *hypercube_H_LC(PyObject *self, PyObject *args)
         if (!PyErr_Occurred()) PyErr_SetString(PyExc_RuntimeError, "Fatal error in hypercube_H_SC()");
         if (hamiltonian) Py_DECREF(hamiltonian);
         if (hamiltonian_LC) Py_DECREF(hamiltonian_LC);
-        if (sizes) free(sizes);
         if (labels) free(labels);
         if (s)
         {
