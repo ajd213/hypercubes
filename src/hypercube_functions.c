@@ -133,7 +133,26 @@ PyObject *hypercube_dijkstra(PyObject *self, PyObject *args)
         return NULL;
 }
 
-
+/*
+ * Static function:  grow_H_cluster
+ * --------------------
+ * Helper function used in hypercube_H_LC and hypercube_H_SC. This function runs the DFS algorithm
+ * to create a cluster within a Hamiltonian and record its size (through pointers). We update arrays
+ * to record which sites have been visited, and also to label each site (in the array labels) with an index
+ * (cluster index). If these features are not needed, then NULL can be passed as the labels argument/
+ *
+ * N: the dimension of the hypercube
+ * p: the percolation concentration
+ * size: a pointer to an ul in which we put the cluster size
+ * s: pointer to an empty stack
+ * start_state: hypercube node from which to grow the cluster
+ * numpy_array: pointer to a NumPy array representing H, in which we create the cluster
+ * visited: an array of bools, marking each site as visited (true) or unvisited (false)
+ * error_flag: pointer to an integer used to flag errors
+ * cluster_index: ul used to label each site in the cluster we are about to create
+ * labels: pointer to an array of uls which we use to keep track of the cluster labels of each site
+ *
+ */
 static void grow_H_cluster(const ul N, const float p, ul *size, stack *s, const ul start_state, PyArrayObject *numpy_array, bool visited[], int *error_flag, ul cluster_index, ul *labels)
 {
     ul u, v;
