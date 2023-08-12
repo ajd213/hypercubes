@@ -148,12 +148,21 @@ In the case of the Hamiltonians, we check output against third-party code. For t
  from the root site to all the other sites in the same cluster. The length of the returned array is equal to the size of
  the cluster containing the $0$ site.
 
+  `hypercube_dijkstra_LC(N, p)`: run Dijksta's algorithm within the largest cluster of a realisation. Return a list of distances from one site within that cluster to all the others. This is more expensive than the standard Dijkstra algorithm, as we must run the algorithm many times over Fock space, until we are sure we have found the largest cluster.
+
 `hypercube_H(N, p)`: generate the Hamiltonian (adjacency matrix) for the hypercube, as a NumPy array.
 
  *  N (int): the dimension of the hypercube
  *  p (float): the percolation concentration. $0 <= p <= 1$
 
  `hypercube_H_SC(N, p)`: generate the Hamiltonian for a single cluster of the hypercube. Return the Hamiltonian and the cluster size, as a tuple.
+
+ *  N (int): the dimension of the hypercube
+ *  p (float): the percolation concentration. $0 <= p <= 1$
+
+ Returns $(H, s)$, where $H$ is the Hamiltonian, and $s$ the size of the cluster.
+
+  `hypercube_H_LC(N, p)`: generate the Hamiltonian for the largest cluster of the hypercube. Return the Hamiltonian and the cluster size, as a tuple. This is more expensive than generating the Hamiltonian for just a single cluster, as we must enumerate all (or most of) Hilbert space to be sure that we have the largest cluster.
 
  *  N (int): the dimension of the hypercube
  *  p (float): the percolation concentration. $0 <= p <= 1$
