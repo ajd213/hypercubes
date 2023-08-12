@@ -32,7 +32,7 @@ def main():
     plist = np.linspace(p_min, p_max, N_p)
 
     # number of realisations to use
-    NR = 100000
+    NR = 10000
 
     # system sizes to use
     Nlist = np.arange(8, 16, 2)
