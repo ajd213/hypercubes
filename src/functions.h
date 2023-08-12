@@ -45,6 +45,7 @@ PyObject *hypercube_H(PyObject *self, PyObject *args);
 PyObject *hypercube_H_SC(PyObject *self, PyObject *args);
 PyObject *hypercube_H_LC(PyObject *self, PyObject *args);
 PyObject *hypercube_dijkstra(PyObject *self, PyObject *args);
+PyObject *hypercube_dijkstra_LC(PyObject *self, PyObject *args);
 
 /* PXP functions */
 void populate_sites_PXP(ul *sites, ul N);

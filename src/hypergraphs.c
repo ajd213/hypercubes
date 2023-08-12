@@ -17,6 +17,7 @@ static PyMethodDef myMethods[] = {
     {"hypercube_H_SC", hypercube_H_SC, METH_VARARGS, "Compute the Hamiltonian for a single cluster of the Hypercube with concentration p."},
     {"hypercube_H_LC", hypercube_H_LC, METH_VARARGS, "Compute the Hamiltonian for the LARGEST cluster of the Hypercube with concentration p."},
     {"hypercube_dijkstra", hypercube_dijkstra, METH_VARARGS, "Compute the shortest paths between site 0 and all other sites in the same cluster"},
+    {"hypercube_dijkstra_LC", hypercube_dijkstra_LC, METH_VARARGS, "Compute the shortest paths within the largest cluster"},
     {"PXP_H", PXP_H, METH_VARARGS, "Compute the Hamiltonian for the PXP model with concentration p."},
     {"PXP_sites", PXP_sites, METH_VARARGS, "Return an array containing the basis sites/nodes of the PXP graph."},
     {"Hamming_distance", Hamming_distance, METH_VARARGS, "Return the Hamming distance between two integers."},

@@ -8,6 +8,202 @@ dimension for the percolation problem. */
 
 extern gsl_rng *RNG;
 
+
+/*
+ * Static function:  dijkstra
+ * --------------------
+ * Helper function used in hypercube_dijkstra and hypercube_dijkstra_LC. This function runs
+ * Dijkstra's algorithm from a given site and writes the distances and labels to passed arrays.
+ * If the labels feature is not needed, then NULL can be passed as the labels argument.
+ *
+ * q: a pointer to a queue
+ * N: the dimension of the hypercube
+ * p: the percolation concentration
+ * start_state: hypercube node from which to grow the cluster
+ * visited: an array of bools, marking each site as visited (true) or unvisited (false)
+ * distances: a pointer to an array of uls representing the distance from the start site to all the others in each cluster
+ * number_visited: a pointer to an ul in which to store the size of the cluster explored by one instance of Dijkstra
+ * cluster_index: ul used to label each site in the cluster we are about to create
+ * labels: pointer to an array of uls which we use to keep track of the cluster labels of each site
+ *
+ */
+static void dijkstra(queue *q, const ul N, const float p, const ul start_site, bool visited[], ul *distances, ul *number_visited, ul cluster_index, ul *labels)
+{
+    ul u, v, dist;
+    ul old_cost, new_cost;
+    int err = 0;
+
+    enqueue(q, start_site, &err);
+    while(!empty(q))
+    {
+        u = dequeue(q, &err);
+        if (err) goto error;
+        (*number_visited)++;
+
+        dist = distances[u];
+        visited[u] = true;
+        if (labels)
+        {
+            labels[u] = cluster_index;
+        }
+
+        // Explore the neighbours of u
+        for (ul i = 0; i < N; i++)
+        {
+            // flip the ith bit
+            v = u ^ (1UL << i);
+
+            if (!visited[v] && (gsl_rng_uniform(RNG) < p))
+            {
+                old_cost = distances[v];
+                new_cost = distances[u] + 1;
+
+                if (new_cost < old_cost)
+                {
+                    enqueue(q, v, &err);
+                    if (err) goto error;
+                    distances[v] = new_cost;
+                }
+            }
+        }
+    }
+    return;
+
+    error:
+        if (!PyErr_Occurred()) PyErr_SetString(PyExc_RuntimeError, "Fatal error in dijkstra()");
+        if (distances) free(distances);
+        if (q)
+        {
+            free(q->sites);
+            free(q);
+        }
+        if (visited) free(visited);
+}
+
+/*
+ * Function:  hypercube_dijkstra_LC
+ * --------------------
+ * Run Dijkstra's algorithm within the LARGEST cluster in a Hypercube.
+ * To do this, we have to enumerate all sites.
+ *
+ * N: the dimension of the hypercube
+ * p: the percolation concentration
+ *
+ * returns: a pointer to the Ndarray.
+ */
+PyObject *hypercube_dijkstra_LC(PyObject *self, PyObject *args)
+{
+    PyObject *py_N = NULL; // N as a Python object
+    ul N; // hypercube dimension
+    float p; // percolation concentration
+
+    if (!PyArg_ParseTuple(args, "Of", &py_N, &p)) goto error;
+    N = pyobject_to_ul(py_N);
+
+    // Check for overflow or invalid arguments
+    if (PyErr_Occurred() || !check_args(N, 1, p)) goto error;
+
+    // the size of the graph
+    ul NH = intpower(2, N); 
+
+    queue *q = setup_queue(NH);
+    if (!q) goto error;
+
+    // Each node is initially NOT visited
+    bool *visited = malloc(sizeof(bool)*NH);
+    if (!visited)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Error setting up visited");
+        goto error;
+    }
+    reset_visited(visited, NH);
+
+    // Set all distances to ULONG_MAX except the start site, 0
+    ul *distances = malloc(sizeof(ul)*NH);
+    if (!distances)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Error setting up distances");
+        goto error;
+    }
+    for (ul i = 0; i < NH; i++) distances[i] = ULONG_MAX; 
+    
+    /* ALGORITHM HERE */
+
+    // label each site by a cluster index, to keep track of the different clusters
+    // Set to ULONG_MAX in case of early exit after first cluster (which would result in
+    // all sites being labelled with index 0)
+    ul *labels = calloc(NH, sizeof(ul));
+    for (ul i = 0; i < NH; i++) labels[i] = ULONG_MAX;
+
+    // largest cluster seen so far
+    ul largest_cluster_index = 0;
+    ul largest_cluster_size = 0;
+
+    // increment this index to uniquely label each cluster
+    ul cluster_index = 0;
+
+    // total number of sites grown so far
+    ul total_size = 0;
+
+    ul cluster_size;
+
+    for (ul site = 0; site < NH; site++)
+    {
+        if (!visited[site])
+        {
+            cluster_size = 0;
+            distances[site] = 0;
+            dijkstra(q, N, p, site, visited, distances, &cluster_size, cluster_index, labels);
+
+            total_size += cluster_size;
+            if (cluster_size > largest_cluster_size)
+            {
+                largest_cluster_size = cluster_size;
+                largest_cluster_index = cluster_index;
+            }
+            cluster_index++; // update label of cluster
+
+            // early exit condition
+            if (largest_cluster_size >= NH - total_size) break;
+        }
+    }
+
+    // Copy the distances for the largest cluster only into a new array
+    ul *finite_distances = malloc(sizeof(ul)*largest_cluster_size);
+    if (!finite_distances)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Error setting up finite_distances");
+        goto error;
+    }
+    for (ul i = 0, counter = 0; i < NH; i++)
+    {
+        if (labels[i] == largest_cluster_index)
+        {
+            finite_distances[counter] = distances[i];
+            counter++;
+        }
+    }
+
+    free(distances);
+    free(labels);
+    free(q->sites);
+    free(q);
+    free(visited);
+
+    return CArrayToNumPyArray(finite_distances, largest_cluster_size);
+
+    error:
+        if (q)
+        {
+            free(q->sites);
+            free(q);
+        }
+        if (visited) free(visited);
+        if (distances) free(distances);
+        if (labels) free(labels);
+        return NULL;
+}
+
 /*
  * Function:  hypercube_dijkstra
  * --------------------
@@ -55,49 +251,17 @@ PyObject *hypercube_dijkstra(PyObject *self, PyObject *args)
         PyErr_SetString(PyExc_RuntimeError, "Error setting up distances");
         goto error;
     }
-    for (ul i = 0; i < NH; i++)
-    {
-        distances[i] = ULONG_MAX;
-    }
-    distances[0] = 0;
+    for (ul i = 0; i < NH; i++) distances[i] = ULONG_MAX; // do this each time?
+    
 
-    // Actual algorithm begins
-    ul u, v, dist;
-    ul old_cost, new_cost;
-    int err = 0;
+    // ALGORITHM HERE //
+
     ul number_visited = 0;
+    ul start_site = 0;
+    distances[start_site] = 0;
 
-    enqueue(q, 0, &err);
-    while(!empty(q))
-    {
-        u = dequeue(q, &err);
-        if (err) goto error;
-        number_visited++;
-
-        dist = distances[u];
-        visited[u] = true;
-
-        // Explore the neighbours of u
-        for (ul i = 0; i < N; i++)
-        {
-            // flip the ith bit
-            v = u ^ (1UL << i);
-
-            if (!visited[v] && (gsl_rng_uniform(RNG) < p))
-            {
-                old_cost = distances[v];
-                new_cost = distances[u] + 1;
-
-                if (new_cost < old_cost)
-                {
-                    enqueue(q, v, &err);
-                    if (err) goto error;
-                    distances[v] = new_cost;
-                }
-            }
-        }
-    }
-
+    dijkstra(q, N, p, start_site, visited, distances, &number_visited, 0, NULL);
+    
     // Copy the distances of the nodes which have been visited
     // to a new array
     ul *finite_distances = malloc(sizeof(ul)*number_visited);
@@ -222,7 +386,6 @@ static void grow_H_cluster(const ul N, const float p, ul *size, stack *s, const 
         }
         if (visited) free(visited);
 }
-
 
 /* Function: hypercube_H_LC
  * ----------------------
@@ -364,8 +527,6 @@ PyObject *hypercube_H_LC(PyObject *self, PyObject *args)
         if (visited) free(visited);
         return NULL;
 }
-
-
 
 /* Function: hypercube_H_SC
  * ----------------------
