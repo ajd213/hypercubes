@@ -133,65 +133,12 @@ PyObject *hypercube_dijkstra(PyObject *self, PyObject *args)
         return NULL;
 }
 
-/* Function: hypercube_H_SC
- * ----------------------
- * Construct the Hamiltonian matrix for a single cluster of the Hypercube.
- * Return the matrix and the size of the cluster in a Python Tuple object.
- * 
- * N : the dimension of the hypercube
- * p: the percolation concentration
- * 
- * returns: a tuple (H, size), where H is a NumPy ndarray of the Hamiltonian,
- * and size the size of the cluster. Tuple returned as a pointer to a PyObject.
-*/
-PyObject *hypercube_H_SC(PyObject *self, PyObject *args)
+
+static void grow_H_cluster(const ul N, const float p, ul *size, stack *s, const ul start_state, PyArrayObject *numpy_array, bool visited[], int *error_flag, ul cluster_index, ul *labels)
 {
-
-    /* Setup the matrix */
-
-    PyObject *py_N = NULL; // N as a Python object
-    ul N; // hypercube dimension
-    float p; // percolation concentration
-
-    if (!PyArg_ParseTuple(args, "Of", &py_N, &p)) goto error;
-
-    N = pyobject_to_ul(py_N);
-    // Check for overflow
-    if (PyErr_Occurred() || !check_args(N, 1, p)) goto error;
-
-    // the size of the graph
-    ul NH = intpower(2, N); 
-
-    // Create a new NumPy array of integers of dimension (2**N, 2**N)
-    npy_intp dimensions[2] = {NH, NH};
-    PyArrayObject *numpy_array = (PyArrayObject *) PyArray_ZEROS(2, dimensions, NPY_INT, 0);
-    if (!numpy_array)
-    {
-        PyErr_SetString(PyExc_RuntimeError, "Unable to create NumPy array in hypercube_H_SC");
-        goto error;
-    }
-
-    /* Setup objects needed for the DFS algorithm */
-
-    stack *s = setup_stack(NH);
-    if (!s) goto error;
-
-    bool *visited = malloc(sizeof(bool)*NH);
-    if (!visited)
-    {
-        PyErr_SetString(PyExc_RuntimeError, "Error setting up visited");
-        goto error;
-    }
-    reset_visited(visited, NH);
-
-    int error_flag = 0;
-    ul start_state = 0;
-    ul size = 0;
     ul u, v;
     int connected = 1;
     int disconnected = 0;
-
-    /* ACTUAL ALGORITH BEGINS */
 
     if (s->top != 0)
     {
@@ -203,15 +150,19 @@ PyObject *hypercube_H_SC(PyObject *self, PyObject *args)
     while (s->top > 0)
     {
 
-        u = pop(s, &error_flag);
-        if (error_flag == -1) goto error;
+        u = pop(s, error_flag);
+        if (*error_flag == -1) goto error;
 
-        if (visited[u])
-        {
-            continue;
-        }
+        if (visited[u]) continue;
         visited[u] = true;
-        size++;
+
+        // if we are labelling
+        if (labels)
+        {
+            labels[u] = cluster_index;
+        }
+
+        (*size)++;
 
         for (ul i = 0; i < N; i++)
         {
@@ -240,21 +191,237 @@ PyObject *hypercube_H_SC(PyObject *self, PyObject *args)
         }
     }
 
-    /* Clean up and return tuple, or handle errors. */
+    return;
 
+    error:
+        if (!PyErr_Occurred()) PyErr_SetString(PyExc_RuntimeError, "Fatal error in grow_H_cluster()");
+        if (numpy_array) Py_DECREF(numpy_array);
+        if (s)
+        {
+            free(s->sites);
+            free(s);
+        }
+        if (visited) free(visited);
+}
+
+
+/* Function: hypercube_H_LC
+ * ----------------------
+ * Construct the Hamiltonian matrix for the largest cluster of the Hypercube.
+ * To do this, we must enumerate all of the clusters in a single realisation.
+ * Return the matrix and the size of the cluster in a Python Tuple object.
+ * 
+ * N : the dimension of the hypercube
+ * p: the percolation concentration
+ * 
+ * returns: a tuple (H, size), where H is a NumPy ndarray of the Hamiltonian,
+ * and size the size of the cluster. Tuple returned as a pointer to a PyObject.
+*/
+PyObject *hypercube_H_LC(PyObject *self, PyObject *args)
+{
+
+    PyObject *py_N = NULL; // N as a Python object
+    ul N; // hypercube dimension
+    float p; // percolation concentration
+
+    if (!PyArg_ParseTuple(args, "Of", &py_N, &p)) goto error;
+
+    N = pyobject_to_ul(py_N);
+    // Check for overflow
+    if (PyErr_Occurred() || !check_args(N, 1, p)) goto error;
+
+    // the size of the graph
+    ul NH = intpower(2, N); 
+
+    // Create the hamiltonian in which ALL the clusters will be placed
+    npy_intp dimensions[2] = {NH, NH};
+    PyArrayObject *hamiltonian = (PyArrayObject *) PyArray_ZEROS(2, dimensions, NPY_INT, 0);
+    if (!hamiltonian)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create NumPy array in hypercube_H_SC");
+        goto error;
+    }
+
+    /* Setup objects needed for the DFS algorithm */
+    stack *s = setup_stack(NH);
+    if (!s) goto error;
+
+    bool *visited = malloc(sizeof(bool)*NH);
+    if (!visited)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Error setting up visited");
+        goto error;
+    }
+    reset_visited(visited, NH);
+
+    // label each site by a cluster index, to keep track of the different clusters
+    // Set to ULONG_MAX in case of early exit after first cluster (which would result in
+    // all sites being labelled with index 0)
+    ul *labels = calloc(NH, sizeof(ul));
+    for (ul i = 0; i < NH; i++) labels[i] = ULONG_MAX;
+
+    // largest cluster seen so far
+    ul largest_cluster_index = 0;
+    ul largest_cluster_size = 0;
+
+    // increment this index to uniquely label each cluster
+    ul cluster_index = 0;
+
+    // total number of sites grown so far
+    ul total_size = 0;
+
+    int error_flag = 0;
+    ul cluster_size;
+
+    for (ul site = 0; site < NH; site++)
+    {
+        // loop over sites
+        if (!visited[site])
+        {
+            cluster_size = 0;
+            grow_H_cluster(N, p, &cluster_size, s, site, hamiltonian, visited, &error_flag, cluster_index, labels);
+            total_size += cluster_size;
+            if (cluster_size > largest_cluster_size)
+            {
+                largest_cluster_size = cluster_size;
+                largest_cluster_index = cluster_index;
+            }
+            cluster_index++; // update label of cluster
+
+            // early exit condition
+            if (largest_cluster_size >= NH - total_size) break;
+        }   
+    }
+
+    // Create a new Hamiltonian into which to copy only the largest cluster
+    PyArrayObject *hamiltonian_LC = (PyArrayObject *) PyArray_ZEROS(2, dimensions, NPY_INT, 0);
+    if (!hamiltonian_LC)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create hamiltonian_LC array in hypercube_H_SC");
+        goto error;
+    }
+    // copy the largest cluster into hamiltonian_LC
+    for (ul i = 0; i < NH; i++)
+    {
+        if (labels[i] == largest_cluster_index)
+        {
+            for (int k = 0; k < NH; k++)
+            {
+                int *hamiltonian_ptr = (int *) PyArray_GETPTR2(hamiltonian, i, k);
+                int *hamiltonian_LC_ptr = (int *) PyArray_GETPTR2(hamiltonian, i, k);
+                int *hamiltonian_LC_ptr_T = (int *) PyArray_GETPTR2(hamiltonian_LC, k, i);
+
+                *hamiltonian_LC_ptr = *hamiltonian_ptr;
+                *hamiltonian_LC_ptr_T = *hamiltonian_ptr;
+            }
+        }
+        
+    }
+
+    // Package the tuple (H, size)
+    PyObject *result = PyTuple_New(2);
+    if (!result) goto error;
+    PyTuple_SetItem(result, 0, (PyObject *)hamiltonian_LC);
+    PyTuple_SetItem(result, 1, PyLong_FromUnsignedLong(largest_cluster_size));
+
+    // Free memory and return
+    Py_DECREF(hamiltonian);
+    free(s->sites);
+    free(s);
+    free(labels);
+
+    return result;
+
+    error:
+        if (!PyErr_Occurred()) PyErr_SetString(PyExc_RuntimeError, "Fatal error in hypercube_H_SC()");
+        if (hamiltonian) Py_DECREF(hamiltonian);
+        if (hamiltonian_LC) Py_DECREF(hamiltonian_LC);
+        if (labels) free(labels);
+        if (s)
+        {
+            free(s->sites);
+            free(s);
+        }
+        if (visited) free(visited);
+        return NULL;
+}
+
+
+
+/* Function: hypercube_H_SC
+ * ----------------------
+ * Construct the Hamiltonian matrix for a single cluster of the Hypercube.
+ * Return the matrix and the size of the cluster in a Python Tuple object.
+ * 
+ * N : the dimension of the hypercube
+ * p: the percolation concentration
+ * 
+ * returns: a tuple (H, size), where H is a NumPy ndarray of the Hamiltonian,
+ * and size the size of the cluster. Tuple returned as a pointer to a PyObject.
+*/
+PyObject *hypercube_H_SC(PyObject *self, PyObject *args)
+{
+
+    /* Setup the matrix */
+
+    PyObject *py_N = NULL; // N as a Python object
+    ul N; // hypercube dimension
+    float p; // percolation concentration
+
+    if (!PyArg_ParseTuple(args, "Of", &py_N, &p)) goto error;
+
+    N = pyobject_to_ul(py_N);
+    // Check for overflow
+    if (PyErr_Occurred() || !check_args(N, 1, p)) goto error;
+
+    ul NH = intpower(2, N); 
+
+    // Create a new NumPy array of integers of dimension (2**N, 2**N)
+    npy_intp dimensions[2] = {NH, NH};
+    PyArrayObject *numpy_array = (PyArrayObject *) PyArray_ZEROS(2, dimensions, NPY_INT, 0);
+    if (!numpy_array)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create NumPy array in hypercube_H_SC");
+        goto error;
+    }
+
+    /* Setup objects needed for the DFS algorithm */
+
+    stack *s = setup_stack(NH);
+    if (!s) goto error;
+
+    bool *visited = malloc(sizeof(bool)*NH);
+    if (!visited)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Error setting up visited");
+        goto error;
+    }
+    reset_visited(visited, NH);
+
+    int error_flag = 0;
+    ul start_state = 0;
+    ul size = 0;
+    
+    // RUN ALGORITHM HERE
+    grow_H_cluster(N, p, &size, s, start_state, numpy_array, visited, &error_flag, 0, NULL);
+
+    /* Clean up and return tuple, or handle errors. */
     PyObject *result = PyTuple_New(2);
     if (!result) goto error;
 
     PyTuple_SetItem(result, 0, (PyObject *)numpy_array);
     PyTuple_SetItem(result, 1, PyLong_FromUnsignedLong(size));
 
+
     free(s->sites);
     free(s);
     free(visited);
 
+
     return result;
 
     error:
+        if (!PyErr_Occurred()) PyErr_SetString(PyExc_RuntimeError, "Fatal error in hypercube_H_SC()");
         if (numpy_array) Py_DECREF(numpy_array);
         if (s)
         {

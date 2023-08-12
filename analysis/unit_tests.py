@@ -584,6 +584,69 @@ class Testdistributions(unittest.TestCase):
         for i in range(NR): 
             np.testing.assert_array_equal(sorted(lengths[i]), np.array([0]))
 
+    def test_hypercube_H_LC(self):
+        N = 7
+        NH = 2**N
+
+        # First test p = 1
+        p = 1
+        H_LC = hypergraphs.hypercube_H_LC(N, p)
+        H_exact = hypergraphs.hypercube_H(N, p)
+        np.testing.assert_array_equal(H_LC[0], H_exact)
+        self.assertEqual(NH, H_LC[1])
+
+
+        # Next, test p = 0
+        p = 0
+        H_LC = hypergraphs.hypercube_H_LC(N, p)
+        H_exact = hypergraphs.hypercube_H(N, p)
+        np.testing.assert_array_equal(H_LC[0], H_exact)
+        self.assertEqual(1, H_LC[1])
+
+
+        # Some tests for intermediate p
+
+        p = 0.3
+        H_LC = hypergraphs.hypercube_H_LC(N, p)
+
+        # Hermiticity
+        np.testing.assert_array_equal(H_LC[0], H_LC[0].T)
+
+        # Number of rows containing one or more 1 should be == NH
+        size_manual = np.sum([1 for row in H_LC[0] if np.sum(row) > 0])
+        self.assertEqual(size_manual, H_LC[1])
+
+        # Use NetworkX to check number of connected components is one
+        # Cannot use nx.number_connected_components() as it counts "clusters"
+        # of just one site.
+        compts = nx.connected_components(nx.from_numpy_array(H_LC[0]))
+        number_clusters = 0
+        for comp in compts:
+            if len(comp) > 1: # count only components containing more than one site
+                number_clusters += 1
+        self.assertTrue(number_clusters == 1)
+
+        # An expensive test: check the average size of the max cluster for
+        # a particular value of N and p
+
+        max_sizes_from_H = []
+
+        NR = 20000
+        N = 7
+        p = 0.3
+
+        for _ in range(NR):
+            H = hypergraphs.hypercube_H(N, p)
+            max_size = max([len(comp) for comp in nx.connected_components(nx.from_numpy_array(H))])
+            max_sizes_from_H.append(max_size)
+        
+        max_sizes_from_H_LC = []
+        for _ in range(NR):
+            H_LC = hypergraphs.hypercube_H_LC(N, p)
+            max_sizes_from_H_LC.append(H_LC[1])
+        
+        np.testing.assert_almost_equal(np.mean(max_sizes_from_H_LC), np.mean(max_sizes_from_H), decimal=0)
+    
 
 ###############################
 ##### ANCILLARY FUNCTIONS #####
