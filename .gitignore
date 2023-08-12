@@ -13,5 +13,4 @@ main
 **/__pycache__/
 /**/__pycache__/
 .DS_Store
-/analysis/hypercube_percolation.pdf
 /src/test.c
