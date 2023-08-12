@@ -128,9 +128,9 @@ Note that this plot will take some time to reproduce, as many data points must b
 
 This is just one example: the D. Stauffer & A. Aharony textbook contains many more. 
 
-### Unit tests
+## Unit tests
 
-Included also in analysis/ is a set of unit tests designed to test both the core hypergraphs code, and the functions included in distributions.py. This includes checking properties of the outputs, as well as comparing the code to some analytic results.
+Included in the analysis directory is an extensive set of unit tests within the file `unit_tests.py` designed to test both the core hypergraphs code, and the functions included in distributions.py. This includes checking properties of the outputs, as well as comparing the code to some analytic results.
 
 In the case of the Hamiltonians, we check output against third-party code. For the hypercube, this is NetworkX, and for the PXP model a colleague's Python code.
 
