@@ -70,7 +70,6 @@ static void dijkstra(queue *q, const ul N, const float p, const ul start_site, b
     return;
 
     error:
-        if (!PyErr_Occurred()) PyErr_SetString(PyExc_RuntimeError, "Fatal error in dijkstra()");
         if (distances) free(distances);
         if (q)
         {
@@ -377,7 +376,6 @@ static void grow_H_cluster(const ul N, const float p, ul *size, stack *s, const 
     return;
 
     error:
-        if (!PyErr_Occurred()) PyErr_SetString(PyExc_RuntimeError, "Fatal error in grow_H_cluster()");
         if (numpy_array) Py_DECREF(numpy_array);
         if (s)
         {
@@ -515,7 +513,6 @@ PyObject *hypercube_H_LC(PyObject *self, PyObject *args)
     return result;
 
     error:
-        if (!PyErr_Occurred()) PyErr_SetString(PyExc_RuntimeError, "Fatal error in hypercube_H_SC()");
         if (hamiltonian) Py_DECREF(hamiltonian);
         if (hamiltonian_LC) Py_DECREF(hamiltonian_LC);
         if (labels) free(labels);
@@ -601,7 +598,6 @@ PyObject *hypercube_H_SC(PyObject *self, PyObject *args)
     return result;
 
     error:
-        if (!PyErr_Occurred()) PyErr_SetString(PyExc_RuntimeError, "Fatal error in hypercube_H_SC()");
         if (numpy_array) Py_DECREF(numpy_array);
         if (s)
         {
