@@ -173,3 +173,47 @@ def get_path_lengths_hypercube(N : int, NR : int, p : float, data_path : str):
 
     return data
 
+def get_H_LC_hypercube(N : int, NR : int, p : float, data_path : str):
+    """Attempt to load H LARGEST cluster data, else generate and save it. H is stored
+    as a sparse matrix. Returns: (H,s), where s is the size of the cluster."""
+
+    name = f"H_LC_hypercube_N{N}_NR{NR}_p{p:.4f}.npy"
+
+    try:
+        H_data = np.load(data_path + name, allow_pickle=True)
+    
+    except FileNotFoundError:
+        print(f"Generating data: {name}")
+        H_data = []
+        for _ in range(NR):
+            data = hypergraphs.hypercube_H_LC(N, p)
+            H = spr.csr_matrix(data[0])
+            size = data[1]
+            H_data.append((H, size))
+
+        np.save(data_path + name, H_data)
+
+    return H_data
+
+
+def get_path_lengths_hypercube_LC(N : int, NR : int, p : float, data_path : str):
+    """Attempt to load the distribution of path lengths for the largest cluster in the hypercube. 
+    Otherwise, generate and save the data. Returns:
+    list of length NR, where each element is an array of path lengths, of length
+    equal to the size of the cluster."""
+
+    name = f"paths_hypercube_LC_N{N}_NR{NR}_p{p:.4f}.npy"
+
+    try:
+        data = np.load(data_path + name, allow_pickle=True)
+
+    except FileNotFoundError:
+        print(f"Generating data: {name}")
+        data = []
+        for _ in range(NR):
+            pathlengths = hypergraphs.hypercube_dijkstra_LC(N, p)
+            data.append(pathlengths)
+
+        np.save(data_path + name, data)
+
+    return data

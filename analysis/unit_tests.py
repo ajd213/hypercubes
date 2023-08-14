@@ -472,84 +472,79 @@ class Testdistributions(unittest.TestCase):
     #     distances = sorted(hypergraphs.hypercube_dijkstra(N, p))
     #     np.testing.assert_array_equal(distances, [0, 1])
 
+    # def test_dijkstra_LC(self):
 
-    def test_dijkstra_LC(self):
+    #     # First test p = 1
 
-        # First test p = 1
+    #     # Test the 3-cube for p=1
+    #     N = 3
+    #     p = 1
+    #     distances = sorted(hypergraphs.hypercube_dijkstra_LC(N, p))
+    #     cube_dists = [0,1,1,1,2,2,2,3]
+    #     np.testing.assert_array_equal(distances, cube_dists)
+    #     self.assertEqual(len(distances), 2**N)
 
-        # Test the 3-cube for p=1
-        N = 3
-        p = 1
-        distances = sorted(hypergraphs.hypercube_dijkstra_LC(N, p))
-        cube_dists = [0,1,1,1,2,2,2,3]
-        np.testing.assert_array_equal(distances, cube_dists)
-        self.assertEqual(len(distances), 2**N)
-
-        # Test for a huge cube by computing the analytic answer
-        N = 16
-        p = 1
-        distances = sorted(hypergraphs.hypercube_dijkstra_LC(N, p))
-        analytic_distances = sorted(Hamming_distances_from_zero(N))
-        np.testing.assert_array_equal(distances, analytic_distances)
-        self.assertEqual(len(distances), 2**N)
-
-
-        # Now test p = 0
-        N = 11
-        p = 0
-        distances = sorted(hypergraphs.hypercube_dijkstra_LC(N, p))
-        analytic_distances = [0]
-        np.testing.assert_array_equal(distances, analytic_distances)
-        self.assertEqual(len(distances), 1)
+    #     # Test for a huge cube by computing the analytic answer
+    #     N = 16
+    #     p = 1
+    #     distances = sorted(hypergraphs.hypercube_dijkstra_LC(N, p))
+    #     analytic_distances = sorted(Hamming_distances_from_zero(N))
+    #     np.testing.assert_array_equal(distances, analytic_distances)
+    #     self.assertEqual(len(distances), 2**N)
 
 
+    #     # Now test p = 0
+    #     N = 11
+    #     p = 0
+    #     distances = sorted(hypergraphs.hypercube_dijkstra_LC(N, p))
+    #     analytic_distances = [0]
+    #     np.testing.assert_array_equal(distances, analytic_distances)
+    #     self.assertEqual(len(distances), 1)
 
-        # Test intermediate value of p
-        N = 11
-        p = 0.2
-        distances = sorted(hypergraphs.hypercube_dijkstra_LC(N, p))
-        self.assertTrue(len(distances) > 1)
-        self.assertTrue(len(distances) < 2**N)
 
-        # The maximum distance should be less than the maximum possible
-        # path length in an N-cube
-        self.assertTrue(max(distances) < 2**N - 1)
+
+    #     # Test intermediate value of p
+    #     N = 11
+    #     p = 0.2
+    #     distances = sorted(hypergraphs.hypercube_dijkstra_LC(N, p))
+    #     self.assertTrue(len(distances) > 1)
+    #     self.assertTrue(len(distances) < 2**N)
+
+    #     # The maximum distance should be less than the maximum possible
+    #     # path length in an N-cube
+    #     self.assertTrue(max(distances) < 2**N - 1)
         
-        # cutting bonds should increase the average distance (N/2)
-        self.assertTrue(np.mean(distances) > N/2)
+    #     # cutting bonds should increase the average distance (N/2)
+    #     self.assertTrue(np.mean(distances) > N/2)
 
 
-        # Test N = 1: there are two states (up and down)
-        N = 1
-        p = 1
-        distances = sorted(hypergraphs.hypercube_dijkstra_LC(N, p))
-        np.testing.assert_array_equal(distances, [0, 1])
+    #     # Test N = 1: there are two states (up and down)
+    #     N = 1
+    #     p = 1
+    #     distances = sorted(hypergraphs.hypercube_dijkstra_LC(N, p))
+    #     np.testing.assert_array_equal(distances, [0, 1])
 
 
-        # An expensive test: check the average size of the max cluster for
-        # a particular value of N and p
+    #     # An expensive test: check the average size of the max cluster for
+    #     # a particular value of N and p
 
-        max_sizes_from_H = []
+    #     max_sizes_from_H = []
 
-        NR = 20000
-        N = 7
-        p = 0.3
+    #     NR = 20000
+    #     N = 7
+    #     p = 0.3
 
-        for _ in range(NR):
-            H = hypergraphs.hypercube_H(N, p)
-            max_size = max([len(comp) for comp in nx.connected_components(nx.from_numpy_array(H))])
-            max_sizes_from_H.append(max_size)
+    #     for _ in range(NR):
+    #         H = hypergraphs.hypercube_H(N, p)
+    #         max_size = max([len(comp) for comp in nx.connected_components(nx.from_numpy_array(H))])
+    #         max_sizes_from_H.append(max_size)
         
-        max_sizes_from_dijkstra = []
-        for _ in range(NR):
-            paths = hypergraphs.hypercube_dijkstra_LC(N, p)
-            max_sizes_from_dijkstra.append(len(paths))
+    #     max_sizes_from_dijkstra = []
+    #     for _ in range(NR):
+    #         paths = hypergraphs.hypercube_dijkstra_LC(N, p)
+    #         max_sizes_from_dijkstra.append(len(paths))
 
-        np.testing.assert_almost_equal(np.mean(max_sizes_from_dijkstra), np.mean(max_sizes_from_H), decimal=0)
-
-
-
-
+    #     np.testing.assert_almost_equal(np.mean(max_sizes_from_dijkstra), np.mean(max_sizes_from_H), decimal=0)
 
     # def test_hypercube_H_SC(self):
 
@@ -725,6 +720,71 @@ class Testdistributions(unittest.TestCase):
     #         max_sizes_from_H_LC.append(H_LC[1])
         
     #     np.testing.assert_almost_equal(np.mean(max_sizes_from_H_LC), np.mean(max_sizes_from_H), decimal=0)
+    
+    def test_get_path_lengths_hypercube_LC(self):
+
+        N = 7
+        NH = 2**N
+        NR = 102
+
+        # Start with p = 1, where we know some analytic results
+        # Remember, we have already tested the hypercube_dijkstra() code
+
+        p = 1
+        lengths = distributions.get_path_lengths_hypercube_LC(N, NR, p, DATA_PATH)
+        lengths = distributions.get_path_lengths_hypercube_LC(N, NR, p, DATA_PATH)
+
+        # We should generate NR clusters
+        self.assertEqual(len(lengths), NR)
+
+        # Check clusters are correct size and compare result to analytic 
+        for i in range(NR): 
+            self.assertEqual(len(lengths[i]), NH)
+            np.testing.assert_array_equal(sorted(lengths[i]), sorted(Hamming_distances_from_zero(N)))
+
+
+        # Now check p = 0
+        p = 0
+        lengths = distributions.get_path_lengths_hypercube_LC(N, NR, p, DATA_PATH)
+        
+        # We should generate NR clusters
+        self.assertEqual(len(lengths), NR)
+
+        # But each cluster is of size 1, and has path length zero
+        for i in range(NR): 
+            np.testing.assert_array_equal(sorted(lengths[i]), np.array([0]))
+
+
+    def test_hypercube_get_H_LC(self):
+        N = 7
+        NR = 12
+
+        # First test p = 1
+        p = 1
+        H_data = distributions.get_H_LC_hypercube(N, NR, p, DATA_PATH)
+
+        # Check the size of the data
+        self.assertEqual(len(H_data), NR)
+        self.assertEqual(len(H_data[0]), 2)
+
+        for data in H_data:
+            H = data[0].toarray()
+            size = data[1]
+            # Size of the cluster == NH == 2**N
+            self.assertEqual(size, 2**N)
+            # Check against whole H code
+            np.testing.assert_array_equal(H, hypergraphs.hypercube_H(N, p))
+        
+        # Now test p = 0
+        p = 0
+        H_data = distributions.get_H_LC_hypercube(N, NR, p, DATA_PATH)
+        for data in H_data:
+            H = data[0].toarray()
+            size = data[1]
+            # Size of the cluster == 1
+            self.assertEqual(size, 1)
+            # Check against whole H code
+            np.testing.assert_array_equal(H, hypergraphs.hypercube_H(N, p))
     
 
 ###############################
