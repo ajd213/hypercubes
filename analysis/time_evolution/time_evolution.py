@@ -3,18 +3,18 @@ import os
 import sys
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 import numpy as np
-import gmpy2
+import hypergraphs
 import distributions
 
 DATA_PATH = "/Users/alex/Code/Hypercubes/analysis/data/"
 
 
-def psi_0(vecs, N):
-    """ The starting state |0> in the eigenbasis of the Hamiltonian. """
+def psi_0(vecs, start_site, N):
+    """ The starting state in the eigenbasis of the Hamiltonian. """
     NH = 2**N
 
     psi = np.zeros(NH)
-    psi[0] = 1
+    psi[start_site] = 1
 
     return np.dot(U_T(vecs), psi)
 
@@ -29,24 +29,34 @@ def TE_operator(eigs, t):
     return np.exp(-1j * t * eigs)
 
 
-def Hamming_distances(N):
+def Hamming_distances(N, start_site):
     NH = 2**N
-    return np.fromiter((gmpy2.popcount(i) for i in range(NH)), dtype=np.uint)
+    return np.fromiter((hypergraphs.Hamming_distance(i, start_site) for i in range(NH)), dtype=np.uint)
 
 
-def D(vecs, N):
+def D(vecs, start_site, N):
     """ The Hamming Distance operator in the eigenbasis. """
-    NH = 2**N
-    D_site_basis = np.diag(Hamming_distances(N))
-    
+    D_site_basis = np.diag(Hamming_distances(N, start_site))
     return U_T(vecs) @ D_site_basis @ U(vecs)
 
 
-def HD(eigs, vecs, tlist, N):
+def find_start_site(H, N):
+    # find the first site in H that is connected to something
+    NH = 2**N
+
+    for i in range(NH):
+        if np.sum(H[i,:]) != 0:
+            return i
+    
+    # zero matrix
+    return 0
+
+
+def HD(eigs, vecs, start_site, tlist, N):
     """ Compute the Hamming distance of a time-evolving state,
     given the eigenvalues and eigenvectors of a Hamiltonian. """
-    psi0 = psi_0(vecs, N)
-    D_op = D(vecs, N)
+    psi0 = psi_0(vecs, start_site, N)
+    D_op = D(vecs, start_site, N)
     HDs = np.zeros(len(tlist))
 
     for ti, t in enumerate(tlist):
@@ -59,10 +69,7 @@ def HD(eigs, vecs, tlist, N):
 
 def MHD(N, N_coeff, t_max, NT, NR, log=True):
     """ Attempt to load the MHD data, else generate it (from saved H data) and save it."""
-
     p = N_coeff/N
-    NH = 2**N
-
     name = f"MHD_LC_hypercube_N{N}_NR{NR}_p{p:.4f}_NT{NT}_TMAX{t_max}_LOG{log}.npy"
 
     try:
@@ -81,8 +88,9 @@ def MHD(N, N_coeff, t_max, NT, NR, log=True):
         for di, data in enumerate(H_data):
             print(f"{(di/NR)*100:.3f}% done", end='\r')
             H = data[0].toarray()
+            start_site = find_start_site(H, N)
             eigs, vecs = np.linalg.eigh(H)
-            res += HD(eigs, vecs, tlist, N)
+            res += HD(eigs, vecs, start_site, tlist, N)
 
         res /= NR
         np.save(DATA_PATH + name, res)

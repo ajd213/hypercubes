@@ -31,6 +31,8 @@ class Testeigenstates(unittest.TestCase):
                 print('Failed to delete %s. Reason: %s' % (file_path, e))
 
     def test_U_U_T(self):
+        # Test the unitary operators which take us between the site and eigenbasis
+
         N = 7
         p = 1
         H = hypergraphs.hypercube_H(N, p)
@@ -61,45 +63,64 @@ class Testeigenstates(unittest.TestCase):
         np.testing.assert_array_almost_equal(eigs, diag_H, 6)
 
     def test_psi_0(self):
+        # Test the construction of the initial state
+
         N = 6
         p = 1
 
         H = hypergraphs.hypercube_H(N, p)
         eigs, vecs = np.linalg.eigh(H)
 
-        psi_0 = te.psi_0(vecs, N)
+        psi_0 = te.psi_0(vecs, 37, N)
         self.assertEqual(len(psi_0), 2**N)
 
         # test normalised
         self.assertAlmostEqual(np.vdot(psi_0, psi_0), 1, places=10)
 
+
     def test_psi_t(self):
+
+        # Several tests of the time-evolved state
+
         N = 10
+        NH = 2**N
         p = 1
         H = hypergraphs.hypercube_H(N, p)
         eigs, vecs = np.linalg.eigh(H)
 
-        
+        site = 111
+
         # TE through a time t and check that the state remains normalised
-        psi0 = te.psi_0(vecs, N)
+        psi0 = te.psi_0(vecs, site, N)
         t = 100
         psit = te.psi_t(eigs, psi0, t)
         self.assertAlmostEqual(np.vdot(psit, psit), 1, places=10)
 
+
+        # Check against explicit TE. Convert psi_t back into site basis
+        psi0_explicit = np.zeros(NH)
+        psi0_explicit[site] = 1
+        psit_explicit = la.expm(-1j*H*t) @ psi0_explicit
+        np.testing.assert_array_almost_equal(np.abs(psit_explicit), np.abs(vecs @ psit), decimal=8)
+
+
     def test_D(self):
+
         # For this test, let's perform a calculation in the eigenbasis
         # (using D), and also manually in the site basis.
 
         N = 6
         NH = 2**N
-        p = 1
+        p = 0.7
+        site = 53 # start from some random site
+
         H = hypergraphs.hypercube_H(N, p)
         eigs, vecs = np.linalg.eigh(H)
-        D = te.D(vecs, N)
+        D = te.D(vecs, site, N)
 
 
         # Firstly, we know that the MHD is zero in the start state
-        psi0 = te.psi_0(vecs, N)
+        psi0 = te.psi_0(vecs, site, N)
         MHD = np.vdot(psi0, D @ psi0)
         self.assertAlmostEqual(MHD, 0, places=10)
 
@@ -111,14 +132,15 @@ class Testeigenstates(unittest.TestCase):
         MHD = np.vdot(psit, D @ psit)
 
         psi_0_site_basis = np.zeros(NH)
-        psi_0_site_basis[0] = 1
+        psi_0_site_basis[site] = 1
         psit_exact_site_basis = np.dot(la.expm(-1j * t * H), psi_0_site_basis)
 
         
-        hds = te.Hamming_distances(N)
+        hds = te.Hamming_distances(N, site)
         MHD_exact = np.dot(hds, np.abs(psit_exact_site_basis)**2)
 
         self.assertAlmostEqual(MHD, MHD_exact, places=10)
+
 
     def test_time_evolution(self):
         # Carry out a time evolution in the eigenbasis, and compare to 
@@ -127,22 +149,24 @@ class Testeigenstates(unittest.TestCase):
         # Get one H matrix for a single cluster, as an array
         N = 7
         NH = 2**N
-        p = 0.27
+        p = 0.1
         t = 312.312
         NR = 1
         H = distributions.get_H_LC_hypercube(N, NR, p, DATA_PATH)[0][0].toarray()
         eigs, vecs = np.linalg.eigh(H)
         
+        start_site = te.find_start_site(H, N)
+
         # Compute |\psi(t)> manually in the site basis
         psi_0_site = np.zeros(NH)
-        psi_0_site[0] = 1
+        psi_0_site[start_site] = 1
         psi_t_site = np.dot(la.expm(-1j * t * H), psi_0_site)
 
         # Convert it to the eigenbasis
         psi_t_eigen = np.dot(vecs.conj().T, psi_t_site)
 
         # Now repeat the calculation using the te functions
-        psi_0 = te.psi_0(vecs, N)
+        psi_0 = te.psi_0(vecs, start_site, N)
         psi_t = te.psi_t(eigs, psi_0, t)
 
         # Assert both methods are equal in the eigenbasis
@@ -150,6 +174,17 @@ class Testeigenstates(unittest.TestCase):
 
         # Assert both methods are equal in the site basis
         np.testing.assert_array_almost_equal(psi_t_site, np.dot(vecs, psi_t), decimal=10)
+
+    def test_find_start_state(self):
+        N = 7
+        NH = 2**N
+        site = 66
+        mock_H = np.zeros((NH, NH))
+        mock_H[site, site+1] = 1
+        mock_H[site+1, site] = 1
+
+        index = te.find_start_site(mock_H, N)
+        self.assertEqual(index, site)
 
     def test_HD(self):
         # Test the final calculation: the computation of the Hamming distance for
@@ -159,36 +194,37 @@ class Testeigenstates(unittest.TestCase):
         NH = 2**N
         p = 0.29
         NR = 1
-        H = distributions.get_H_LC_hypercube(N, NR, p, DATA_PATH)[0][0].toarray()
-        eigs, vecs = np.linalg.eigh(H)
-
-        # Get the vector of hamming distances
         tlist = np.linspace(0, 1000, 20)
-        HDs = te.HD(eigs, vecs, tlist, N)
+
+        # Use te and hypergraphs functions to compute HD(tlist)
+        H = hypergraphs.hypercube_H_LC(N, p)[0]
+        start_site = te.find_start_site(H, N)
+        eigs, vecs = np.linalg.eigh(H)
+        HDs = te.HD(eigs, vecs, start_site, tlist, N)
 
         # Do one of them manually, and compare
-        psi0 = te.psi_0(vecs, N)
+        psi0 = te.psi_0(vecs, start_site, N)
         t = tlist[-2]
         psit = te.psi_t(eigs, psi0, t)
-        D = te.D(vecs, N)
+        D = te.D(vecs, start_site, N)
         HD = np.vdot(psit, D @ psit)
 
         np.testing.assert_array_almost_equal(HD, HDs[-2], decimal=10)
 
     def test_MHD(self):
+
+        # Try to test the final product: the mean hamming distance as a function of time
+
         def exact_MHD_hypercube(N, tlist):
-            p = 1
             """Exact expression for the MHD at p = 1"""
             mhd = np.zeros(len(tlist))
-
             for j in range(1, N+1):
-                term = np.power(p, j)* j * np.power(np.cos(tlist), 2*(N-j)) * np.power(np.sin(tlist), 2*j) * comb(N, j, exact=True)
+                term = j * np.power(np.cos(tlist), 2*(N-j)) * np.power(np.sin(tlist), 2*j) * comb(N, j, exact=True)
                 mhd += term
             
             return mhd
         
         # FIRST TEST: compare MHD with exact analytic expression at p = 1
-
         N = 7
         NT = 20
         t_max = 10**6
@@ -206,6 +242,7 @@ class Testeigenstates(unittest.TestCase):
 
         # SECOND TEST: p = 0
         data = te.MHD(N, 0, t_max, NT, NR)
+        np.testing.assert_array_equal(data, np.zeros(NT))
 
 
 if __name__ == "__main__":
