@@ -77,7 +77,6 @@ class Testeigenstates(unittest.TestCase):
         # test normalised
         self.assertAlmostEqual(np.vdot(psi_0, psi_0), 1, places=10)
 
-
     def test_psi_t(self):
 
         # Several tests of the time-evolved state
@@ -102,7 +101,6 @@ class Testeigenstates(unittest.TestCase):
         psi0_explicit[site] = 1
         psit_explicit = la.expm(-1j*H*t) @ psi0_explicit
         np.testing.assert_array_almost_equal(np.abs(psit_explicit), np.abs(vecs @ psit), decimal=8)
-
 
     def test_D(self):
 
@@ -140,7 +138,6 @@ class Testeigenstates(unittest.TestCase):
         MHD_exact = np.dot(hds, np.abs(psit_exact_site_basis)**2)
 
         self.assertAlmostEqual(MHD, MHD_exact, places=10)
-
 
     def test_time_evolution(self):
         # Carry out a time evolution in the eigenbasis, and compare to 
@@ -212,7 +209,6 @@ class Testeigenstates(unittest.TestCase):
         np.testing.assert_array_almost_equal(HD, HDs[-2], decimal=10)
 
     def test_MHD(self):
-
         # Try to test the final product: the mean hamming distance as a function of time
 
         def exact_MHD_hypercube(N, tlist):

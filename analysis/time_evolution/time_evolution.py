@@ -1,4 +1,5 @@
-""" Functions to analyse the dynamical properties of the hypercube at percolation concentration p"""
+""" Functions to analyse the dynamical properties of the largest cluster in a hypercube at percolation concentration p"""
+
 import os
 import sys
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
@@ -26,10 +27,12 @@ def psi_t(eigs, psi0, t):
 
 
 def TE_operator(eigs, t):
+    """ The time evolution operator in the eigenbasis of the hamiltonian """
     return np.exp(-1j * t * eigs)
 
 
 def Hamming_distances(N, start_site):
+    """ Construct an array of Hamming distances w.r.t. a given starting site """
     NH = 2**N
     return np.fromiter((hypergraphs.Hamming_distance(i, start_site) for i in range(NH)), dtype=np.uint)
 
@@ -41,7 +44,7 @@ def D(vecs, start_site, N):
 
 
 def find_start_site(H, N):
-    # find the first site in H that is connected to something
+    """ Search for the first state we can find that is in the cluster """
     NH = 2**N
 
     for i in range(NH):

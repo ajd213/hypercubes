@@ -11,10 +11,10 @@ plt.rcParams.update({'font.size': 18})
 plt.rcParams.update({'text.usetex': True})
 
 def main():
-    plot_MHD_long_t()
+    plot_MHD()
 
 
-def plot_MHD_long_t():
+def plot_MHD():
     fig, ax = plt.subplots(nrows=2, ncols=3, figsize=[12, 8], sharex=True, sharey=True)
     ax = ax.flatten()
     props = dict(boxstyle='round', facecolor='white', alpha=0)
@@ -38,9 +38,7 @@ def plot_MHD_long_t():
     else:
         tlist = np.linspace(0, tmax, NT)
 
-    ###################################
-    ########## PLOTS FOR p<1 ##########
-    ###################################
+    # Do the plots for different values of p
 
     for Nci, N_coeff in enumerate(N_coeff_list):
         axis = ax[Nci]
@@ -67,7 +65,6 @@ def plot_MHD_long_t():
     ax[3].set_xlabel(r"$t$")
     ax[4].set_xlabel(r"$t$")
     ax[5].set_xlabel(r"$t$")
-    ax[0].set_ylabel(r"$\mathrm{MHD}$")
     ax[0].set_ylabel(r"$\mathrm{MHD}$")
     ax[3].set_ylabel(r"$\mathrm{MHD}$")
 
