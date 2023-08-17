@@ -122,11 +122,15 @@ Next, we loop over $N$ and generate and plot the mean cluster size
 ```
 The function `s_with_p(N, NR, plist)` simply fetches the mean cluster size S and the maximum cluster size for each value of $N$, returning two Numpy arrays. 
 
-In the [sample output](https://github.com/ajd213/hypercubes/blob/master/analysis/EXAMPLE_percolation_transition.pdf), we plot the mean size $S$ and the maximum value of $s$ against $p$, and also against $pN$. The plot of $S/N_\mathcal{H}$ against $pN$ (with $N_\mathcal{H}=2^N$ the number of nodes in the graph) reveals most clearly the location of the transition at $pN=1$. We find that for small $p$, $S/N_\mathcal{H}$ is very small, as the average cluster size is a vanishing fraction of the total number of nodes. For $pN>1$, on the other hand, we are in the percolating phase and hence the largest cluster contains a finite fraction of the total number of nodes. $S/N_\mathcal{H}$ is therefore non-zero and increases to $1$ as $p\to 1$. The transition point between these two regimes is represented by a black dashed line at $pN=1$, and becomes sharper as $N$ is increased.
+In the [sample output](https://github.com/ajd213/hypercubes/blob/master/analysis/transition/EXAMPLE_percolation_transition.pdf), we plot the mean size $S$ and the maximum value of $s$ against $p$, and also against $pN$. The plot of $S/N_\mathcal{H}$ against $pN$ (with $N_\mathcal{H}=2^N$ the number of nodes in the graph) reveals most clearly the location of the transition at $pN=1$. We find that for small $p$, $S/N_\mathcal{H}$ is very small, as the average cluster size is a vanishing fraction of the total number of nodes. For $pN>1$, on the other hand, we are in the percolating phase and hence the largest cluster contains a finite fraction of the total number of nodes. $S/N_\mathcal{H}$ is therefore non-zero and increases to $1$ as $p\to 1$. The transition point between these two regimes is represented by a black dashed line at $pN=1$, and becomes sharper as $N$ is increased.
 
 Note that this plot will take some time to reproduce, as many data points must be generated. By lowering the value of NR and the maximum value of $N$, results can be obtained much quicker (due to the exponential scaling with $N$)!
 
-This is just one example: the D. Stauffer & A. Aharony textbook contains many more. 
+### Further examples
+
+More useful examples are provided in the folders `analysis/time_evolution` and `analysis/path_lengths`. These scripts are concerned with the behaviour of the largest cluster in a percolation hypercube. Specifically, in how states time evolve within this cluster, and what the distributions of shortest path lengths between sites in the cluster look like.
+
+In both cases, the `DATA_PATH` variable needs to be changed to a folder on your machine where you would like to store the data associated with these calculations. This ensures that the data need not be recalculated every time the plot is adjusted, or if more data is added to the same plot.
 
 ## Unit tests
 
