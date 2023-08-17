@@ -14,12 +14,18 @@ def main():
 
 
 def plot_MHD():
+    """ For different values of a, where p = a/N, plot the Mean Hamming Distance (MHD) as a function
+    of time, for a wavefunction initially localised to a single site within the biggest cluster of
+    the disorder realisation. """
+
     fig, ax = plt.subplots(nrows=2, ncols=3, figsize=[12, 8], sharex=True, sharey=True)
     ax = ax.flatten()
     props = dict(boxstyle='round', facecolor='white', alpha=0)
 
     # System sizes to use
     Nlist = np.array([8, 10, 12])
+
+    # Colours for the plots
     clist = (Nlist - Nlist[0])/(Nlist[-1] - Nlist[0])
     colours = plt.cm.viridis_r(clist)
 
@@ -38,7 +44,6 @@ def plot_MHD():
         tlist = np.linspace(0, tmax, NT)
 
     # Do the plots for different values of p
-
     for Nci, N_coeff in enumerate(N_coeff_list):
         axis = ax[Nci]
         axis.semilogx()
@@ -56,19 +61,15 @@ def plot_MHD():
             mean_hd = te.MHD(N, N_coeff_list[Nci], tmax, NT, NR, log)
             axis.plot(tlist, mean_hd, 'o-', c=colours[Ni], label=f"${N}$")
 
-    # labels etc
-
+    # labels, adjustments, etc
     ax[0].set_yticks([2,3,4,6])
     ax[0].set_yticklabels(["$2$", " ", "$4$", "$6$"])
-
     ax[3].set_xlabel(r"$t$")
     ax[4].set_xlabel(r"$t$")
     ax[5].set_xlabel(r"$t$")
     ax[0].set_ylabel(r"$\mathrm{MHD}$")
     ax[3].set_ylabel(r"$\mathrm{MHD}$")
-
     ax[0].legend(loc=[0.6, 0.2], ncol=2, handlelength=0.2, columnspacing=0.5, handletextpad=0.2, framealpha=0)
-
     plt.subplots_adjust(right=0.99, top=0.99, left=0.05, bottom=0.08, wspace=0.05, hspace=0.05)
 
     plt.savefig("time_evolution.pdf")
