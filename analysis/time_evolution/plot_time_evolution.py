@@ -1,8 +1,6 @@
 import time_evolution as te
-import distributions
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.ticker import ScalarFormatter, FormatStrFormatter
 
 DATA_PATH = "/Users/alex/Code/Hypercubes/analysis/data/"
 
