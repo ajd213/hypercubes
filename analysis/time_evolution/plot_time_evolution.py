@@ -2,6 +2,7 @@ import time_evolution as te
 import numpy as np
 import matplotlib.pyplot as plt
 
+# EDIT THIS PATH TO WHERE YOU'D LIKE TO STORE THE DATA
 DATA_PATH = "/Users/alex/Code/Hypercubes/analysis/data/"
 
 # set font size and enable LaTeX
